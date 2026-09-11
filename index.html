@@ -101,6 +101,7 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 .tag.eclipse{background:transparent;color:var(--foso);border-color:var(--foso);}
 .tag.coronacion{background:transparent;color:var(--bisagra);border-color:var(--bisagra);}
 .tag.done{background:transparent;color:var(--cima);border-color:var(--cima);}
+.tag.reward{color:var(--zc,var(--ink-soft));border-color:var(--zc,var(--hair));font-weight:600;}
 .code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1.5rem;letter-spacing:.22em;font-weight:700;}
 
 /* ===== PORTADA ===== */
@@ -238,7 +239,31 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 
 /* ===== BANNERS Y PANELES ===== */
 .banner{background:var(--surface-2);border:1px solid var(--hair);border-radius:3px;padding:11px 14px;font-size:.85rem;line-height:1.5;}
-.banner.action{background:transparent;border-color:var(--accent);border-left-width:3px;}
+.banner.action{
+  background:var(--accent);color:#fff;border-color:var(--accent);border-left-width:3px;
+  font-weight:700;font-size:.92rem;animation:bannerPulse 1.6s ease-out 1;
+}
+@keyframes bannerPulse{
+  0%{box-shadow:0 0 0 0 rgba(0,0,0,.22);}
+  70%{box-shadow:0 0 0 12px rgba(0,0,0,0);}
+  100%{box-shadow:0 0 0 0 rgba(0,0,0,0);}
+}
+.toast-layer{
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;gap:6px;z-index:9999;
+  align-items:center;max-width:92vw;pointer-events:none;
+}
+.toast{
+  background:#191813;color:#f5f3ec;border-radius:20px;
+  padding:7px 14px;font-size:.78rem;font-weight:600;line-height:1.35;
+  display:flex;align-items:center;gap:8px;max-width:440px;
+  box-shadow:0 6px 18px rgba(0,0,0,.28);
+  animation:toastIn .28s cubic-bezier(.2,.9,.25,1) both;
+}
+.toast.out{animation:toastOut .32s ease-in both;}
+.toast-icon{font-size:.95rem;line-height:1;}
+@keyframes toastIn{from{opacity:0;transform:translateY(-10px) scale(.96);}to{opacity:1;transform:none;}}
+@keyframes toastOut{from{opacity:1;}to{opacity:0;transform:translateY(-6px) scale(.97);}}
 .modal-inline{background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--ink);border-radius:3px;padding:13px 15px;margin-top:11px;}
 .choice-row{border:1px solid var(--line);border-radius:3px;padding:10px;margin-top:9px;background:var(--surface);}
 .stall{border:1px solid var(--bisagra);border-left-width:3px;background:var(--surface);border-radius:3px;padding:13px 15px;margin-bottom:15px;}
@@ -368,9 +393,17 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 /* ===== PANEL DE JUGAR CARTA ===== */
 .play-panel{border:1px solid var(--ink);border-radius:4px;background:var(--surface);padding:15px;margin-top:12px;}
 .play-head{display:flex;gap:15px;align-items:flex-start;margin-bottom:14px;}
-.play-preview{width:66px;height:90px;font-size:1.35rem;flex:0 0 66px;cursor:default;}
+.play-preview{width:66px;height:90px;font-size:1.35rem;flex:0 0 66px;position:relative;}
+.flip-card{cursor:pointer;transition:transform .15s ease;}
+.flip-card:active{transform:scale(.96);}
+.flip-badge{
+  position:absolute;right:-7px;bottom:-7px;width:23px;height:23px;border-radius:50%;
+  background:var(--surface);border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;
+  font-size:.74rem;box-shadow:0 1px 4px rgba(0,0,0,.18);
+}
 .play-info{flex:1;min-width:0;}
-.ori-toggle{display:flex;gap:0;}
+.play-mode{font-size:.86rem;font-weight:700;}
+.play-mode .small{font-weight:400;}
 .play-effect{
   display:flex;gap:9px;align-items:flex-start;margin-top:11px;
   font-size:.79rem;line-height:1.5;color:var(--ink-soft);
@@ -378,9 +411,6 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 }
 .pe-glyph{flex:0 0 20px;color:var(--seat,var(--ink));opacity:.75;}
 .pe-glyph .cglyph{width:20px;height:20px;}
-.ori-toggle button{border-radius:0;flex:1;}
-.ori-toggle button:first-child{border-radius:3px 0 0 3px;}
-.ori-toggle button:last-child{border-radius:0 3px 3px 0;margin-left:-1px;}
 .play-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);margin-bottom:8px;}
 .zone-picker{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
 @media (max-width:520px){.zone-picker{grid-template-columns:1fr;}}
@@ -836,6 +866,110 @@ function themeToggle(){
   const b = el('<button class="theme-btn" title="Cambiar entre claro y oscuro">'+(theme==='claro'?'◐ Oscuro':'◑ Claro')+'</button>');
   b.onclick = ()=>setTheme(theme==='claro'?'oscuro':'claro');
   return b;
+}
+
+/* ===================== SONIDO (sintetizado, sin archivos) ===================== */
+let soundOn = true;
+try{ soundOn = localStorage.getItem('4zonas:sound') !== 'off'; }catch(e){}
+let audioCtx = null;
+function ensureAudio(){
+  if(!soundOn) return null;
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; }
+  }
+  if(audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
+  return audioCtx;
+}
+function playTone(freq, dur, type, gainMax){
+  const ctx = ensureAudio();
+  if(!ctx) return;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = type||'sine';
+  osc.frequency.value = freq;
+  osc.connect(g); g.connect(ctx.destination);
+  const t0 = ctx.currentTime;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(gainMax||0.1, t0+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0+(dur||0.16));
+  osc.start(t0); osc.stop(t0+(dur||0.16)+0.03);
+}
+const LOG_SOUND = {
+  jugar:   ()=>playTone(560,.09,'sine',.07),
+  ataque:  ()=>playTone(190,.13,'square',.09),
+  activar: ()=>{ playTone(440,.16,'triangle',.08); setTimeout(()=>playTone(660,.2,'triangle',.08),90); },
+  cambio:  ()=>{ playTone(500,.07,'triangle',.06); setTimeout(()=>playTone(720,.09,'triangle',.06),60); },
+  purga:   ()=>playTone(260,.22,'sawtooth',.07),
+  zona:    ()=>playTone(600,.14,'sine',.08),
+  umbral:  ()=>playTone(520,.08,'sine',.06),
+  ronda:   ()=>{ playTone(392,.16,'sine',.08); setTimeout(()=>playTone(523,.2,'sine',.08),110); },
+  sala:    ()=>playTone(480,.07,'sine',.05),
+  fin:     ()=>{ [392,523,659,784].forEach((f,i)=>setTimeout(()=>playTone(f,.28,'sine',.09), i*110)); },
+  turno:   ()=>playTone(700,.1,'sine',.09),
+};
+function soundToggle(){
+  const b = el('<button class="theme-btn" title="Silenciar sonidos">'+(soundOn?'♪ Sonido':'♪ Silencio')+'</button>');
+  b.onclick = ()=>{
+    soundOn = !soundOn;
+    try{ localStorage.setItem('4zonas:sound', soundOn?'on':'off'); }catch(e){}
+    if(soundOn) ensureAudio();
+    repaint();
+  };
+  return b;
+}
+
+/* ===================== NOTIFICACIONES FLOTANTES (toasts) =====================
+   Viven fuera de #app porque #app se reconstruye entero en cada repintado y
+   borraría cualquier toast en curso. */
+function ensureToastLayer(){
+  let layer = document.getElementById('toast-layer');
+  if(!layer){
+    layer = document.createElement('div');
+    layer.id = 'toast-layer';
+    layer.className = 'toast-layer';
+    document.body.appendChild(layer);
+  }
+  return layer;
+}
+function showToast(icon, text, kind){
+  const layer = ensureToastLayer();
+  const t = document.createElement('div');
+  t.className = 'toast'+(kind?(' k-'+kind):'');
+  t.innerHTML = '<span class="toast-icon">'+escapeHtml(icon||'·')+'</span><span>'+formatLogText(text)+'</span>';
+  layer.appendChild(t);
+  while(layer.children.length>3) layer.removeChild(layer.firstElementChild);
+  setTimeout(()=>{
+    t.classList.add('out');
+    setTimeout(()=>{ if(t.parentNode) t.parentNode.removeChild(t); }, 320);
+  }, 2600);
+}
+/* Compara el log y el turno actual con lo último que vimos, y dispara toasts
+   y sonidos solo para lo nuevo. Se llama una vez por repintado real (paint()
+   ya solo se ejecuta cuando el estado cambia de verdad). */
+let lastLoggedCount = null;
+let lastWaitingId = null;
+function processNewEvents(g){
+  if(!g) return;
+  const total = (g.log||[]).length;
+  if(lastLoggedCount===null || total < lastLoggedCount){
+    lastLoggedCount = total; // primera carga o partida nueva: no bombardeamos con el histórico
+  } else if(total > lastLoggedCount){
+    g.log.slice(lastLoggedCount).forEach(line=>{
+      showToast(line.i, line.t, line.k);
+      if(LOG_SOUND[line.k]) LOG_SOUND[line.k]();
+    });
+    lastLoggedCount = total;
+  }
+  if(g.status==='playing'){
+    const w = waitingOn(g);
+    const wid = w ? w.id : null;
+    if(wid!==lastWaitingId){
+      if(wid===myId && lastWaitingId!==null) LOG_SOUND.turno();
+      lastWaitingId = wid;
+    }
+  } else {
+    lastWaitingId = null;
+  }
 }
 
 /* ===================== SEGUIMIENTO PARA ANIMACIONES =====================
@@ -2623,10 +2757,16 @@ async function resolveCurrentZone(){
   g.resolveStep+=1;
   if(g.resolveStep>=ZONE_ORDER.length){
     // Las cartas se quedan en la mesa durante el mantenimiento para poder comentar
-    // los resultados; se retiran al pulsar "Siguiente ronda" / "Terminar partida".
+    // los resultados; se retiran al pasar de ronda. En la última ronda no hace
+    // falta esperar un clic extra: se pasa directo al resultado final.
     g.phase='mantenimiento';
     preparePendingMaintenance(g);
     addLog(g,'ronda','Resueltas las cuatro zonas de la ronda '+g.round+'.');
+    if(g.round>=4){
+      await writeGame(g);
+      await nextRoundOrEnd();
+      return;
+    }
   } else {
     prepareUmbralChoicesIfNeeded(g);
   }
@@ -2790,6 +2930,7 @@ function repaint(){ lastSignature = null; render(); }
 function paint(){
   const root = document.getElementById('app');
   applyTheme(root);
+  if(game) processNewEvents(game);
   root.innerHTML='';
   if(errorMsg){
     const box = el('<div class="banner" style="border:1px solid var(--danger);"></div>');
@@ -2908,7 +3049,7 @@ function renderRulesPanel(){
     return box;
   }
 
-  box.appendChild(el('<p class="rules-intro">4 Zonas se juega en <strong>4 rondas</strong>. En cada una, todos colocan cartas —a la vista o en secreto— sobre las cuatro zonas con reglas distintas. Después puedes atacar las cartas de los demás para eliminarlas de la zona, pero cuidado con las cartas trampa. Gana quien más <strong>Prestigio</strong> haya acumulado al terminar la cuarta ronda.</p>'));
+  box.appendChild(el('<p class="rules-intro">4 Zonas se juega en <strong>4 rondas</strong>. En cada una, todos colocan cartas —a la vista o en secreto— sobre cuatro zonas con reglas distintas, y luego pueden atacar las cartas de los demás antes de que cada zona reparta su premio. Gana quien más <strong>Prestigio</strong> haya acumulado al terminar la cuarta ronda.</p>'));
 
   box.appendChild(el('<h3>Lo básico</h3>'));
   const basics = el('<div class="fact-grid"></div>');
@@ -2924,8 +3065,11 @@ function renderRulesPanel(){
     basics.appendChild(c);
   });
   box.appendChild(basics);
-  box.appendChild(el('<p class="small">Todas las casas juegan con el mismo mazo de 12 cartas: del 2 al 9, más J, Q, K y As. La diferencia está en qué enseñas, qué callas y cuándo atacas.</p>'));
+  box.appendChild(el('<p class="small">Todas las casas juegan con el mismo mazo de 12 cartas: del 2 al 9, más J, Q, K y As (el 10 no se usa). No hay poderes distintos entre jugadores: la diferencia está en qué enseñas, qué callas y cuándo atacas.</p>'));
 
+  box.appendChild(el('<h3>El orden de turno</h3>'));
+  box.appendChild(el('<p>La primera ronda se sortea. A partir de ahí lo marca el Prestigio acumulado: <strong>quien más tiene abre la ronda</strong>, y quien menos tiene juega último. Abrir es una desventaja, porque enseñas tus intenciones antes que nadie y los demás colocan sabiendo lo que has hecho.</p>'));
+  box.appendChild(el('<p class="small">Si dos o más casas empatan a Prestigio, solo se invierte el orden entre ellas respecto a la ronda anterior; el resto no se mueve. Por ejemplo, si la ronda pasada el orden fue Ana → Bruno → Carla, y ahora Ana y Bruno están empatados, se invierten entre sí: juega Bruno antes que Ana. El orden que se fija al principio de la ronda se mantiene durante todas sus fases: jugar cartas, atacar y resolver.</p>'));
 
   box.appendChild(el('<h3>Cómo va una ronda</h3>'));
   const fases = el('<div class="steps"></div>');
@@ -2941,36 +3085,42 @@ function renderRulesPanel(){
   box.appendChild(fases);
 
   box.appendChild(el('<h3>A la vista o en secreto</h3>'));
-  box.appendChild(el('<p>Cada vez que juegas una carta eliges cómo colocarla. <strong>A la vista</strong>, todos ven su valor exacto y ese es el valor con el que compite. <strong>En secreto</strong>, boca abajo, cada zona le aplica un modificador fijo a las cartas boca abajo, siempre a tu favor, cuando llegue el momento de resolverla:</p>'));
+  box.appendChild(el('<p>Cada vez que juegas una carta eliges cómo colocarla. <strong>A la vista</strong>, todos ven su valor exacto y ese es el valor con el que compite: sin sorpresas, pero también sin margen. <strong>En secreto</strong>, boca abajo, nadie —ni tú mismo al mirar la mesa después— puede volver a consultarla hasta que se revele; a cambio, cada zona le aplica un modificador fijo, siempre a tu favor, cuando llegue el momento de resolverla:</p>'));
   box.appendChild(renderModTable());
-  box.appendChild(el('<p class="small">Jugar en secreto casi siempre mejora tu valor final, pero cualquier carta boca abajo puede ser descartada de un solo ataque. Es la tensión central del juego: cuanto más callas, mejor compites, pero más expuesto quedas.</p>'));
+  box.appendChild(el('<p class="small">Jugar en secreto casi siempre mejora tu valor final, pero mientras siga oculta cualquiera puede atacarla y tirarla abajo de un solo golpe. Es la tensión central del juego: cuanto más callas, mejor compites, pero más expuesto quedas.</p>'));
 
   box.appendChild(el('<h3>Las cuatro zonas</h3>'));
-  box.appendChild(el('<p>Se resuelven siempre en el mismo orden —Bisagra, Umbral, Cima y Foso— y cada una mide a los jugadores de una forma distinta. Quien se lleva Bisagra recibe además una ficha de Ataque extra y la <strong>ventaja de desempate</strong> para el resto de la ronda (más abajo, en «Empates»).</p>'));
+  box.appendChild(el('<p>Se resuelven siempre en el mismo orden —Bisagra, Umbral, Cima y Foso— y cada una mide a los jugadores de una forma distinta. Quien se lleva la Bisagra recibe además una ficha de Ataque extra y la <strong>ventaja de desempate</strong> para el resto de la ronda (más abajo, en «Empates»).</p>'));
   box.appendChild(renderZoneHelp());
+  box.appendChild(el('<p class="small">Puedes jugar más de una carta tuya en la misma zona (salvo en la Bisagra, que admite un máximo de dos cartas en total, sean de quien sean). En Cima y en Foso, si dos de tus propias cartas acaban con el mismo valor final, se anulan entre sí y ninguna de las dos cuenta para ganar la zona.</p>'));
 
   box.appendChild(el('<h3>Las cartas especiales</h3>'));
   box.appendChild(el('<p>La J, la Q, la K y el As valen <strong>5</strong> de base, como una carta normal. Su habilidad solo se activa en la circunstancia exacta que se indica a continuación; en cualquier otro caso, cuentan simplemente como un 5 con el modificador de la zona donde estén.</p>'));
   box.appendChild(renderCardHelp());
 
-  box.appendChild(el('<h3>El orden de turno</h3>'));
-  box.appendChild(el('<p>La primera ronda se sortea. A partir de ahí lo marca el Prestigio acumulado: <strong>quien más tiene abre la ronda</strong>, y quien menos tiene juega último. En caso de empate se invierte el orden de la ronda anterior.</p>'));
-  
   box.appendChild(el('<h3>Los Ataques</h3>'));
   const atk = el('<ul class="help-list"></ul>');
   [
-    'Empiezas la partida con <strong>3 fichas de Ataque</strong>.',
-    'En tu turno de ataque puedes gastar tantas fichas como quieras, contra cartas de otros jugadores.',
-    'Atacar una carta <strong>boca abajo</strong> la revela y se descarta al momento… salvo que resulte ser una K o un As, en cuyo caso su habilidad se activa en tu contra en vez de caer.',
-    'Atacar una carta <strong>boca arriba</strong> la daña y hacen falta 2 golpes para descartarla. Puedes dar ambos golpes tú mismo, seguidos, en tu propio turno.',
+    'Empiezas la partida con <strong>3 fichas de Ataque</strong> y no se reponen por ronda: las que no gastes se conservan para la siguiente. El único modo de ganar más es llevarte la Bisagra.',
+    'En tu turno de ataque puedes gastar tantas fichas como quieras, una detrás de otra, contra cartas de otros jugadores —nunca contra las tuyas—. En cuanto decides pasar, no puedes volver a atacar en lo que queda de ronda.',
+    'Atacar una carta <strong>boca abajo</strong> cuesta 1 ficha: se revela y se descarta al momento… salvo que resulte ser una K o un As, en cuyo caso su habilidad se activa en tu contra en vez de caer.',
+    'Atacar una carta <strong>boca arriba</strong> cuesta 1 ficha por golpe y hacen falta 2 golpes para descartarla: el primero solo la deja marcada. Puedes dar ambos golpes tú mismo, seguidos, en tu propio turno.',
+    'Una carta descartada se queda visible sobre la mesa, para que todos sepan qué cayó, pero deja de contar para ganar la zona.'
   ].forEach(t=> atk.appendChild(el('<li>'+t+'</li>')));
   box.appendChild(atk);
 
   box.appendChild(el('<h3>Empates</h3>'));
-  box.appendChild(el('<p>Cuando varias cartas comparten el mejor resultado de una zona, sus dueños quedan <strong>excluidos</strong> de esa resolución y el premio pasa al siguiente mejor resultado que no esté empatado. Si hasta el último candidato queda excluido por empates sucesivos, la zona se queda desierta: nadie gana ni recibe nada. Si uno de los jugadores empatados se llevó la Bisagra esta misma ronda, esa ventaja rompe el empate a su favor de inmediato. Este desempate por Bisagra también favorece el final de la partida por Prestigio</p>'));
+  box.appendChild(el('<p>Cuando varias cartas comparten el mejor resultado de una zona, sus dueños quedan <strong>excluidos</strong> de esa resolución y el premio pasa al siguiente mejor resultado que no esté empatado. Si hasta el último candidato queda excluido por empates sucesivos, la zona se queda desierta: nadie gana ni recibe nada.</p>'));
+  const empates = el('<ul class="help-list"></ul>');
+  [
+    'Si el empate es entre cartas de <strong>dos jugadores distintos</strong>, y uno de ellos se llevó la Bisagra esta misma ronda, esa ventaja rompe el empate a su favor de inmediato.',
+    'Si el empate es entre <strong>dos cartas del mismo jugador</strong> (por ejemplo, sus dos cartas en Cima valen igual), no hay carta alta ni baja que valga: ambas quedan fuera y la ventaja de Bisagra no lo rescata, porque no hay nada que desempatar.',
+    'En la Bisagra, si las dos cartas en juego terminan con el mismo valor, no hay ni carta alta ni carta baja que gane: la zona queda desierta directamente.'
+  ].forEach(t=> empates.appendChild(el('<li>'+t+'</li>')));
+  box.appendChild(empates);
 
   box.appendChild(el('<h3>Fin de la partida</h3>'));
-  box.appendChild(el('<p>La partida termina en cuanto se resuelve el Foso de la cuarta ronda. Gana quien tenga más Prestigio acumulado. Si dos o más casas empatan en el primer puesto, si alguna de ellas se llevó la Bisagra en esa última ronda, gana la partida gracias a esa ventaja; si no, las empatadas quedan excluidas y el título pasa a la siguiente puntuación más alta que no esté empatada. Si absolutamente todas las casas terminan igualadas, la partida acaba sin ganador.</p>'));
+  box.appendChild(el('<p>La partida termina en cuanto se resuelve el Foso de la cuarta ronda. Gana quien tenga más Prestigio acumulado. Si dos o más casas empatan en el primer puesto, se aplica la misma lógica que en cualquier otro empate: si alguna de ellas se llevó la Bisagra en esa última ronda, gana la partida gracias a esa ventaja; si no, las empatadas quedan excluidas y el título pasa a la siguiente puntuación más alta que no esté empatada. Si absolutamente todas las casas terminan igualadas, la partida acaba sin ganador.</p>'));
 
   return box;
 }
@@ -3276,6 +3426,7 @@ function renderGame(){
   titleBox.appendChild(el('<h1>4 Zonas</h1>'));
   titleBox.appendChild(el('<div class="small">Ronda '+g.round+' de 4 · Sala '+g.roomCode+' · '+phaseLabel(g)+'</div>'));
   titleBox.appendChild(themeToggle());
+  titleBox.appendChild(soundToggle());
   const helpBtn = el('<button class="secondary small-btn" style="margin-top:6px;">Ver cartas y zonas</button>');
   helpBtn.onclick = ()=>{ helpOpen = !helpOpen; render(); };
   titleBox.appendChild(helpBtn);
@@ -3629,6 +3780,11 @@ function renderZone(g, zk){
   const titleWrap = el('<div class="zone-title"></div>');
   titleWrap.appendChild(el(ZONE_ICON[zk]));
   titleWrap.appendChild(el('<h2>'+ZONE_LABEL[zk]+'</h2>'));
+  const rw = ZONE_REWARD[zk];
+  const rwParts = ['+'+rw.prestige+' Prestigio'];
+  if(rw.token) rwParts.push('+'+rw.token+' Ataque');
+  if(zk==='bisagra') rwParts.push('desempate');
+  titleWrap.appendChild(el('<span class="tag reward" title="Recompensa de esta zona">'+rwParts.join(' · ')+'</span>'));
   const fl = (g.zoneFlags && g.zoneFlags[zk]) || {};
   const nuevaMarca = zoneFlagAnim(g, zk);
   if(fl.eclipse){
@@ -3829,19 +3985,16 @@ function renderPlayPanel(g, card){
   const panel = el('<div class="play-panel"></div>');
 
   const head = el('<div class="play-head"></div>');
-  const prev = el('<div class="card play-preview '+seatClass(g,myId)+(isSpecial(card.value)?' special':'')+(abajo?' back':'')+'"></div>');
+  const prev = el('<div class="card play-preview flip-card '+seatClass(g,myId)+(isSpecial(card.value)?' special':'')+(abajo?' back':'')+'" title="Toca la carta para jugarla '+(abajo?'a la vista':'en secreto')+'"></div>');
   prev.appendChild(el('<div class="cface">'+(abajo ? '<span class="val">?</span>' : cardFaceHTML(card.value))+'</div>'));
   if(!abajo && isSpecial(card.value)) prev.appendChild(el(weightBadge(card.value)));
+  prev.appendChild(el('<span class="flip-badge">'+(abajo?'🙈':'👁')+'</span>'));
+  prev.onclick = ()=>{ ui.orientation = abajo ? 'up' : 'down'; render(); };
   head.appendChild(prev);
 
   const info = el('<div class="play-info"></div>');
-  const ori = el('<div class="ori-toggle"></div>');
-  const upB = el('<button class="'+(abajo?'secondary':'')+'">A la vista</button>');
-  upB.onclick = ()=>{ ui.orientation='up'; render(); };
-  const dnB = el('<button class="'+(abajo?'':'secondary')+'">En secreto</button>');
-  dnB.onclick = ()=>{ ui.orientation='down'; render(); };
-  ori.appendChild(upB); ori.appendChild(dnB);
-  info.appendChild(ori);
+  info.appendChild(el('<div class="play-mode">'+(abajo ? 'En secreto' : 'A la vista')
+    +' <span class="small">— toca la carta para '+(abajo?'mostrarla':'ocultarla')+'</span></div>'));
   const sp = SPECIAL_PLAY[String(card.value)];
   if(sp){
     const nota = el('<div class="play-effect"></div>');
