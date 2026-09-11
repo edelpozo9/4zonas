@@ -1090,6 +1090,59 @@ function bisagraScore(g, botId, base){
   return gano ? 1 : 0;
 }
 
+/* Diferencia de Prestigio entre el bot y el mejor rival. Negativo = va por detrás. */
+function ventajaPrestigio(g, botId){
+  let mejorRival = -Infinity;
+  g.players.forEach(p=>{ if(p.id!==botId) mejorRival = Math.max(mejorRival, g.prestige[p.id]||0); });
+  if(mejorRival===-Infinity) return 0;
+  return (g.prestige[botId]||0) - mejorRival;
+}
+/* Multiplicador de cautela a partir de esa diferencia: >1 = juega más sobre
+   seguro (va ganando, no quiere arriesgar la ventaja), <1 = se permite más
+   riesgo (va perdiendo, un juego "seguro" no le va a remontar la partida). */
+function cautela(g, botId){
+  const dif = ventajaPrestigio(g, botId);
+  return Math.max(0.55, Math.min(1.5, 1 + dif*0.06));
+}
+
+/* Cuánto podría mejorar el bot su opción de ganar esta zona SI, más adelante en
+   la misma ronda, usa una de sus fichas de ataque libres para descartar la
+   carta rival que más le estorba aquí. No es una búsqueda completa (no reparte
+   fichas entre varias zonas a la vez), pero evita el error de descartar una
+   zona como "perdida" solo porque ahora mismo hay una carta rival fuerte. */
+function potencialAtaqueEnZona(g, botId, zk){
+  const fichas = g.tokens[botId]||0;
+  if(fichas<=0) return 0;
+  const flags = (g.zoneFlags && g.zoneFlags[zk]) || {};
+  if(flags.eclipse) return 0;
+  const rivales = liveCards(g, zk).filter(e=>e.card.owner!==botId);
+  if(!rivales.length) return 0;
+
+  const antes = zoneWinProb(g, zk, botId);
+  let mejorGanancia = 0;
+  rivales.forEach(e=>{
+    // Coste en fichas de quitarla: 1 si está oculta (revela y cae), 2 si está a
+    // la vista y aún no marcada, 1 si ya tiene un golpe encima.
+    const coste = e.faceUp ? (e.attackedOnce ? 1 : 2) : 1;
+    if(coste > fichas) return;
+    e.discarded = true;
+    const conEsta = zoneWinProb(g, zk, botId);
+    e.discarded = false;
+    let ganancia = Math.max(0, conEsta - antes);
+    if(!e.faceUp){
+      // Si está oculta podría ser K o As: atacarla no garantiza nada, y en el
+      // peor de los casos le regala la zona al rival.
+      const pK = probEsValor(g, e.card.owner, ['K']);
+      const pA = probEsValor(g, e.card.owner, ['A']);
+      ganancia *= Math.max(0, 1 - pK - pA);
+    }
+    if(ganancia > mejorGanancia) mejorGanancia = ganancia;
+  });
+  // Es un plan, no una jugada segura: se descuenta porque compite con otros
+  // usos posibles de esas mismas fichas más adelante en la ronda.
+  return mejorGanancia * 0.55;
+}
+
 /* Puntúa jugar una carta concreta en una zona, a la vista o en secreto. */
 function scorePlay(g, botId, card, zk, oculta){
   const base = baseValue(card.value);
@@ -1117,6 +1170,10 @@ function scorePlay(g, botId, card, zk, oculta){
     }
     score += (despues - antes) * worth;
 
+    // No descartes una zona solo porque ahora mismo la va ganando un rival:
+    // si aún tienes fichas, cuenta también lo que podrías arreglar atacando.
+    score += potencialAtaqueEnZona(g, botId, zk) * worth;
+
     // Empate consigo mismo: dos cartas propias del mismo valor se anulan
     if(zk==='cima' || zk==='foso'){
       const miVal = estVal(zk, base, oculta);
@@ -1133,22 +1190,35 @@ function scorePlay(g, botId, card, zk, oculta){
   // --- Cartas especiales: su valor está en el efecto, no en el número ---
   if(val==='K'){
     if(oculta){
-      // Solo sirve si la atacan: mejor cebo donde no ganarías de otra forma
-      const amenaza = rivalTokens(g, botId) > 0 ? 1 : 0.15;
-      const mia = zoneWinProb(g, zk, botId);
-      score += worth * (0.45 + 0.5*(1-mia)) * amenaza;
+      // Si ya tengo un As mío oculto en esta zona, jugar la K aquí es
+      // contraproducente: si revelan las dos, Eclipse anula la Coronación.
+      const asPropioOculto = liveCards(g, zk).some(e=>e.card.owner===botId && !e.faceUp && e.card.value==='A');
+      if(asPropioOculto){
+        score -= worth + 1.5;
+      } else {
+        // Solo sirve si la atacan: mejor cebo donde no ganarías de otra forma
+        const amenaza = rivalTokens(g, botId) > 0 ? 1 : 0.15;
+        const mia = zoneWinProb(g, zk, botId);
+        score += worth * (0.45 + 0.5*(1-mia)) * amenaza;
+      }
     } else {
       score -= 1.4;                                // a la vista es una carta muerta
     }
   } else if(val==='A'){
     if(oculta){
-      const amenaza = rivalTokens(g, botId) > 0 ? 1 : 0.15;
-      // Lo que niega el As es lo que un rival iba a llevarse: cuanto más
-      // encarrilada tenga un rival la zona, más daño hace ponerlo ahí.
-      const mia = zoneWinProb(g, zk, botId);
-      const rivalCerca = 1 - mia;
-      score += worth * rivalCerca * 0.9 * amenaza;
-      score -= mia * worth * 0.5;                  // no te sabotees a ti mismo
+      // Mismo conflicto al revés: mi propia K oculta aquí quedaría anulada.
+      const kPropiaOculta = liveCards(g, zk).some(e=>e.card.owner===botId && !e.faceUp && e.card.value==='K');
+      if(kPropiaOculta){
+        score -= worth + 1.5;
+      } else {
+        const amenaza = rivalTokens(g, botId) > 0 ? 1 : 0.15;
+        // Lo que niega el As es lo que un rival iba a llevarse: cuanto más
+        // encarrilada tenga un rival la zona, más daño hace ponerlo ahí.
+        const mia = zoneWinProb(g, zk, botId);
+        const rivalCerca = 1 - mia;
+        score += worth * rivalCerca * 0.9 * amenaza;
+        score -= mia * worth * 0.5;                // no te sabotees a ti mismo
+      }
     } else {
       score -= 1.4;
     }
@@ -1171,7 +1241,9 @@ function scorePlay(g, botId, card, zk, oculta){
   // --- Riesgo de jugar en secreto ---
   if(oculta && !isSpecial(val)){
     const fichas = Math.min(rivalTokens(g, botId), 4);
-    score -= fichas * 0.11;                        // un solo ataque la tumba
+    // Si va por detrás en Prestigio se arriesga más de buena gana; si va por
+    // delante, prefiere no exponerse.
+    score -= fichas * 0.11 * cautela(g, botId);
   }
 
   // --- Economía de mano: no malgastar los extremos ---
@@ -1267,7 +1339,10 @@ function botChooseAttack(g, botId){
   if(!mejor) return null;
   // Las fichas no se reponen, pero guardarlas hasta el final tampoco vale nada:
   // cuanto más avanza la partida, menos exigente se pone.
-  const umbral = g.round>=4 ? -0.04 : (g.round===3 ? 0.1 : 0.3);
+  const base = g.round>=4 ? -0.04 : (g.round===3 ? 0.1 : 0.3);
+  // Quien va por detrás en Prestigio ataca con menos garantías; quien va por
+  // delante prefiere no arriesgar fichas ni destapar cartas rivales sin necesidad.
+  const umbral = base + (cautela(g, botId)-1)*0.25;
   if(mejor.score <= umbral) return null;
   const validas = candidatos.filter(o=>o.score > umbral);
   return eligeEntreParecidas(validas, 0.3);
