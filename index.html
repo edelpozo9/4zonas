@@ -2909,7 +2909,7 @@ function renderRulesPanel(){
     return box;
   }
 
-  box.appendChild(el('<p class="rules-intro">4 Zonas se juega en <strong>4 rondas</strong>. En cada una, todos colocan cartas —a la vista o en secreto— sobre cuatro zonas con reglas distintas, y luego pueden atacar las cartas de los demás antes de que cada zona reparta su premio. Gana quien más <strong>Prestigio</strong> haya acumulado al terminar la cuarta ronda.</p>'));
+  box.appendChild(el('<p class="rules-intro">4 Zonas se juega en <strong>4 rondas</strong>. En cada una, todos colocan cartas —a la vista o en secreto— sobre las cuatro zonas con reglas distintas. Después puedes atacar las cartas de los demás para eliminarlas de la zona, pero cuidado con las cartas trampa. Gana quien más <strong>Prestigio</strong> haya acumulado al terminar la cuarta ronda.</p>'));
 
   box.appendChild(el('<h3>Lo básico</h3>'));
   const basics = el('<div class="fact-grid"></div>');
@@ -2925,11 +2925,8 @@ function renderRulesPanel(){
     basics.appendChild(c);
   });
   box.appendChild(basics);
-  box.appendChild(el('<p class="small">Todas las casas juegan con el mismo mazo de 12 cartas: del 2 al 9, más J, Q, K y As (el 10 no se usa). No hay poderes distintos entre jugadores: la diferencia está en qué enseñas, qué callas y cuándo atacas.</p>'));
+  box.appendChild(el('<p class="small">Todas las casas juegan con el mismo mazo de 12 cartas: del 2 al 9, más J, Q, K y As. La diferencia está en qué enseñas, qué callas y cuándo atacas.</p>'));
 
-  box.appendChild(el('<h3>El orden de turno</h3>'));
-  box.appendChild(el('<p>La primera ronda se sortea. A partir de ahí lo marca el Prestigio acumulado: <strong>quien más tiene abre la ronda</strong>, y quien menos tiene juega último. Abrir es una desventaja, porque enseñas tus intenciones antes que nadie y los demás colocan sabiendo lo que has hecho.</p>'));
-  box.appendChild(el('<p class="small">Si dos o más casas empatan a Prestigio, solo se invierte el orden entre ellas respecto a la ronda anterior; el resto no se mueve. Por ejemplo, si la ronda pasada el orden fue Ana → Bruno → Carla, y ahora Ana y Bruno están empatados, se invierten entre sí: juega Bruno antes que Ana. El orden que se fija al principio de la ronda se mantiene durante todas sus fases: jugar cartas, atacar y resolver.</p>'));
 
   box.appendChild(el('<h3>Cómo va una ronda</h3>'));
   const fases = el('<div class="steps"></div>');
@@ -2945,42 +2942,36 @@ function renderRulesPanel(){
   box.appendChild(fases);
 
   box.appendChild(el('<h3>A la vista o en secreto</h3>'));
-  box.appendChild(el('<p>Cada vez que juegas una carta eliges cómo colocarla. <strong>A la vista</strong>, todos ven su valor exacto y ese es el valor con el que compite: sin sorpresas, pero también sin margen. <strong>En secreto</strong>, boca abajo, nadie —ni tú mismo al mirar la mesa después— puede volver a consultarla hasta que se revele; a cambio, cada zona le aplica un modificador fijo, siempre a tu favor, cuando llegue el momento de resolverla:</p>'));
+  box.appendChild(el('<p>Cada vez que juegas una carta eliges cómo colocarla. <strong>A la vista</strong>, todos ven su valor exacto y ese es el valor con el que compite. <strong>En secreto</strong>, boca abajo, cada zona le aplica un modificador fijo a las cartas boca abajo, siempre a tu favor, cuando llegue el momento de resolverla:</p>'));
   box.appendChild(renderModTable());
-  box.appendChild(el('<p class="small">Jugar en secreto casi siempre mejora tu valor final, pero mientras siga oculta cualquiera puede atacarla y tirarla abajo de un solo golpe. Es la tensión central del juego: cuanto más callas, mejor compites, pero más expuesto quedas.</p>'));
+  box.appendChild(el('<p class="small">Jugar en secreto casi siempre mejora tu valor final, pero cualquier carta boca abajo puede ser descartada de un solo ataque. Es la tensión central del juego: cuanto más callas, mejor compites, pero más expuesto quedas.</p>'));
 
   box.appendChild(el('<h3>Las cuatro zonas</h3>'));
-  box.appendChild(el('<p>Se resuelven siempre en el mismo orden —Bisagra, Umbral, Cima y Foso— y cada una mide a los jugadores de una forma distinta. Quien se lleva la Bisagra recibe además una ficha de Ataque extra y la <strong>ventaja de desempate</strong> para el resto de la ronda (más abajo, en «Empates»).</p>'));
+  box.appendChild(el('<p>Se resuelven siempre en el mismo orden —Bisagra, Umbral, Cima y Foso— y cada una mide a los jugadores de una forma distinta. Quien se lleva Bisagra recibe además una ficha de Ataque extra y la <strong>ventaja de desempate</strong> para el resto de la ronda (más abajo, en «Empates»).</p>'));
   box.appendChild(renderZoneHelp());
-  box.appendChild(el('<p class="small">Puedes jugar más de una carta tuya en la misma zona (salvo en la Bisagra, que admite un máximo de dos cartas en total, sean de quien sean). En Cima y en Foso, si dos de tus propias cartas acaban con el mismo valor final, se anulan entre sí y ninguna de las dos cuenta para ganar la zona.</p>'));
 
   box.appendChild(el('<h3>Las cartas especiales</h3>'));
   box.appendChild(el('<p>La J, la Q, la K y el As valen <strong>5</strong> de base, como una carta normal. Su habilidad solo se activa en la circunstancia exacta que se indica a continuación; en cualquier otro caso, cuentan simplemente como un 5 con el modificador de la zona donde estén.</p>'));
   box.appendChild(renderCardHelp());
 
+  box.appendChild(el('<h3>El orden de turno</h3>'));
+  box.appendChild(el('<p>La primera ronda se sortea. A partir de ahí lo marca el Prestigio acumulado: <strong>quien más tiene abre la ronda</strong>, y quien menos tiene juega último. En caso de empate se invierte el orden de la ronda anterior.</p>'));
+  
   box.appendChild(el('<h3>Los Ataques</h3>'));
   const atk = el('<ul class="help-list"></ul>');
   [
-    'Empiezas la partida con <strong>3 fichas de Ataque</strong> y no se reponen por ronda: las que no gastes se conservan para la siguiente. El único modo de ganar más es llevarte la Bisagra.',
-    'En tu turno de ataque puedes gastar tantas fichas como quieras, una detrás de otra, contra cartas de otros jugadores —nunca contra las tuyas—. En cuanto decides pasar, no puedes volver a atacar en lo que queda de ronda.',
-    'Atacar una carta <strong>boca abajo</strong> cuesta 1 ficha: se revela y se descarta al momento… salvo que resulte ser una K o un As, en cuyo caso su habilidad se activa en tu contra en vez de caer.',
-    'Atacar una carta <strong>boca arriba</strong> cuesta 1 ficha por golpe y hacen falta 2 golpes para descartarla: el primero solo la deja marcada. Puedes dar ambos golpes tú mismo, seguidos, en tu propio turno.',
-    'Una carta descartada se queda visible sobre la mesa, para que todos sepan qué cayó, pero deja de contar para ganar la zona.'
+    'Empiezas la partida con <strong>3 fichas de Ataque</strong>.',
+    'En tu turno de ataque puedes gastar tantas fichas como quieras, contra cartas de otros jugadores.',
+    'Atacar una carta <strong>boca abajo</strong> la revela y se descarta al momento… salvo que resulte ser una K o un As, en cuyo caso su habilidad se activa en tu contra en vez de caer.',
+    'Atacar una carta <strong>boca arriba</strong> la daña y hacen falta 2 golpes para descartarla. Puedes dar ambos golpes tú mismo, seguidos, en tu propio turno.',
   ].forEach(t=> atk.appendChild(el('<li>'+t+'</li>')));
   box.appendChild(atk);
 
   box.appendChild(el('<h3>Empates</h3>'));
-  box.appendChild(el('<p>Cuando varias cartas comparten el mejor resultado de una zona, sus dueños quedan <strong>excluidos</strong> de esa resolución y el premio pasa al siguiente mejor resultado que no esté empatado. Si hasta el último candidato queda excluido por empates sucesivos, la zona se queda desierta: nadie gana ni recibe nada.</p>'));
-  const empates = el('<ul class="help-list"></ul>');
-  [
-    'Si el empate es entre cartas de <strong>dos jugadores distintos</strong>, y uno de ellos se llevó la Bisagra esta misma ronda, esa ventaja rompe el empate a su favor de inmediato.',
-    'Si el empate es entre <strong>dos cartas del mismo jugador</strong> (por ejemplo, sus dos cartas en Cima valen igual), no hay carta alta ni baja que valga: ambas quedan fuera y la ventaja de Bisagra no lo rescata, porque no hay nada que desempatar.',
-    'En la Bisagra, si las dos cartas en juego terminan con el mismo valor, no hay ni carta alta ni carta baja que gane: la zona queda desierta directamente.'
-  ].forEach(t=> empates.appendChild(el('<li>'+t+'</li>')));
-  box.appendChild(empates);
+  box.appendChild(el('<p>Cuando varias cartas comparten el mejor resultado de una zona, sus dueños quedan <strong>excluidos</strong> de esa resolución y el premio pasa al siguiente mejor resultado que no esté empatado. Si hasta el último candidato queda excluido por empates sucesivos, la zona se queda desierta: nadie gana ni recibe nada. Si uno de los jugadores empatados se llevó la Bisagra esta misma ronda, esa ventaja rompe el empate a su favor de inmediato. Este desempate por Bisagra también favorece el final de la partida por Prestigio</p>'));
 
   box.appendChild(el('<h3>Fin de la partida</h3>'));
-  box.appendChild(el('<p>La partida termina en cuanto se resuelve el Foso de la cuarta ronda. Gana quien tenga más Prestigio acumulado. Si dos o más casas empatan en el primer puesto, se aplica la misma lógica que en cualquier otro empate: si alguna de ellas se llevó la Bisagra en esa última ronda, gana la partida gracias a esa ventaja; si no, las empatadas quedan excluidas y el título pasa a la siguiente puntuación más alta que no esté empatada. Si absolutamente todas las casas terminan igualadas, la partida acaba sin ganador.</p>'));
+  box.appendChild(el('<p>La partida termina en cuanto se resuelve el Foso de la cuarta ronda. Gana quien tenga más Prestigio acumulado. Si dos o más casas empatan en el primer puesto, si alguna de ellas se llevó la Bisagra en esa última ronda, gana la partida gracias a esa ventaja; si no, las empatadas quedan excluidas y el título pasa a la siguiente puntuación más alta que no esté empatada. Si absolutamente todas las casas terminan igualadas, la partida acaba sin ganador.</p>'));
 
   return box;
 }
