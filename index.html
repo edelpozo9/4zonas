@@ -4042,7 +4042,7 @@ function renderHand(g){
       +(sel?' selected':'')+(myTurn?' clickable':'')+(abajo?' back':'')+handAnim(card)
       +'" style="animation-delay:'+(idx*70)+'ms"></div>');
     c.appendChild(el('<div class="cface">'+(abajo ? '<span class="val">?</span>' : cardFaceHTML(card.value))+'</div>'));
-    if(!abajo) c.appendChild(el(weightBadge(card.value)));
+    if(!abajo && isSpecial(card.value)) c.appendChild(el(weightBadge(card.value)));
     if(myTurn){
       c.onclick = ()=>{
         if(sel){ ui.selectedHandCard = null; }
