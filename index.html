@@ -17,7 +17,7 @@
   --ink:#191813; --ink-soft:#6e6a5f; --ink-faint:#a4a094;
   --line:#dcd8cc; --hair:#e8e5db;
   --bisagra:#a8792f; --umbral:#456682; --cima:#2f6a52; --foso:#75456a;
-  --accent:#2f6a52; --danger:#a03a28;
+  --accent:#2f6a52; --accent-rgb:47,106,82; --danger:#a03a28;
   --t0:#eaf2ed; --t1:#e9eff5; --t2:#f7f0e2; --t3:#f4ecf2;
   --shadow:0 1px 0 rgba(25,24,19,.05), 0 8px 22px -14px rgba(25,24,19,.30);
   --shadow-lift:0 2px 0 rgba(25,24,19,.06), 0 16px 34px -18px rgba(25,24,19,.45);
@@ -28,7 +28,7 @@
   --ink:#ecebe4; --ink-soft:#9b988e; --ink-faint:#6b6860;
   --line:#33363d; --hair:#2a2d33;
   --bisagra:#d0a253; --umbral:#7ea6c8; --cima:#5eb08c; --foso:#c087b3;
-  --accent:#5eb08c; --danger:#e07f6b;
+  --accent:#5eb08c; --accent-rgb:94,176,140; --danger:#e07f6b;
   --t0:#1a2620; --t1:#19222b; --t2:#272018; --t3:#251d24;
   --shadow:0 1px 0 rgba(0,0,0,.4), 0 10px 26px -16px rgba(0,0,0,.9);
   --shadow-lift:0 2px 0 rgba(0,0,0,.5), 0 18px 40px -18px rgba(0,0,0,1);
@@ -75,7 +75,7 @@ button:disabled{opacity:.32;cursor:not-allowed;}
 .small-btn{padding:6px 12px;font-size:.76rem;}
 .theme-btn{
   float:right;background:transparent;color:var(--ink-soft);border-color:var(--hair);
-  padding:5px 11px;font-size:.72rem;
+  padding:5px 11px;font-size:.72rem;min-width:98px;text-align:center;
 }
 
 input{
@@ -232,22 +232,23 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 .zone-result{margin-top:12px;padding-top:11px;border-top:1px solid var(--hair);}
 .res-win{display:flex;align-items:center;gap:7px;font-size:.9rem;color:var(--seat,var(--ink));flex-wrap:wrap;}
 .res-mark{font-size:.95rem;}
-.res-gain{font-size:.7rem;font-weight:600;color:var(--ink-soft);letter-spacing:.02em;}
+.res-gain{
+  font-size:.78rem;font-weight:800;color:#fff;letter-spacing:.02em;
+  background:var(--seat,var(--accent));padding:3px 10px;border-radius:20px;
+  animation:gainPop .5s cubic-bezier(.2,.9,.25,1) .25s both;
+}
 .res-none{font-size:.86rem;font-weight:600;color:var(--ink-faint);letter-spacing:.03em;}
 .res-why{font-size:.73rem;color:var(--ink-soft);line-height:1.5;margin-top:5px;}
 .res-adv{font-size:.71rem;font-weight:700;color:var(--bisagra);margin-top:5px;letter-spacing:.03em;}
 
 /* ===== BANNERS Y PANELES ===== */
 .banner{background:var(--surface-2);border:1px solid var(--hair);border-radius:3px;padding:11px 14px;font-size:.85rem;line-height:1.5;}
-.banner.action{
-  background:var(--accent);color:#fff;border-color:var(--accent);border-left-width:3px;
-  font-weight:700;font-size:.92rem;animation:bannerPulse 1.6s ease-out 1;
+.banner.action{background:transparent;border-color:var(--accent);border-left-width:3px;font-weight:600;}
+@keyframes handTurnPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(var(--accent-rgb),0);}
+  50%{box-shadow:0 0 0 7px rgba(var(--accent-rgb),.28);}
 }
-@keyframes bannerPulse{
-  0%{box-shadow:0 0 0 0 rgba(0,0,0,.22);}
-  70%{box-shadow:0 0 0 12px rgba(0,0,0,0);}
-  100%{box-shadow:0 0 0 0 rgba(0,0,0,0);}
-}
+.panel.my-turn{animation:handTurnPulse 1.3s ease-in-out 3;border-color:var(--accent);}
 .toast-layer{
   position:fixed;top:14px;left:50%;transform:translateX(-50%);
   display:flex;flex-direction:column;gap:6px;z-index:9999;
@@ -495,15 +496,16 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 }
 /* La J mueve una carta de zona: viaje marcado, con giro y estela */
 @keyframes swapTravel{
-  0%{opacity:0;transform:translateX(-34px) rotate(-16deg) scale(.82);}
-  45%{opacity:1;transform:translateX(6px) rotate(7deg) scale(1.1);}
-  70%{transform:translateX(-3px) rotate(-3deg) scale(1.02);}
+  0%{opacity:0;transform:translateX(-60px) translateY(-10px) rotate(-22deg) scale(.7);}
+  35%{opacity:1;transform:translateX(10px) translateY(2px) rotate(9deg) scale(1.14);}
+  60%{transform:translateX(-5px) rotate(-4deg) scale(1.05);}
+  80%{transform:translateX(2px) rotate(2deg) scale(1.01);}
   100%{opacity:1;transform:none;}
 }
-.anim-swap{animation:swapTravel .72s cubic-bezier(.2,.8,.25,1) both;z-index:2;}
+.anim-swap{animation:swapTravel 1.35s cubic-bezier(.2,.8,.25,1) both;z-index:2;}
 .anim-swap::after{
   content:'⇄';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-size:1.5rem;color:var(--umbral);animation:fxFade .8s ease-out both;pointer-events:none;
+  font-size:1.5rem;color:var(--umbral);animation:fxFade 1.4s ease-out both;pointer-events:none;
 }
 /* La Q barre el estrato: la carta se desintegra hacia arriba */
 @keyframes purgeSweep{
@@ -516,6 +518,14 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
   content:'✖';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-size:1.35rem;color:var(--foso);animation:fxFade .9s ease-out both;pointer-events:none;
 }
+@keyframes zonePurgeFlash{
+  0%{background-color:transparent;transform:none;}
+  15%{background-color:rgba(var(--accent-rgb),.12);transform:translateX(-2px);}
+  30%{transform:translateX(2px);}
+  45%{transform:translateX(-1px);}
+  100%{background-color:transparent;transform:none;}
+}
+.zone.zone-purged{animation:zonePurgeFlash .9s ease-out both;}
 /* K y As al descubierto: la carta despierta con un destello */
 @keyframes awaken{
   0%{transform:rotateY(90deg) scale(.9);box-shadow:none;}
@@ -948,6 +958,11 @@ function showToast(icon, text, kind){
    ya solo se ejecuta cuando el estado cambia de verdad). */
 let lastLoggedCount = null;
 let lastWaitingId = null;
+/* Solo estos tipos de evento generan notificación flotante + sonido; el resto
+   (jugar carta, mensajes de sala, elegir modificador de Umbral) quedan en el
+   registro de la partida pero no interrumpen con un aviso — si no, con varios
+   bots jugando la pantalla se llena de avisos por cada cartita. */
+const TOAST_KINDS = {ataque:1, activar:1, cambio:1, purga:1, zona:1, ronda:1, fin:1};
 function processNewEvents(g){
   if(!g) return;
   const total = (g.log||[]).length;
@@ -955,6 +970,7 @@ function processNewEvents(g){
     lastLoggedCount = total; // primera carga o partida nueva: no bombardeamos con el histórico
   } else if(total > lastLoggedCount){
     g.log.slice(lastLoggedCount).forEach(line=>{
+      if(!TOAST_KINDS[line.k]) return;
       showToast(line.i, line.t, line.k);
       if(LOG_SOUND[line.k]) LOG_SOUND[line.k]();
     });
@@ -1664,7 +1680,7 @@ function maybeRunBots(){
       }
     }catch(err){ /* si falla, el siguiente sondeo lo reintenta */ }
     botBusy = false;
-  }, 850);
+  }, 1450);
 }
 
 /* Añadir una IA a la sala (solo el anfitrión, y solo antes de empezar). */
@@ -2642,7 +2658,7 @@ async function resolveCurrentZone(){
   // siguen aplicando aunque la carta se descarte después con ataques o la mueva una J.
   let entries = todasVivas;
   if(flags.eclipse){
-    reasonText = 'Un As al descubierto ha dejado el estrato en entredicho. La zona no se adjudica.';
+    reasonText = 'Un As se ha revelado: la zona no se adjudica a nadie.';
   } else {
     const coronationOwners = [...new Set(flags.coronation || [])];
     let coronaResuelta = false;
@@ -2650,14 +2666,14 @@ async function resolveCurrentZone(){
       if(coronationOwners.length===1){
         winner = coronationOwners[0];
         coronaResuelta = true;
-        reasonText = 'La K de '+nameOf(g,winner)+' quedó al descubierto: un nombre que nadie discute se lleva la zona.';
+        reasonText = 'La K de '+nameOf(g,winner)+' se ha revelado: gana la zona directamente.';
       } else if(g.bisagraAdvantage && coronationOwners.includes(g.bisagraAdvantage)){
         winner = g.bisagraAdvantage; viaAdvantage = true; coronaResuelta = true;
-        reasonText = 'Varias K al descubierto, pero '+nameOf(g,winner)+' controla la Bisagra y se lleva la zona.';
+        reasonText = 'Varias K se han revelado; gana '+nameOf(g,winner)+' por controlar la Bisagra.';
       } else {
         // Se anulan entre sí: quedan fuera y la zona se resuelve entre los demás.
         excluidos = coronationOwners.slice();
-        prefacio = 'Las K de '+listar(coronationOwners.map(id=>nameOf(g,id)))+' se anulan entre sí y quedan fuera del reparto. ';
+        prefacio = 'Las K de '+listar(coronationOwners.map(id=>nameOf(g,id)))+' se anulan entre sí y quedan fuera. ';
       }
     }
     if(excluidos.length) entries = todasVivas.filter(e=>excluidos.indexOf(e.card.owner)<0);
@@ -2668,26 +2684,26 @@ async function resolveCurrentZone(){
         reasonText = sinCartas || 'No se jugó ninguna carta en la Bisagra.';
       } else if(entries.length===1){
         winner = entries[0].card.owner;
-        reasonText = 'Única carta en juego: se lleva la Bisagra sin oposición.';
+        reasonText = 'Solo hay una carta: se lleva la zona sin oposición.';
       } else if(entries.length===2){
         const [c1,c2] = entries;
         const v1=finalValue('bisagra',c1), v2=finalValue('bisagra',c2);
         if(v1===v2){
           reasonText = c1.card.owner===c2.card.owner
-            ? 'Dos cartas de la misma casa con idéntico valor ('+v1+'): sin carta alta ni baja, la Bisagra queda desierta.'
-            : 'Ambas cartas valen '+v1+'. Empate sin desempate posible: la Bisagra queda desierta.';
+            ? 'Sus dos cartas valen igual ('+v1+'): no hay alta ni baja, la zona queda desierta.'
+            : 'Ambas cartas valen '+v1+': empate sin desempate posible, la zona queda desierta.';
         } else if(c1.card.owner===c2.card.owner){
           const par = (v1+v2)%2===0;
           winner = c1.card.owner;
-          reasonText = 'Ambas cartas son de la misma casa (suma '+(v1+v2)+', '+(par?'par':'impar')+'), que se lleva la Bisagra sin disputa.';
+          reasonText = 'Sus dos cartas suman '+(v1+v2)+' ('+(par?'par':'impar')+'): se lleva la zona sin disputa.';
         } else {
           const sum=v1+v2;
           const par = sum%2===0;
           winner = par ? (v1>v2?c1:c2).card.owner : (v1<v2?c1:c2).card.owner;
-          reasonText = 'Suma '+sum+', '+(par?'par':'impar')+': la Bisagra se inclina hacia la carta '+(par?'más alta, el '+Math.max(v1,v2):'más baja, el '+Math.min(v1,v2))+'.';
+          reasonText = 'Suma '+sum+' ('+(par?'par':'impar')+'): gana la carta más '+(par?'alta, el '+Math.max(v1,v2):'baja, el '+Math.min(v1,v2))+'.';
         }
       } else {
-        reasonText = 'La Bisagra no admite más de dos cartas. Queda desierta.';
+        reasonText = 'Solo puede haber dos cartas en la Bisagra: la zona queda desierta.';
       }
     } else if(zoneKey==='umbral'){
       if(entries.length===0){
@@ -2700,11 +2716,11 @@ async function resolveCurrentZone(){
           .join(' · ');
         let candidates = Object.entries(sums).filter(([id,s])=>s<=11).map(([id,s])=>({owner:id,value:s}));
         if(candidates.length===0){
-          reasonText = detalle+'. Todas las casas se exceden de 11: nadie cruza el Umbral.';
+          reasonText = detalle+'. Todos se pasan de 11: nadie gana.';
         } else {
           const r = resolveMaxMinCascade(candidates,'max', g.bisagraAdvantage);
           winner = r.winner; viaAdvantage = r.viaAdvantage;
-          reasonText = detalle+'. '+(winner ? sums[winner]+' es la medida más ajustada a 11 sin excederse.' : 'Empate irresoluble: el Umbral queda desierto.');
+          reasonText = detalle+'. '+(winner ? 'Gana quien más se acerca a 11 sin pasarse: '+sums[winner]+'.' : 'Empate sin desempate: la zona queda desierta.');
         }
       }
     } else if(zoneKey==='cima'){
@@ -2714,7 +2730,7 @@ async function resolveCurrentZone(){
         const cards = entries.map(e=>({owner:e.card.owner, value:finalValue('cima',e)}));
         const r = resolveMaxMinCascade(cards,'max', g.bisagraAdvantage);
         winner = r.winner; viaAdvantage = r.viaAdvantage;
-        reasonText = winner ? 'Suya es la carta más alta de la Cima.' : 'Los empates se anulan y nadie queda por encima del resto: la Cima no reconoce a nadie.';
+        reasonText = winner ? 'Tiene la carta más alta de la zona.' : 'Los empates se anulan entre sí: nadie queda por encima.';
       }
     } else if(zoneKey==='foso'){
       if(entries.length===0){
@@ -2723,7 +2739,7 @@ async function resolveCurrentZone(){
         const cards = entries.map(e=>({owner:e.card.owner, value:finalValue('foso',e)}));
         const r = resolveMaxMinCascade(cards,'min', g.bisagraAdvantage);
         winner = r.winner; viaAdvantage = r.viaAdvantage;
-        reasonText = winner ? 'Suya es la carta más discreta del Foso.' : 'Los empates se anulan y nadie queda por debajo del resto: el Foso no reconoce a nadie.';
+        reasonText = winner ? 'Tiene la carta más baja de la zona.' : 'Los empates se anulan entre sí: nadie queda por debajo.';
       }
     }
   }
@@ -3774,7 +3790,8 @@ function renderBanner(g){
 function renderZone(g, zk){
   const resolved = !!(g.resolvedZones && g.resolvedZones[zk]);
   const resolvingNow = g.phase==='resolver' && ZONE_ORDER[g.resolveStep]===zk;
-  const zone = el('<div class="zone '+zk+(resolvingNow?' resolving':'')+(resolved?' resolved':'')+'"></div>');
+  const purgedNow = g.zones[zk].some(e => cardAnim(e, zk).indexOf('anim-purge')>=0);
+  const zone = el('<div class="zone '+zk+(resolvingNow?' resolving':'')+(resolved?' resolved':'')+(purgedNow?' zone-purged':'')+'"></div>');
 
   const head = el('<div class="zone-head"></div>');
   const titleWrap = el('<div class="zone-title"></div>');
@@ -4028,7 +4045,8 @@ function renderPlayPanel(g, card){
 }
 
 function renderHand(g){
-  const box = el('<div class="panel stack" style="gap:10px;"></div>');
+  const myTurnGlobal = g.phase==='jugar' && currentPlayTurnPlayer(g)===myId && !swapMode();
+  const box = el('<div class="panel stack'+(myTurnGlobal?' my-turn':'')+'" style="gap:10px;"></div>');
   box.appendChild(el('<h2>Tu mano</h2>'));
   if(swapMode()){
     box.appendChild(el('<p>Has jugado una <strong>J</strong>: elige en el tablero las <strong>dos cartas</strong> que quieres intercambiar. Tienen que estar en <strong>zonas distintas</strong>, y una de ellas puede ser la propia J.</p>'));
