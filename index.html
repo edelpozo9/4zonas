@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>4 Zonas</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23191813'/%3E%3Crect x='4' y='4' width='11' height='11' rx='2' fill='%23a8792f'/%3E%3Crect x='17' y='4' width='11' height='11' rx='2' fill='%23456682'/%3E%3Crect x='4' y='17' width='11' height='11' rx='2' fill='%232f6a52'/%3E%3Crect x='17' y='17' width='11' height='11' rx='2' fill='%2375456a'/%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap');
 
@@ -161,7 +162,13 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 .zone.foso{--zc:var(--foso);}
 .zone.resolving{border-color:var(--zc,var(--ink));animation:zonePulse 1.5s ease-in-out infinite;}
 .zone.resolving::before{height:4px;animation:barPulse 1.5s ease-in-out infinite;}
-.zone.resolved{background:var(--surface);}
+.zone.resolved{
+  background:
+    repeating-linear-gradient(135deg, var(--grid) 0 2px, transparent 2px 11px),
+    var(--surface);
+}
+.zone.resolved::before{opacity:.4;}
+.zone.resolved .zone-title h2{opacity:.65;}
 .zone-head{margin-bottom:13px;}
 .zone-title{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
 .zone-title h2{font-size:.82rem;letter-spacing:.16em;color:var(--zc,var(--ink));}
@@ -264,6 +271,7 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 }
 .help-when{font-size:.62rem;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.09em;}
 .help-eff{font-size:.85rem;line-height:1.55;margin-top:4px;}
+.help-alt{margin-top:6px;padding-top:6px;border-top:1px solid var(--hair);}
 .help-zones{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;}
 @media (max-width:640px){.help-zones{grid-template-columns:1fr;}}
 .help-zone{position:relative;border:1px solid var(--line);border-radius:3px;padding:11px 13px;background:var(--surface-2);}
@@ -718,13 +726,17 @@ function formatLogText(t){
    Se define una sola vez y se reutiliza en la portada y en la ayuda del juego. */
 const CARD_HELP = [
   {c:'J', cuando:'Al jugarla boca arriba', titulo:'Reordena la ciudad',
-   efecto:'Intercambia de zona dos cartas cualesquiera que ya estén sobre la mesa. Puede moverse a sí misma.'},
+   efecto:'Intercambia de zona dos cartas cualesquiera que ya estén sobre la mesa, sean de quien sean. Puede moverse a sí misma. Cada carta conserva si estaba boca arriba o boca abajo, pero pasa a valer según el modificador de su nueva zona.',
+   otra:'Boca abajo no hace nada especial: cuenta como una carta de valor 5, con el modificador de la zona donde la juegues.'},
   {c:'Q', cuando:'Al jugarla boca arriba', titulo:'Arrasa el estrato',
-   efecto:'Ataca de golpe todas las cartas ocultas de su zona, como si las hubieras atacado una por una y sin gastar Ataques.'},
-  {c:'K', cuando:'Al ser atacada estando oculta', titulo:'Un nombre que nadie discute',
-   efecto:'Su dueño gana esa zona automáticamente, aunque después la descarten o la muevan de sitio.'},
-  {c:'A', cuando:'Al ser atacado estando oculto', titulo:'El escándalo',
-   efecto:'Esa zona queda en entredicho: nadie la gana ni recibe recompensa, aunque después lo descarten o lo muevan.'},
+   efecto:'Ataca de golpe todas las cartas boca abajo que haya en esa zona en ese momento —incluidas las tuyas—, como si las hubieras atacado una por una, pero sin gastar fichas de Ataque.',
+   otra:'Boca abajo no activa nada: cuenta como una carta de valor 5, con el modificador de la zona.'},
+  {c:'K', cuando:'Al ser atacada estando boca abajo', titulo:'Un nombre que nadie discute',
+   efecto:'Se revela, pero el ataque que la destapa no la elimina ni se queda marcada sobre ella: haría falta gastar dos Ataques más para descartarla. Su dueño gana esa zona automáticamente al resolverse, aunque después la descarten o una J la mueva a otro sitio (en ese caso, gana la zona a la que se mudó).',
+   otra:'Si se juega boca arriba, o si nadie la ataca y solo se revela al resolver la zona, no pasa nada especial: cuenta como una carta de valor 5, con el modificador de la zona.'},
+  {c:'A', cuando:'Al ser atacado estando boca abajo', titulo:'El escándalo',
+   efecto:'Igual que la K, revelarlo con un ataque no lo elimina (hacen falta dos más). Pero en vez de coronar a nadie, deja esa zona en entredicho: no se reparte ningún premio, ni siquiera a quien tuviera la mejor carta. Si coincide con una K coronada en la misma zona, el As manda: no hay premio para nadie.',
+   otra:'Si se juega boca arriba, o si solo se revela al resolver la zona, no pasa nada especial: cuenta como una carta de valor 5, con el modificador de la zona.'},
 ];
 const ZONE_HELP = [
   {z:'bisagra', premio:'1 Prestigio + 1 Ataque + la ventaja de desempate'},
@@ -733,11 +745,11 @@ const ZONE_HELP = [
   {z:'foso', premio:'2 Prestigio'},
 ];
 const PHASE_HELP = [
-  ['Robar', 'Robas hasta tener 4 cartas de tu mazo (3 en la última ronda).'],
-  ['Jugar', 'Por turnos, cada jugador coloca 3 cartas en las zonas que quiera, boca arriba o boca abajo.'],
-  ['Atacar', 'Por turnos, puedes gastar Ataques sobre cartas rivales. Una carta oculta cae de un golpe; una que ya esté a la vista necesita dos.'],
-  ['Resolver', 'Se resuelven las cuatro zonas en orden: Bisagra, Umbral, Cima y Foso.'],
-  ['Fin de ronda', 'Si te sobra una carta, la devuelves encima o debajo de tu mazo. Sin turnos: cada uno cuando quiera.'],
+  ['Robar', 'Cada jugador roba de su propio mazo hasta tener 4 cartas en la mano (solo 3 en la cuarta y última ronda).'],
+  ['Jugar', 'Siguiendo el orden de turno, cada jugador coloca una carta en la zona que elija, boca arriba o boca abajo. Se repite el turno hasta que todos hayan jugado exactamente 3 cartas. Puedes poner varias cartas tuyas en la misma zona.'],
+  ['Atacar', 'Otra vez por turnos: en el tuyo, puedes gastar tantas fichas de Ataque como quieras contra cartas rivales (nunca las tuyas), una detrás de otra. Cuando decides pasar, ya no puedes volver a atacar en esta ronda, así que solo pasa cuando estés seguro.'],
+  ['Resolver', 'Se destapan las cartas que sigan boca abajo, se aplican los modificadores de cada zona y se reparte el Prestigio. Las cuatro zonas se resuelven siempre en el mismo orden: Bisagra, Umbral, Cima y Foso.'],
+  ['Fin de ronda', 'Todas las cartas jugadas se descartan. Si te sobra una carta en la mano, la devuelves boca abajo a tu mazo: encima si quieres volver a robarla pronto, o debajo si prefieres alejarla. El Prestigio decide quién abre la siguiente ronda.'],
 ];
 
 /* Emblema: cuatro estratos y la bisagra que los articula. */
@@ -762,6 +774,7 @@ function renderCardHelp(){
     txt.appendChild(el('<div class="help-when">'+h.cuando+'</div>'));
     if(h.titulo) txt.appendChild(el('<div class="help-title">'+h.titulo+'</div>'));
     txt.appendChild(el('<div class="help-eff">'+h.efecto+'</div>'));
+    if(h.otra) txt.appendChild(el('<div class="small help-alt">'+h.otra+'</div>'));
     row.appendChild(txt);
     box.appendChild(row);
   });
@@ -1152,6 +1165,7 @@ function scorePlay(g, botId, card, zk, oculta){
 
   let score = 0;
   const worth = ZONE_WORTH[zk];
+  let despuesOculta = null; // valor de ganar la zona si esta carta se juega oculta (para el tope de riesgo, más abajo)
 
   // --- Lo que APORTA la jugada: cuánto sube mi opción de llevarme la zona ---
   if(flags.eclipse){
@@ -1168,6 +1182,7 @@ function scorePlay(g, botId, card, zk, oculta){
     } else {
       despues = simulaCarta(g, botId, val, zk, oculta, 0, ()=>zoneWinProb(g, zk, botId));
     }
+    if(oculta) despuesOculta = despues;
     score += (despues - antes) * worth;
 
     // No descartes una zona solo porque ahora mismo la va ganando un rival:
@@ -1243,7 +1258,14 @@ function scorePlay(g, botId, card, zk, oculta){
     const fichas = Math.min(rivalTokens(g, botId), 4);
     // Si va por detrás en Prestigio se arriesga más de buena gana; si va por
     // delante, prefiere no exponerse.
-    score -= fichas * 0.11 * cautela(g, botId);
+    const penal = fichas * 0.11 * cautela(g, botId);
+    // Pero ese riesgo nunca debe bastar por sí solo para preferir enseñarla:
+    // si taparla ya es claramente mejor que jugarla a la vista en esta misma
+    // zona (por ejemplo, porque a la vista pierdes fijo y oculta aún tienes
+    // opciones), el descuento no puede superar esa ventaja real.
+    const wpAVista = simulaCarta(g, botId, val, zk, false, 0, ()=>zoneWinProb(g, zk, botId));
+    const margen = despuesOculta===null ? penal : Math.max(0, (despuesOculta - wpAVista) * worth);
+    score -= Math.min(penal, margen);
   }
 
   // --- Economía de mano: no malgastar los extremos ---
@@ -2883,11 +2905,11 @@ function renderRulesPanel(){
   head.onclick = ()=>{ rulesOpen = !rulesOpen; render(); };
   box.appendChild(head);
   if(!rulesOpen){
-    box.appendChild(el('<div class="small">Objetivo, ronda a ronda, las cuatro zonas y qué hacen la J, la Q, la K y el As.</div>'));
+    box.appendChild(el('<div class="small">Objetivo, ronda a ronda, las cuatro zonas, las cartas especiales, los empates y cómo termina la partida.</div>'));
     return box;
   }
 
-  box.appendChild(el('<p class="rules-intro">La ciudad se sostiene sobre cuatro puntos y las casas se los disputan. Gana quien más Prestigio acumule en cuatro rondas.</p>'));
+  box.appendChild(el('<p class="rules-intro">4 Zonas se juega en <strong>4 rondas</strong>. En cada una, todos colocan cartas —a la vista o en secreto— sobre cuatro zonas con reglas distintas, y luego pueden atacar las cartas de los demás antes de que cada zona reparta su premio. Gana quien más <strong>Prestigio</strong> haya acumulado al terminar la cuarta ronda.</p>'));
 
   box.appendChild(el('<h3>Lo básico</h3>'));
   const basics = el('<div class="fact-grid"></div>');
@@ -2903,10 +2925,11 @@ function renderRulesPanel(){
     basics.appendChild(c);
   });
   box.appendChild(basics);
-  box.appendChild(el('<p class="small">Todas las casas tienen el mismo mazo: del 2 al 9, más J, Q, K y As. No hay poderes distintos: la diferencia está en qué enseñas y qué callas.</p>'));
+  box.appendChild(el('<p class="small">Todas las casas juegan con el mismo mazo de 12 cartas: del 2 al 9, más J, Q, K y As (el 10 no se usa). No hay poderes distintos entre jugadores: la diferencia está en qué enseñas, qué callas y cuándo atacas.</p>'));
 
   box.appendChild(el('<h3>El orden de turno</h3>'));
-  box.appendChild(el('<p>La primera ronda se sortea. A partir de ahí lo marca el Prestigio: <strong>quien más tiene abre la ronda</strong>. Abrir es una desventaja, porque enseñas tus intenciones antes que nadie y los demás colocan sabiendo lo que has hecho. Entre casas empatadas a Prestigio, el orden se <strong>invierte</strong> respecto a la ronda anterior.</p>'));
+  box.appendChild(el('<p>La primera ronda se sortea. A partir de ahí lo marca el Prestigio acumulado: <strong>quien más tiene abre la ronda</strong>, y quien menos tiene juega último. Abrir es una desventaja, porque enseñas tus intenciones antes que nadie y los demás colocan sabiendo lo que has hecho.</p>'));
+  box.appendChild(el('<p class="small">Si dos o más casas empatan a Prestigio, solo se invierte el orden entre ellas respecto a la ronda anterior; el resto no se mueve. Por ejemplo, si la ronda pasada el orden fue Ana → Bruno → Carla, y ahora Ana y Bruno están empatados, se invierten entre sí: juega Bruno antes que Ana. El orden que se fija al principio de la ronda se mantiene durante todas sus fases: jugar cartas, atacar y resolver.</p>'));
 
   box.appendChild(el('<h3>Cómo va una ronda</h3>'));
   const fases = el('<div class="steps"></div>');
@@ -2922,30 +2945,46 @@ function renderRulesPanel(){
   box.appendChild(fases);
 
   box.appendChild(el('<h3>A la vista o en secreto</h3>'));
-  box.appendChild(el('<p>Una carta a la vista vale lo que pone. Una carta oculta la mide el rumor, y el rumor exagera hacia donde conviene al sitio:</p>'));
+  box.appendChild(el('<p>Cada vez que juegas una carta eliges cómo colocarla. <strong>A la vista</strong>, todos ven su valor exacto y ese es el valor con el que compite: sin sorpresas, pero también sin margen. <strong>En secreto</strong>, boca abajo, nadie —ni tú mismo al mirar la mesa después— puede volver a consultarla hasta que se revele; a cambio, cada zona le aplica un modificador fijo, siempre a tu favor, cuando llegue el momento de resolverla:</p>'));
   box.appendChild(renderModTable());
-  box.appendChild(el('<p class="small">Ocultar casi siempre te beneficia, pero deja la carta a merced de un solo Ataque.</p>'));
+  box.appendChild(el('<p class="small">Jugar en secreto casi siempre mejora tu valor final, pero mientras siga oculta cualquiera puede atacarla y tirarla abajo de un solo golpe. Es la tensión central del juego: cuanto más callas, mejor compites, pero más expuesto quedas.</p>'));
 
-  box.appendChild(el('<h3>Los cuatro puntos</h3>'));
-  box.appendChild(el('<p>Se resuelven en este orden: Bisagra, Umbral, Cima y Foso. Quien se lleva la Bisagra gana además un Ataque y desempata el resto de la ronda a su favor.</p>'));
+  box.appendChild(el('<h3>Las cuatro zonas</h3>'));
+  box.appendChild(el('<p>Se resuelven siempre en el mismo orden —Bisagra, Umbral, Cima y Foso— y cada una mide a los jugadores de una forma distinta. Quien se lleva la Bisagra recibe además una ficha de Ataque extra y la <strong>ventaja de desempate</strong> para el resto de la ronda (más abajo, en «Empates»).</p>'));
   box.appendChild(renderZoneHelp());
-  box.appendChild(el('<p class="small">Dos cartas de la misma casa con el mismo valor se anulan entre sí: repetirse no distingue a nadie.</p>'));
+  box.appendChild(el('<p class="small">Puedes jugar más de una carta tuya en la misma zona (salvo en la Bisagra, que admite un máximo de dos cartas en total, sean de quien sean). En Cima y en Foso, si dos de tus propias cartas acaban con el mismo valor final, se anulan entre sí y ninguna de las dos cuenta para ganar la zona.</p>'));
 
   box.appendChild(el('<h3>Las cartas especiales</h3>'));
+  box.appendChild(el('<p>La J, la Q, la K y el As valen <strong>5</strong> de base, como una carta normal. Su habilidad solo se activa en la circunstancia exacta que se indica a continuación; en cualquier otro caso, cuentan simplemente como un 5 con el modificador de la zona donde estén.</p>'));
   box.appendChild(renderCardHelp());
 
   box.appendChild(el('<h3>Los Ataques</h3>'));
   const atk = el('<ul class="help-list"></ul>');
   [
-    'Empiezas con <strong>3</strong> y no se reponen. El único que se gana es el de la Bisagra.',
-    'Contra una carta oculta: la derriba. Si resulta ser K o As, se activa en tu contra.',
-    'Contra una carta a la vista: el primer Ataque la señala, el segundo la derriba.',
-    'Lo derribado se queda en su sitio para que todos lo vean, pero ya no puntúa.'
+    'Empiezas la partida con <strong>3 fichas de Ataque</strong> y no se reponen por ronda: las que no gastes se conservan para la siguiente. El único modo de ganar más es llevarte la Bisagra.',
+    'En tu turno de ataque puedes gastar tantas fichas como quieras, una detrás de otra, contra cartas de otros jugadores —nunca contra las tuyas—. En cuanto decides pasar, no puedes volver a atacar en lo que queda de ronda.',
+    'Atacar una carta <strong>boca abajo</strong> cuesta 1 ficha: se revela y se descarta al momento… salvo que resulte ser una K o un As, en cuyo caso su habilidad se activa en tu contra en vez de caer.',
+    'Atacar una carta <strong>boca arriba</strong> cuesta 1 ficha por golpe y hacen falta 2 golpes para descartarla: el primero solo la deja marcada. Puedes dar ambos golpes tú mismo, seguidos, en tu propio turno.',
+    'Una carta descartada se queda visible sobre la mesa, para que todos sepan qué cayó, pero deja de contar para ganar la zona.'
   ].forEach(t=> atk.appendChild(el('<li>'+t+'</li>')));
   box.appendChild(atk);
 
+  box.appendChild(el('<h3>Empates</h3>'));
+  box.appendChild(el('<p>Cuando varias cartas comparten el mejor resultado de una zona, sus dueños quedan <strong>excluidos</strong> de esa resolución y el premio pasa al siguiente mejor resultado que no esté empatado. Si hasta el último candidato queda excluido por empates sucesivos, la zona se queda desierta: nadie gana ni recibe nada.</p>'));
+  const empates = el('<ul class="help-list"></ul>');
+  [
+    'Si el empate es entre cartas de <strong>dos jugadores distintos</strong>, y uno de ellos se llevó la Bisagra esta misma ronda, esa ventaja rompe el empate a su favor de inmediato.',
+    'Si el empate es entre <strong>dos cartas del mismo jugador</strong> (por ejemplo, sus dos cartas en Cima valen igual), no hay carta alta ni baja que valga: ambas quedan fuera y la ventaja de Bisagra no lo rescata, porque no hay nada que desempatar.',
+    'En la Bisagra, si las dos cartas en juego terminan con el mismo valor, no hay ni carta alta ni carta baja que gane: la zona queda desierta directamente.'
+  ].forEach(t=> empates.appendChild(el('<li>'+t+'</li>')));
+  box.appendChild(empates);
+
+  box.appendChild(el('<h3>Fin de la partida</h3>'));
+  box.appendChild(el('<p>La partida termina en cuanto se resuelve el Foso de la cuarta ronda. Gana quien tenga más Prestigio acumulado. Si dos o más casas empatan en el primer puesto, se aplica la misma lógica que en cualquier otro empate: si alguna de ellas se llevó la Bisagra en esa última ronda, gana la partida gracias a esa ventaja; si no, las empatadas quedan excluidas y el título pasa a la siguiente puntuación más alta que no esté empatada. Si absolutamente todas las casas terminan igualadas, la partida acaba sin ganador.</p>'));
+
   return box;
 }
+
 
 function renderRoomBrowser(){
   const box = el('<div class="panel stack"></div>');
