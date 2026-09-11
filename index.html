@@ -629,8 +629,15 @@ const firebaseConfig = {
   measurementId: "G-8V5R6MFMHN"
 };
 
-firebase.initializeApp(firebaseConfig);
-const fbDb = firebase.database();
+let fbDb = null;
+let fbReady = false;
+try{
+  firebase.initializeApp(firebaseConfig);
+  fbDb = firebase.database();
+  fbReady = true;
+}catch(e){
+  console.error('No se pudo inicializar Firebase (¿no cargó el SDK? ¿config incorrecta?):', e);
+}
 
 /* ============================= SHIM window.storage =============================
    Reimplementa exactamente la misma interfaz que usaba el Artifact de Claude
@@ -648,6 +655,7 @@ window.storage = {
         return raw===null ? null : { key, value: raw, shared:false };
       }catch(e){ return null; }
     }
+    if(!fbReady) throw new Error('Sin conexión con el servidor de la partida.');
     const snap = await fbDb.ref(fbPath(key)).once('value');
     const v = snap.val();
     return (v===null || v===undefined) ? null : { key, value:v, shared:true };
@@ -657,6 +665,7 @@ window.storage = {
       localStorage.setItem('4zonas:'+key, value);
       return { key, value, shared:false };
     }
+    if(!fbReady) throw new Error('Sin conexión con el servidor de la partida.');
     await fbDb.ref(fbPath(key)).set(value);
     return { key, value, shared:true };
   },
@@ -665,6 +674,7 @@ window.storage = {
       try{ localStorage.removeItem('4zonas:'+key); }catch(e){}
       return { key, deleted:true, shared:false };
     }
+    if(!fbReady) throw new Error('Sin conexión con el servidor de la partida.');
     await fbDb.ref(fbPath(key)).remove();
     return { key, deleted:true, shared:true };
   },
@@ -680,6 +690,7 @@ window.storage = {
       }catch(e){}
       return { keys, prefix, shared:false };
     }
+    if(!fbReady) throw new Error('Sin conexión con el servidor de la partida.');
     const snap = await fbDb.ref('store').orderByKey().startAt(prefix).endAt(prefix+'\uf8ff').once('value');
     const keys = [];
     snap.forEach(child=>{ keys.push(child.key); });
@@ -1951,7 +1962,7 @@ async function freshRoomCode(){
 }
 
 async function createRoom(){
-  if(!storageAvailable()){ errorMsg='Esta app necesita ejecutarse como artifact dentro de Claude (no como archivo descargado) para poder crear salas online.'; render(); return; }
+  if(!storageAvailable()){ errorMsg='No se pudo iniciar el almacenamiento de la partida. Recarga la página; si sigue sin funcionar, puede que el navegador esté bloqueando algún script.'; render(); return; }
   const v = validateName();
   if(!v.ok){ errorMsg=v.msg; render(); return; }
 
@@ -1974,7 +1985,7 @@ async function createRoom(){
 }
 
 async function joinRoom(codeInput){
-  if(!storageAvailable()){ errorMsg='Esta app necesita ejecutarse como artifact dentro de Claude (no como archivo descargado) para poder unirse a salas online.'; render(); return; }
+  if(!storageAvailable()){ errorMsg='No se pudo iniciar el almacenamiento de la partida. Recarga la página; si sigue sin funcionar, puede que el navegador esté bloqueando algún script.'; render(); return; }
   const v = validateName();
   if(!v.ok){ errorMsg=v.msg; render(); return; }
   const code = (codeInput||'').trim().toUpperCase();
@@ -3004,7 +3015,7 @@ function renderLanding(){
   wrap.appendChild(hero);
 
   if(!storageAvailable()){
-    wrap.appendChild(el('<div class="err">No se detecta el almacenamiento compartido de Claude. Abre esto como artifact dentro de Claude (o el enlace compartido), no como archivo descargado, o no podrás jugar en red.</div>'));
+    wrap.appendChild(el('<div class="err">No se pudo iniciar el almacenamiento de la partida. Recarga la página; si sigue sin funcionar, puede que el navegador esté bloqueando algún script.</div>'));
   }
 
   // --- Entrar a jugar ---
