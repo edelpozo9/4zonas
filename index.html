@@ -172,7 +172,9 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 .zone-head{margin-bottom:13px;}
 .zone-title{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
 .zone-title h2{font-size:.82rem;letter-spacing:.16em;color:var(--zc,var(--ink));}
-.zone-head .cond{display:block;font-size:.71rem;color:var(--ink-soft);margin-top:6px;line-height:1.5;padding-top:6px;border-top:1px solid var(--hair);}
+.zone-head .cond{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:7px;border-top:1px solid var(--hair);}
+.cond-chip{font-size:.68rem;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--hair);border-radius:20px;padding:2px 8px;line-height:1.4;}
+.zone-resolve-btn{width:100%;margin-top:9px;background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;}
 .zone-status{font-size:.68rem;color:var(--ink-soft);margin-top:8px;letter-spacing:.05em;}
 .empty-zone{font-size:.73rem;color:var(--ink-faint);padding:16px 0;letter-spacing:.04em;}
 .zone-groups{display:flex;flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:9px;}
@@ -304,7 +306,7 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 .help-zone.bisagra{--zc:var(--bisagra);} .help-zone.umbral{--zc:var(--umbral);}
 .help-zone.cima{--zc:var(--cima);} .help-zone.foso{--zc:var(--foso);}
 .help-zone-name{font-weight:700;font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;color:var(--zc,var(--ink));}
-.help-zone-cond{font-size:.76rem;color:var(--ink-soft);line-height:1.5;margin-top:5px;}
+.help-zone-cond{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;}
 .help-zone-prize{font-size:.71rem;font-weight:600;margin-top:7px;}
 .help-panel{border-color:var(--ink);}
 
@@ -392,27 +394,27 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 .card.back .cface .val{opacity:.45;}
 
 /* ===== PANEL DE JUGAR CARTA ===== */
-.play-panel{border:1px solid var(--ink);border-radius:4px;background:var(--surface);padding:15px;margin-top:12px;}
-.play-head{display:flex;gap:15px;align-items:flex-start;margin-bottom:14px;}
-.play-preview{width:66px;height:90px;font-size:1.35rem;flex:0 0 66px;position:relative;}
-.flip-card{cursor:pointer;transition:transform .15s ease;}
-.flip-card:active{transform:scale(.96);}
-.flip-badge{
-  position:absolute;right:-7px;bottom:-7px;width:23px;height:23px;border-radius:50%;
-  background:var(--surface);border:1px solid var(--hair);display:flex;align-items:center;justify-content:center;
-  font-size:.74rem;box-shadow:0 1px 4px rgba(0,0,0,.18);
-}
-.play-info{flex:1;min-width:0;}
-.play-mode{font-size:.86rem;font-weight:700;}
-.play-mode .small{font-weight:400;}
+.play-bar{border-top:1px solid var(--hair);margin-top:12px;padding-top:12px;}
 .play-effect{
-  display:flex;gap:9px;align-items:flex-start;margin-top:11px;
+  display:flex;gap:9px;align-items:flex-start;margin-bottom:10px;
   font-size:.79rem;line-height:1.5;color:var(--ink-soft);
   border-left:2px solid var(--seat,var(--line));padding-left:10px;
 }
 .pe-glyph{flex:0 0 20px;color:var(--seat,var(--ink));opacity:.75;}
 .pe-glyph .cglyph{width:20px;height:20px;}
-.play-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);margin-bottom:8px;}
+/* Toggle boca arriba/abajo, pegado a la carta seleccionada de la mano */
+.hand-card{position:relative;overflow:visible;}
+.orient-inline{
+  position:absolute;left:50%;bottom:-13px;transform:translateX(-50%);
+  display:flex;background:var(--surface);border:1px solid var(--ink);border-radius:20px;
+  overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.18);z-index:4;
+}
+.orient-inline button{
+  border:none;border-radius:0;background:transparent;color:var(--ink-soft);
+  font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  padding:4px 9px;
+}
+.orient-inline button.on{background:var(--ink);color:var(--surface);}
 .zone-picker{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
 @media (max-width:520px){.zone-picker{grid-template-columns:1fr;}}
 .zpick{
@@ -484,7 +486,7 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
   0%,100%{opacity:.5;transform:none;}
   50%{opacity:1;transform:translateY(-3px);}
 }
-.play-hint{font-size:.8rem;line-height:1.5;color:var(--ink-soft);margin-top:13px;padding-top:11px;border-top:1px solid var(--hair);}
+.play-hint{font-size:.8rem;line-height:1.5;color:var(--ink-soft);margin-bottom:10px;}
 
 /* ===== HABILIDADES ESPECIALES: EFECTOS ===== */
 .ord{font-size:.6rem;font-weight:700;color:var(--ink-faint);letter-spacing:.08em;margin-left:auto;}
@@ -502,10 +504,10 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
   80%{transform:translateX(2px) rotate(2deg) scale(1.01);}
   100%{opacity:1;transform:none;}
 }
-.anim-swap{animation:swapTravel 1.35s cubic-bezier(.2,.8,.25,1) both;z-index:2;}
+.anim-swap{animation:swapTravel 1.6s cubic-bezier(.2,.8,.25,1) both;z-index:2;}
 .anim-swap::after{
   content:'⇄';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-size:1.5rem;color:var(--umbral);animation:fxFade 1.4s ease-out both;pointer-events:none;
+  font-size:1.5rem;color:var(--umbral);animation:fxFade 1.65s ease-out both;pointer-events:none;
 }
 /* La Q barre el estrato: la carta se desintegra hacia arriba */
 @keyframes purgeSweep{
@@ -519,11 +521,11 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
   font-size:1.35rem;color:var(--foso);animation:fxFade .9s ease-out both;pointer-events:none;
 }
 @keyframes zonePurgeFlash{
-  0%{background-color:transparent;transform:none;}
-  15%{background-color:rgba(var(--accent-rgb),.12);transform:translateX(-2px);}
+  0%{transform:none;}
+  15%{transform:translateX(-2px);}
   30%{transform:translateX(2px);}
   45%{transform:translateX(-1px);}
-  100%{background-color:transparent;transform:none;}
+  100%{transform:none;}
 }
 .zone.zone-purged{animation:zonePurgeFlash .9s ease-out both;}
 /* K y As al descubierto: la carta despierta con un destello */
@@ -692,12 +694,6 @@ const CARD_VALUES = [2,3,4,5,6,7,8,9,'J','Q','K','A'];
 const ZONE_KEYS = ['bisagra','umbral','cima','foso'];
 const ZONE_LABEL = {bisagra:'Bisagra', umbral:'Umbral', cima:'Cima', foso:'Foso'};
 /* La ciudad vertical: cada zona es un punto de la estructura. */
-const ZONE_FLAVOR = {
-  bisagra:'La pieza sobre la que gira la ciudad. Su humor cambia cada ronda.',
-  umbral:'El paso entre lo alto y lo bajo. Cruzarlo exige medida exacta.',
-  cima:'Las terrazas altas, donde solo se recuerda lo más grande.',
-  foso:'Los cimientos, donde dura quien menos ruido hace.'
-};
 const ZONE_ELEV = {cima:0, umbral:1, bisagra:2, foso:3};
 const ZONE_DISPLAY = ['cima','umbral','bisagra','foso'];
 const ZONE_SHORT = {
@@ -725,10 +721,10 @@ const ZONE_ICON = {
 };
 
 const ZONE_COND = {
-  bisagra:'Máximo 2 cartas. Si la suma es par gana la más alta; si es impar, la más baja.',
-  umbral:'Gana quien más se acerque a 11 sumando sus cartas, sin pasarse. Cada carta oculta suma o resta 1, a elección de su dueño.',
-  cima:'Gana la carta más alta. Las ocultas valen +2.',
-  foso:'Gana la carta más baja. Las ocultas valen −2.'
+  bisagra:['⚂ Máx. 2 cartas', '± Par → gana la alta · Impar → gana la baja'],
+  umbral:['Σ 11 sin pasarse', '? Oculta: ±1 a elegir'],
+  cima:['↑ Gana la más alta', '? Oculta: +2'],
+  foso:['↓ Gana la más baja', '? Oculta: −2']
 };
 const ZONE_REWARD = {bisagra:{prestige:1,token:1}, umbral:{prestige:3,token:0}, cima:{prestige:2,token:0}, foso:{prestige:2,token:0}};
 const ZONE_ORDER = ['bisagra','umbral','cima','foso'];
@@ -748,7 +744,7 @@ function seatClass(g, playerId){ return 'p'+(seatOf(g,playerId) % 4); }
    se muestra en negrita. */
 const LOG_ICON = {
   jugar:'▸', ataque:'⚔', activar:'★', cambio:'⇄', purga:'✖',
-  zona:'◈', ronda:'❯', sala:'·', fin:'✦', umbral:'±',
+  zona:'◈', ronda:'❯', sala:'·', fin:'✦', umbral:'±', pasar:'→',
 };
 function addLog(g, kind, text){
   g.log = g.log || [];
@@ -847,8 +843,9 @@ function renderZoneHelp(){
     nm.appendChild(el(ZONE_ICON[h.z]));
     nm.appendChild(el('<span>'+ZONE_LABEL[h.z]+'</span>'));
     row.appendChild(nm);
-    row.appendChild(el('<div class="help-zone-flavor">'+ZONE_FLAVOR[h.z]+'</div>'));
-    row.appendChild(el('<div class="help-zone-cond">'+ZONE_COND[h.z]+'</div>'));
+    const condLine = el('<div class="help-zone-cond"></div>');
+    ZONE_COND[h.z].forEach(line=> condLine.appendChild(el('<span class="cond-chip">'+escapeHtml(line)+'</span>')));
+    row.appendChild(condLine);
     row.appendChild(el('<div class="help-zone-prize">Premio: '+h.premio+'</div>'));
     box.appendChild(row);
   });
@@ -962,7 +959,7 @@ let lastWaitingId = null;
    (jugar carta, mensajes de sala, elegir modificador de Umbral) quedan en el
    registro de la partida pero no interrumpen con un aviso — si no, con varios
    bots jugando la pantalla se llena de avisos por cada cartita. */
-const TOAST_KINDS = {ataque:1, activar:1, cambio:1, purga:1, zona:1, ronda:1, fin:1};
+const TOAST_KINDS = {jugar:1, ataque:1, activar:1, cambio:1, purga:1, zona:1, ronda:1, fin:1};
 function processNewEvents(g){
   if(!g) return;
   const total = (g.log||[]).length;
@@ -2457,7 +2454,7 @@ async function attackTarget(zoneKey, entry){
 function applyPass(g, playerId, forzado){
   g.attackPassed[playerId]=true;
   g.turnAttacks = 0;
-  addLog(g,'ataque', forzado
+  addLog(g,'pasar', forzado
     ? '*'+nameOf(g,playerId)+'* pasa automáticamente: llevaba demasiado tiempo sin responder.'
     : '*'+nameOf(g,playerId)+'* pasa sin atacar.');
   const order=g.turnOrder;
@@ -2615,16 +2612,16 @@ function resolveMaxMinCascade(cards, mode, bisagraAdvantage){
     const atTarget = remaining.filter(c=>c.value===target);
     const owners = [...new Set(atTarget.map(c=>c.owner))];
     if(owners.length===1){
-      if(atTarget.length===1) return {winner: owners[0], viaAdvantage:false};
+      if(atTarget.length===1) return {winner: owners[0], viaAdvantage:false, value:target};
       remaining = remaining.filter(c=>c.owner!==owners[0]);
       continue;
     }
     if(bisagraAdvantage && owners.includes(bisagraAdvantage)){
-      return {winner: bisagraAdvantage, viaAdvantage:true};
+      return {winner: bisagraAdvantage, viaAdvantage:true, value:target};
     }
     remaining = remaining.filter(c=>!owners.includes(c.owner));
   }
-  return {winner:null, viaAdvantage:false};
+  return {winner:null, viaAdvantage:false, value:null};
 }
 
 async function resolveCurrentZone(){
@@ -2684,7 +2681,7 @@ async function resolveCurrentZone(){
         reasonText = sinCartas || 'No se jugó ninguna carta en la Bisagra.';
       } else if(entries.length===1){
         winner = entries[0].card.owner;
-        reasonText = 'Solo hay una carta: se lleva la zona sin oposición.';
+        reasonText = 'Solo hay una carta: se lleva la zona sin oposición ('+finalValue('bisagra',entries[0])+').';
       } else if(entries.length===2){
         const [c1,c2] = entries;
         const v1=finalValue('bisagra',c1), v2=finalValue('bisagra',c2);
@@ -2730,7 +2727,7 @@ async function resolveCurrentZone(){
         const cards = entries.map(e=>({owner:e.card.owner, value:finalValue('cima',e)}));
         const r = resolveMaxMinCascade(cards,'max', g.bisagraAdvantage);
         winner = r.winner; viaAdvantage = r.viaAdvantage;
-        reasonText = winner ? 'Tiene la carta más alta de la zona.' : 'Los empates se anulan entre sí: nadie queda por encima.';
+        reasonText = winner ? 'Tiene la carta más alta de la zona: '+r.value+'.' : 'Los empates se anulan entre sí: nadie queda por encima.';
       }
     } else if(zoneKey==='foso'){
       if(entries.length===0){
@@ -2739,7 +2736,7 @@ async function resolveCurrentZone(){
         const cards = entries.map(e=>({owner:e.card.owner, value:finalValue('foso',e)}));
         const r = resolveMaxMinCascade(cards,'min', g.bisagraAdvantage);
         winner = r.winner; viaAdvantage = r.viaAdvantage;
-        reasonText = winner ? 'Tiene la carta más baja de la zona.' : 'Los empates se anulan entre sí: nadie queda por debajo.';
+        reasonText = winner ? 'Tiene la carta más baja de la zona: '+r.value+'.' : 'Los empates se anulan entre sí: nadie queda por debajo.';
       }
     }
   }
@@ -2829,8 +2826,9 @@ async function nextRoundOrEnd(){
   if(maintenancePending(g)) return;
   // los Ataques gastados no se recuperan (salvo el que da ganar Bisagra, ya aplicado)
   g.players.forEach(p=>{ g.spentThisRound[p.id]=0; });
-  clearTable(g);
   if(g.round>=4){
+    // Última ronda: las cartas se quedan en las zonas tal y como quedó la
+    // resolución, para poder consultarla; no hace falta limpiar la mesa.
     g.status='ended';
     g.winner = computeFinalWinner(g);
     const out = finalOutcome(g);
@@ -2853,6 +2851,7 @@ async function nextRoundOrEnd(){
     await writeGame(g);
     return;
   }
+  clearTable(g);
   g.turnOrder = nextTurnOrder(g.turnOrder, g.prestige);
   g.round += 1;
   g.phase='jugar';
@@ -3613,10 +3612,6 @@ function renderGame(){
       if(umbralChoicesPending(g)){
         const quienes = pendingUmbralPlayers(g);
         wrap.appendChild(el('<div class="banner">Umbral: esperando a que '+escapeHtml(quienes)+' decida'+(quienes.indexOf(' y ')>-1?'n':'')+' el modificador de sus cartas ocultas. Podrás continuar cuando terminen.</div>'));
-      } else {
-        const btn = el('<button>Resolver '+ZONE_LABEL[ZONE_ORDER[g.resolveStep]]+'</button>');
-        btn.onclick = ()=>resolveCurrentZone();
-        wrap.appendChild(btn);
       }
     }
     if(g.phase==='mantenimiento'){
@@ -3771,10 +3766,7 @@ function renderBanner(g){
   let text='';
   if(g.status==='ended') return el('<div></div>');
   if(g.phase==='jugar'){
-    const cur = currentPlayTurnPlayer(g);
-    text = cur===myId
-      ? 'Tu turno: juega una carta. Llevas '+(g.playedThisRound[myId]||0)+' de 3.'
-      : 'Turno de '+nameOf(g,cur)+'. Tú llevas '+(g.playedThisRound[myId]||0)+' de 3 cartas jugadas.';
+    return el('<div></div>'); // ya lo indica el parpadeo de la mano y el marcador de arriba
   } else if(g.phase==='atacar'){
     const cur = currentAttacker(g);
     text = cur===myId ? 'Tu turno de ataque.' : 'Turno de ataque de '+nameOf(g,cur)+'.';
@@ -3822,8 +3814,14 @@ function renderZone(g, zk){
   topRow.appendChild(titleWrap);
   topRow.appendChild(elevationRail(zk));
   head.appendChild(topRow);
-  head.appendChild(el('<span class="zone-flavor">'+ZONE_FLAVOR[zk]+'</span>'));
-  head.appendChild(el('<span class="cond">'+ZONE_COND[zk]+'</span>'));
+  const condWrap = el('<div class="cond"></div>');
+  ZONE_COND[zk].forEach(line=> condWrap.appendChild(el('<span class="cond-chip">'+escapeHtml(line)+'</span>')));
+  head.appendChild(condWrap);
+  if(resolvingNow && g.hostId===myId && g.status==='playing' && !umbralChoicesPending(g)){
+    const rBtn = el('<button class="zone-resolve-btn">Resolver '+ZONE_LABEL[zk]+'</button>');
+    rBtn.onclick = ()=>resolveCurrentZone();
+    head.appendChild(rBtn);
+  }
   zone.appendChild(head);
 
   // Cartas agrupadas por jugador, en el orden de asiento
@@ -3834,9 +3832,18 @@ function renderZone(g, zk){
   owners.forEach(id=>{
     const grp = el('<div class="owner-group '+seatClass(g,id)+'"></div>');
     const lbl = el('<div class="owner-label">'+markOf(g,id)+' '+escapeHtml(nameOf(g,id))+(id===myId?' (tú)':'')+'</div>');
-    if(resolved && zk==='umbral'){
-      const suma = byOwner[id].filter(e=>!e.discarded).reduce((n,e)=>n+finalValue('umbral',e),0);
-      lbl.appendChild(el('<span class="sum'+(suma>11?' bust':'')+'">'+suma+(suma>11?' ✗':'')+'</span>'));
+    if(resolved){
+      const vivas = byOwner[id].filter(e=>!e.discarded);
+      if(zk==='umbral'){
+        const suma = vivas.reduce((n,e)=>n+finalValue('umbral',e),0);
+        lbl.appendChild(el('<span class="sum'+(suma>11?' bust':'')+'">'+suma+(suma>11?' ✗':'')+'</span>'));
+      } else if(zk==='cima' && vivas.length){
+        lbl.appendChild(el('<span class="sum">'+Math.max(...vivas.map(e=>finalValue('cima',e)))+'</span>'));
+      } else if(zk==='foso' && vivas.length){
+        lbl.appendChild(el('<span class="sum">'+Math.min(...vivas.map(e=>finalValue('foso',e)))+'</span>'));
+      } else if(zk==='bisagra' && vivas.length){
+        lbl.appendChild(el('<span class="sum">'+vivas.map(e=>finalValue('bisagra',e)).join('/')+'</span>'));
+      }
     }
     grp.appendChild(lbl);
     const row = el('<div class="zone-cards"></div>');
@@ -3997,53 +4004,6 @@ const SPECIAL_PLAY = {
       down:'Si lo atacan, esa zona queda en entredicho y no la gana nadie.' }
 };
 
-function renderPlayPanel(g, card){
-  const abajo = ui.orientation==='down';
-  const panel = el('<div class="play-panel"></div>');
-
-  const head = el('<div class="play-head"></div>');
-  const prev = el('<div class="card play-preview flip-card '+seatClass(g,myId)+(isSpecial(card.value)?' special':'')+(abajo?' back':'')+'" title="Toca la carta para jugarla '+(abajo?'a la vista':'en secreto')+'"></div>');
-  prev.appendChild(el('<div class="cface">'+(abajo ? '<span class="val">?</span>' : cardFaceHTML(card.value))+'</div>'));
-  if(!abajo && isSpecial(card.value)) prev.appendChild(el(weightBadge(card.value)));
-  prev.appendChild(el('<span class="flip-badge">'+(abajo?'🙈':'👁')+'</span>'));
-  prev.onclick = ()=>{ ui.orientation = abajo ? 'up' : 'down'; render(); };
-  head.appendChild(prev);
-
-  const info = el('<div class="play-info"></div>');
-  info.appendChild(el('<div class="play-mode">'+(abajo ? 'En secreto' : 'A la vista')
-    +' <span class="small">— toca la carta para '+(abajo?'mostrarla':'ocultarla')+'</span></div>'));
-  const sp = SPECIAL_PLAY[String(card.value)];
-  if(sp){
-    const nota = el('<div class="play-effect"></div>');
-    nota.appendChild(el('<span class="pe-glyph">'+CARD_GLYPH[String(card.value)]+'</span>'));
-    nota.appendChild(el('<span>'+(abajo ? sp.down : sp.up)+'</span>'));
-    info.appendChild(nota);
-  }
-  head.appendChild(info);
-  panel.appendChild(head);
-
-  panel.appendChild(el('<div class="play-hint">'+(ui.selectedZone
-    ? 'Has elegido <strong>'+ZONE_LABEL[ui.selectedZone]+'</strong>. Confirma abajo o toca otra zona.'
-    : 'Tu carta aparece en las cuatro zonas del tablero con lo que valdría en cada una. <strong>Toca la zona</strong> donde quieras jugarla.')+'</div>'));
-
-  const foot = el('<div class="play-foot"></div>');
-  const resumen = ui.selectedZone
-    ? ('Jugar tu '+cardLabel(card.value)+' '+(abajo?'en secreto':'a la vista')+' en '+ZONE_LABEL[ui.selectedZone])
-    : 'Toca una zona del tablero';
-  const confirmBtn = el('<button>'+escapeHtml(resumen)+'</button>');
-  confirmBtn.disabled = !ui.selectedZone;
-  confirmBtn.onclick = ()=>{
-    if(!ui.selectedZone) return;
-    playCard(ui.selectedHandCard, ui.selectedZone, ui.orientation==='up');
-  };
-  foot.appendChild(confirmBtn);
-  const cancelar = el('<button class="secondary">Elegir otra carta</button>');
-  cancelar.onclick = ()=>{ ui.selectedHandCard=null; ui.selectedZone=null; render(); };
-  foot.appendChild(cancelar);
-  panel.appendChild(foot);
-  return panel;
-}
-
 function renderHand(g){
   const myTurnGlobal = g.phase==='jugar' && currentPlayTurnPlayer(g)===myId && !swapMode();
   const box = el('<div class="panel stack'+(myTurnGlobal?' my-turn':'')+'" style="gap:10px;"></div>');
@@ -4066,11 +4026,27 @@ function renderHand(g){
   const myTurn = g.phase==='jugar' && currentPlayTurnPlayer(g)===myId;
   myHand.forEach((card, idx)=>{
     const sel = ui.selectedHandCard===idx;
+    const abajo = sel && ui.orientation==='down';
     const c = el('<div class="card hand-card '+seatClass(g,myId)+(isSpecial(card.value)?' special':'')
-      +(sel?' selected':'')+(myTurn?' clickable':'')+handAnim(card)
-      +'" style="animation-delay:'+(idx*70)+'ms"><div class="cface">'+cardFaceHTML(card.value)+'</div>'+weightBadge(card.value)+'</div>');
+      +(sel?' selected':'')+(myTurn?' clickable':'')+(abajo?' back':'')+handAnim(card)
+      +'" style="animation-delay:'+(idx*70)+'ms"></div>');
+    c.appendChild(el('<div class="cface">'+(abajo ? '<span class="val">?</span>' : cardFaceHTML(card.value))+'</div>'));
+    if(!abajo) c.appendChild(el(weightBadge(card.value)));
     if(myTurn){
-      c.onclick = ()=>{ ui.selectedHandCard = sel ? null : idx; render(); };
+      c.onclick = ()=>{
+        if(sel){ ui.selectedHandCard = null; }
+        else { ui.selectedHandCard = idx; ui.orientation = ui.orientation || 'up'; }
+        render();
+      };
+    }
+    if(sel){
+      const oi = el('<div class="orient-inline"></div>');
+      const upB = el('<button class="'+(abajo?'':'on')+'">Vista</button>');
+      upB.onclick = (ev)=>{ ev.stopPropagation(); ui.orientation='up'; render(); };
+      const dnB = el('<button class="'+(abajo?'on':'')+'">Oculta</button>');
+      dnB.onclick = (ev)=>{ ev.stopPropagation(); ui.orientation='down'; render(); };
+      oi.appendChild(upB); oi.appendChild(dnB);
+      c.appendChild(oi);
     }
     hand.appendChild(c);
   });
@@ -4078,7 +4054,34 @@ function renderHand(g){
 
   if(myTurn && ui.selectedHandCard!==null){
     const card = myHand[ui.selectedHandCard];
-    box.appendChild(renderPlayPanel(g, card));
+    const abajo = ui.orientation==='down';
+    const bar = el('<div class="play-bar"></div>');
+    const sp = SPECIAL_PLAY[String(card.value)];
+    if(sp){
+      const nota = el('<div class="play-effect"></div>');
+      nota.appendChild(el('<span class="pe-glyph">'+CARD_GLYPH[String(card.value)]+'</span>'));
+      nota.appendChild(el('<span>'+(abajo ? sp.down : sp.up)+'</span>'));
+      bar.appendChild(nota);
+    }
+    bar.appendChild(el('<div class="play-hint">'+(ui.selectedZone
+      ? 'Elegida la zona <strong>'+ZONE_LABEL[ui.selectedZone]+'</strong>.'
+      : 'Toca la zona del tablero donde quieres jugarla.')+'</div>'));
+    const foot = el('<div class="play-foot"></div>');
+    const resumen = ui.selectedZone
+      ? ('Jugar '+cardLabel(card.value)+' '+(abajo?'oculta':'a la vista')+' en '+ZONE_LABEL[ui.selectedZone])
+      : 'Toca una zona del tablero';
+    const confirmBtn = el('<button>'+escapeHtml(resumen)+'</button>');
+    confirmBtn.disabled = !ui.selectedZone;
+    confirmBtn.onclick = ()=>{
+      if(!ui.selectedZone) return;
+      playCard(ui.selectedHandCard, ui.selectedZone, ui.orientation!=='down');
+    };
+    foot.appendChild(confirmBtn);
+    const cancelar = el('<button class="secondary">Elegir otra carta</button>');
+    cancelar.onclick = ()=>{ ui.selectedHandCard=null; ui.selectedZone=null; render(); };
+    foot.appendChild(cancelar);
+    bar.appendChild(foot);
+    box.appendChild(bar);
   }
 
   return box;
