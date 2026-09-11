@@ -1,0 +1,3816 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4 Zonas</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap');
+
+/* ===== TEMA ARQUITECTÓNICO =====
+   Base de piedra, tinta, y un material por zona: latón, pizarra, cardenillo y
+   ciruela. Reglas finas, mayúsculas espaciadas y números grandes. */
+.theme-claro{
+  --bg:#f2f0ea; --grid:#e4e1d7;
+  --surface:#fffefb; --surface-2:#faf8f3;
+  --ink:#191813; --ink-soft:#6e6a5f; --ink-faint:#a4a094;
+  --line:#dcd8cc; --hair:#e8e5db;
+  --bisagra:#a8792f; --umbral:#456682; --cima:#2f6a52; --foso:#75456a;
+  --accent:#2f6a52; --danger:#a03a28;
+  --t0:#eaf2ed; --t1:#e9eff5; --t2:#f7f0e2; --t3:#f4ecf2;
+  --shadow:0 1px 0 rgba(25,24,19,.05), 0 8px 22px -14px rgba(25,24,19,.30);
+  --shadow-lift:0 2px 0 rgba(25,24,19,.06), 0 16px 34px -18px rgba(25,24,19,.45);
+}
+.theme-oscuro{
+  --bg:#141519; --grid:#1c1e23;
+  --surface:#1d1f24; --surface-2:#22252b;
+  --ink:#ecebe4; --ink-soft:#9b988e; --ink-faint:#6b6860;
+  --line:#33363d; --hair:#2a2d33;
+  --bisagra:#d0a253; --umbral:#7ea6c8; --cima:#5eb08c; --foso:#c087b3;
+  --accent:#5eb08c; --danger:#e07f6b;
+  --t0:#1a2620; --t1:#19222b; --t2:#272018; --t3:#251d24;
+  --shadow:0 1px 0 rgba(0,0,0,.4), 0 10px 26px -16px rgba(0,0,0,.9);
+  --shadow-lift:0 2px 0 rgba(0,0,0,.5), 0 18px 40px -18px rgba(0,0,0,1);
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--bg);}
+.app{
+  min-height:100vh;
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/100% 34px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/34px 100%,
+    var(--bg);
+  color:var(--ink);
+  font-family:'Archivo',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  font-size:15px;
+  padding:20px 16px 90px;
+  transition:background-color .35s ease, color .35s ease;
+}
+#app{max-width:1020px;margin:0 auto;}
+
+h1,h2,h3{font-weight:600;letter-spacing:-0.015em;margin:0 0 4px;line-height:1.15;}
+h1{font-size:1.5rem;}
+h2{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-soft);}
+h3{font-size:.92rem;font-weight:600;margin:16px 0 6px;letter-spacing:-0.01em;}
+p{color:var(--ink-soft);line-height:1.6;margin:0 0 12px;}
+.small{font-size:.76rem;color:var(--ink-soft);line-height:1.5;}
+.err{color:var(--danger);font-size:.82rem;line-height:1.5;}
+.divider{height:1px;background:var(--hair);margin:14px 0;}
+
+button{
+  font-family:inherit;font-size:.86rem;font-weight:600;letter-spacing:.01em;
+  background:var(--ink);color:var(--bg);border:1px solid var(--ink);border-radius:3px;
+  padding:10px 17px;cursor:pointer;
+  transition:transform .1s ease, box-shadow .18s ease, background-color .18s ease, opacity .18s ease;
+}
+button:hover:not(:disabled){transform:translateY(-1px);box-shadow:var(--shadow);}
+button:active:not(:disabled){transform:translateY(1px);box-shadow:none;}
+button.secondary{background:transparent;color:var(--ink);border-color:var(--line);}
+button.secondary:hover:not(:disabled){border-color:var(--ink);}
+button.danger{background:var(--danger);border-color:var(--danger);color:#fff;}
+button:disabled{opacity:.32;cursor:not-allowed;}
+.small-btn{padding:6px 12px;font-size:.76rem;}
+.theme-btn{
+  float:right;background:transparent;color:var(--ink-soft);border-color:var(--hair);
+  padding:5px 11px;font-size:.72rem;
+}
+
+input{
+  font-family:inherit;font-size:.92rem;padding:10px 12px;border-radius:3px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%;
+  transition:border-color .18s ease;
+}
+input:focus{outline:none;border-color:var(--ink);}
+label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);display:block;margin-bottom:5px;}
+
+.stack{display:flex;flex-direction:column;gap:11px;}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;}
+.panel{
+  background:var(--surface);border:1px solid var(--line);border-radius:4px;
+  padding:17px 18px;box-shadow:var(--shadow);
+}
+.center-box{max-width:400px;margin:56px auto;}
+.pill,.tag{
+  display:inline-block;font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:20px;
+  background:var(--surface-2);color:var(--ink-soft);border:1px solid var(--hair);
+  text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;
+}
+.tag.eclipse{background:transparent;color:var(--foso);border-color:var(--foso);}
+.tag.coronacion{background:transparent;color:var(--bisagra);border-color:var(--bisagra);}
+.tag.done{background:transparent;color:var(--cima);border-color:var(--cima);}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1.5rem;letter-spacing:.22em;font-weight:700;}
+
+/* ===== PORTADA ===== */
+.hero{padding:26px 2px 6px;}
+.hero-title{
+  font-size:clamp(2.4rem,7vw,3.6rem);font-weight:700;letter-spacing:-0.045em;
+  margin-bottom:10px;line-height:.95;
+}
+.hero-title::after{
+  content:'';display:block;width:64px;height:3px;background:var(--ink);margin-top:16px;
+  animation:drawRule .7s cubic-bezier(.2,.8,.2,1) both;
+}
+.hero-sub{font-size:1rem;max-width:54ch;line-height:1.6;margin-top:14px;}
+
+/* ===== MARCADOR ===== */
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:18px;}
+.scoreboard{display:flex;gap:9px;flex-wrap:wrap;}
+.score-chip{
+  position:relative;background:var(--surface);border:1px solid var(--line);border-radius:4px;
+  padding:10px 13px 11px;min-width:140px;flex:1 1 140px;max-width:220px;
+  box-shadow:var(--shadow);
+  transition:box-shadow .3s ease, border-color .3s ease, transform .3s ease;
+}
+.score-chip::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--seat,var(--line));}
+.score-chip.turn{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow-lift);}
+.score-chip.turn::after{
+  content:'';position:absolute;inset:-3px;border:1px solid var(--accent);border-radius:6px;
+  animation:pulseRing 2.2s ease-in-out infinite;pointer-events:none;
+}
+.chip-head{display:flex;align-items:center;gap:6px;margin-bottom:9px;}
+.seat-mark{font-size:.8rem;color:var(--seat,var(--ink));}
+.chip-name{font-weight:700;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chip-you{font-size:.58rem;font-weight:700;background:var(--ink);color:var(--bg);padding:2px 6px;border-radius:20px;letter-spacing:.06em;}
+.chip-adv{font-size:.85rem;color:var(--bisagra);margin-left:auto;}
+.chip-stats{display:flex;gap:18px;align-items:flex-end;}
+.stat{position:relative;display:flex;flex-direction:column;line-height:1;}
+.stat-num{font-size:1.6rem;font-weight:700;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;}
+.stat-lbl{font-size:.55rem;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.11em;margin-top:5px;}
+.chip-state{font-size:.68rem;color:var(--ink-soft);margin-top:9px;}
+.chip-cards{font-size:.63rem;color:var(--ink-faint);margin-top:2px;}
+.chip-turn{
+  position:absolute;top:-9px;right:10px;font-size:.55rem;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;background:var(--accent);color:#fff;padding:3px 8px;border-radius:20px;
+}
+
+/* ===== ZONAS ===== */
+.zones-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin:18px 0;}
+@media (max-width:760px){.zones-grid{grid-template-columns:1fr;}}
+.zone{
+  position:relative;overflow:hidden;
+  background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:15px 16px;
+  box-shadow:var(--shadow);
+  transition:box-shadow .3s ease, border-color .3s ease;
+}
+.zone::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--zc,var(--ink));}
+.zone.bisagra{--zc:var(--bisagra);}
+.zone.umbral{--zc:var(--umbral);}
+.zone.cima{--zc:var(--cima);}
+.zone.foso{--zc:var(--foso);}
+.zone.resolving{border-color:var(--zc,var(--ink));animation:zonePulse 1.5s ease-in-out infinite;}
+.zone.resolving::before{height:4px;animation:barPulse 1.5s ease-in-out infinite;}
+.zone.resolved{background:var(--surface);}
+.zone-head{margin-bottom:13px;}
+.zone-title{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.zone-title h2{font-size:.82rem;letter-spacing:.16em;color:var(--zc,var(--ink));}
+.zone-head .cond{display:block;font-size:.71rem;color:var(--ink-soft);margin-top:6px;line-height:1.5;padding-top:6px;border-top:1px solid var(--hair);}
+.zone-status{font-size:.68rem;color:var(--ink-soft);margin-top:8px;letter-spacing:.05em;}
+.empty-zone{font-size:.73rem;color:var(--ink-faint);padding:16px 0;letter-spacing:.04em;}
+.zone-groups{display:flex;flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:9px;}
+.owner-group{border-left:2px solid var(--seat,var(--line));padding-left:8px;min-width:0;}
+.owner-label{font-size:.66rem;font-weight:700;display:flex;align-items:center;gap:5px;margin-bottom:6px;white-space:nowrap;color:var(--seat,var(--ink));text-transform:uppercase;letter-spacing:.06em;}
+.owner-label .sum{margin-left:6px;font-size:.72rem;padding:1px 8px;border-radius:20px;background:var(--surface-2);border:1px solid var(--hair);color:var(--ink);font-variant-numeric:tabular-nums;}
+.owner-label .sum.bust{color:var(--danger);border-color:var(--danger);}
+.zone-cards{display:flex;flex-wrap:wrap;gap:5px;}
+.sweep{position:absolute;top:0;bottom:0;width:38%;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--zc),transparent);opacity:.14;
+  animation:sweepAcross 1.6s ease-in-out infinite;}
+
+/* ===== IDENTIDAD DE JUGADOR ===== */
+.p0{--seat:var(--cima);--tint:var(--t0);}
+.p1{--seat:var(--umbral);--tint:var(--t1);}
+.p2{--seat:var(--bisagra);--tint:var(--t2);}
+.p3{--seat:var(--foso);--tint:var(--t3);}
+
+/* ===== CARTAS ===== */
+.card{
+  position:relative;width:52px;height:70px;border-radius:3px;
+  border:1px solid var(--line);border-bottom:3px solid var(--seat,var(--line));
+  background:var(--surface);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-weight:700;font-size:1.1rem;user-select:none;
+  transition:transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s ease, opacity .3s ease;
+  font-variant-numeric:tabular-nums;
+}
+.card .val{line-height:1;}
+.card.back{
+  color:var(--ink-faint);
+  background:repeating-linear-gradient(45deg,var(--surface-2),var(--surface-2) 3px,var(--hair) 3px,var(--hair) 6px);
+}
+.card.mine{border-color:var(--ink);}
+  /* Se jugó oculta: conserva de fondo la trama del dorso */
+  .card.was-hidden{
+    background-image:repeating-linear-gradient(45deg,rgba(125,120,105,.16) 0 2px,transparent 2px 7px);
+  }
+.card.marked{border-left:3px solid var(--danger);}
+.card.selected,.card.picked{box-shadow:inset 0 0 0 2px var(--accent);}
+.card.focus{box-shadow:0 0 0 3px var(--ink);animation:focusPulse 1.4s ease-in-out infinite;}
+.card.clickable{cursor:pointer;}
+.card.clickable:hover{transform:translateY(-4px) rotate(-1deg);box-shadow:var(--shadow-lift);}
+.card.dead{opacity:.42;}
+.card .calc{font-size:.58rem;font-weight:600;color:var(--ink-soft);margin-top:3px;letter-spacing:.02em;}
+.card .badge{position:absolute;top:3px;right:4px;font-size:.56rem;line-height:1;}
+.card .badge.atk{color:var(--danger);}
+.card .badge.act{color:var(--bisagra);right:auto;left:4px;}
+.card .dead-note{position:absolute;bottom:2px;left:0;right:0;font-size:.5rem;font-weight:700;color:var(--danger);text-align:center;overflow:hidden;white-space:nowrap;padding:0 2px;}
+  .card.dead{opacity:.5;transform:rotate(-7deg) translateY(5px);filter:grayscale(.5);}
+  .card.dead .cface{text-decoration:line-through;}
+  .card.dead:hover{transform:rotate(-7deg) translateY(5px);}
+.hand{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;}
+.hand .card{width:58px;height:79px;cursor:pointer;}
+
+/* ===== RESULTADO DE ZONA ===== */
+.zone-result{margin-top:12px;padding-top:11px;border-top:1px solid var(--hair);}
+.res-win{display:flex;align-items:center;gap:7px;font-size:.9rem;color:var(--seat,var(--ink));flex-wrap:wrap;}
+.res-mark{font-size:.95rem;}
+.res-gain{font-size:.7rem;font-weight:600;color:var(--ink-soft);letter-spacing:.02em;}
+.res-none{font-size:.86rem;font-weight:600;color:var(--ink-faint);letter-spacing:.03em;}
+.res-why{font-size:.73rem;color:var(--ink-soft);line-height:1.5;margin-top:5px;}
+.res-adv{font-size:.71rem;font-weight:700;color:var(--bisagra);margin-top:5px;letter-spacing:.03em;}
+
+/* ===== BANNERS Y PANELES ===== */
+.banner{background:var(--surface-2);border:1px solid var(--hair);border-radius:3px;padding:11px 14px;font-size:.85rem;line-height:1.5;}
+.banner.action{background:transparent;border-color:var(--accent);border-left-width:3px;}
+.modal-inline{background:var(--surface-2);border:1px solid var(--line);border-left:3px solid var(--ink);border-radius:3px;padding:13px 15px;margin-top:11px;}
+.choice-row{border:1px solid var(--line);border-radius:3px;padding:10px;margin-top:9px;background:var(--surface);}
+.stall{border:1px solid var(--bisagra);border-left-width:3px;background:var(--surface);border-radius:3px;padding:13px 15px;margin-bottom:15px;}
+.stall-head{font-weight:700;font-size:.86rem;color:var(--bisagra);letter-spacing:.02em;}
+.stall-body{font-size:.83rem;margin-top:4px;line-height:1.5;}
+
+/* ===== LISTAS ===== */
+.players-list{list-style:none;padding:0;margin:0;}
+.players-list li{padding:9px 0;border-bottom:1px solid var(--hair);font-size:.88rem;display:flex;align-items:center;gap:6px;}
+.players-list li:last-child{border-bottom:none;}
+.players-list li .pill{margin-left:6px;}
+.rank-score{margin-left:auto;font-size:1.05rem;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:2px;}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:7px;}
+.dot.on{background:var(--accent);}
+.dot.off{background:transparent;border:1px solid var(--ink-faint);}
+.room-list{display:flex;flex-direction:column;gap:8px;}
+.room-row{display:flex;justify-content:space-between;align-items:center;gap:11px;border:1px solid var(--line);border-radius:3px;padding:11px 13px;background:var(--surface-2);transition:border-color .2s ease;}
+.room-row:hover{border-color:var(--ink);}
+.room-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;font-size:1.1rem;letter-spacing:.16em;}
+
+/* ===== AYUDA ===== */
+.help-list{margin:0;padding-left:20px;font-size:.85rem;line-height:1.7;color:var(--ink-soft);}
+.help-list strong{color:var(--ink);}
+.help-cards{display:flex;flex-direction:column;gap:9px;}
+.help-card{display:flex;gap:13px;align-items:flex-start;border:1px solid var(--line);border-radius:3px;padding:11px 13px;background:var(--surface-2);}
+.help-card-face{
+  flex:0 0 40px;height:54px;border:1px solid var(--line);border-bottom:3px solid var(--ink);border-radius:3px;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.25rem;background:var(--surface);
+}
+.help-when{font-size:.62rem;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.09em;}
+.help-eff{font-size:.85rem;line-height:1.55;margin-top:4px;}
+.help-zones{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;}
+@media (max-width:640px){.help-zones{grid-template-columns:1fr;}}
+.help-zone{position:relative;border:1px solid var(--line);border-radius:3px;padding:11px 13px;background:var(--surface-2);}
+.help-zone::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--zc,var(--ink));}
+.help-zone.bisagra{--zc:var(--bisagra);} .help-zone.umbral{--zc:var(--umbral);}
+.help-zone.cima{--zc:var(--cima);} .help-zone.foso{--zc:var(--foso);}
+.help-zone-name{font-weight:700;font-size:.76rem;text-transform:uppercase;letter-spacing:.12em;color:var(--zc,var(--ink));}
+.help-zone-cond{font-size:.76rem;color:var(--ink-soft);line-height:1.5;margin-top:5px;}
+.help-zone-prize{font-size:.71rem;font-weight:600;margin-top:7px;}
+.help-panel{border-color:var(--ink);}
+
+/* ===== ESTADÍSTICAS ===== */
+.stat-table{display:flex;flex-direction:column;gap:11px;}
+.stat-row{display:grid;grid-template-columns:78px 1fr;gap:5px 11px;align-items:center;}
+.stat-row-name{font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;}
+.stat-row-val{grid-column:2;font-size:.71rem;color:var(--ink-soft);}
+.bar{height:7px;background:var(--surface-2);border:1px solid var(--hair);border-radius:20px;overflow:hidden;}
+.bar-fill{height:100%;background:var(--ink);}
+.bar-fill.bisagra{background:var(--bisagra);} .bar-fill.umbral{background:var(--umbral);}
+.bar-fill.cima{background:var(--cima);} .bar-fill.foso{background:var(--foso);}
+.match-row{border-bottom:1px solid var(--hair);padding:9px 0;font-size:.85rem;}
+.match-row:last-of-type{border-bottom:none;}
+
+/* ===== REGISTRO ===== */
+.log{max-height:200px;overflow-y:auto;padding-right:5px;}
+.log-line{display:flex;gap:9px;font-size:.78rem;line-height:1.55;padding:4px 0;color:var(--ink-soft);border-bottom:1px solid var(--hair);}
+.log-line:last-child{border-bottom:none;}
+.log-line strong{color:var(--ink);font-weight:600;}
+.log-icon{flex:0 0 14px;text-align:center;color:var(--ink-faint);font-size:.8rem;}
+.log-line.k-ronda{color:var(--ink);font-weight:600;margin-top:7px;text-transform:uppercase;letter-spacing:.06em;font-size:.72rem;}
+.log-line.k-ronda .log-icon{color:var(--ink);}
+.log-line.k-ataque .log-icon{color:var(--danger);}
+.log-line.k-activar .log-icon{color:var(--bisagra);}
+.log-line.k-cambio .log-icon{color:var(--umbral);}
+.log-line.k-purga .log-icon{color:var(--foso);}
+.log-line.k-zona .log-icon{color:var(--cima);}
+.log-line.k-fin{color:var(--ink);font-weight:700;}
+
+/* ===== FINAL DE PARTIDA ===== */
+.finale{position:relative;overflow:hidden;}
+.finale.anim-finale{animation:finaleIn .6s cubic-bezier(.2,.9,.2,1) both;}
+.finale.anim-finale::after{
+  content:'';position:absolute;top:0;bottom:0;width:45%;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.16;
+  animation:sweepAcross 1.5s ease-out .25s both;pointer-events:none;
+}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.confetti i{position:absolute;top:-14px;width:6px;height:11px;opacity:0;animation:fall 2.6s cubic-bezier(.3,.6,.5,1) both;}
+.confetti .c0{background:var(--bisagra);} .confetti .c1{background:var(--umbral);}
+.confetti .c2{background:var(--cima);} .confetti .c3{background:var(--foso);}
+.float-gain{
+  position:absolute;top:-4px;left:100%;margin-left:5px;font-size:.8rem;font-weight:700;color:var(--accent);
+  animation:floatUp 1.5s ease-out both;pointer-events:none;white-space:nowrap;
+}
+
+/* ===== AMBIENTACIÓN: LA CIUDAD VERTICAL ===== */
+.hero-grid{display:flex;gap:26px;align-items:center;}
+@media (max-width:640px){.hero-grid{gap:14px;}}
+.hero-kicker{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.22em;color:var(--ink-faint);margin-bottom:9px;}
+.hero-quote{
+  font-size:.86rem;font-style:italic;line-height:1.65;color:var(--ink-soft);
+  border-left:2px solid var(--line);padding-left:14px;margin-top:16px;max-width:46ch;
+}
+.emblem{
+  flex:0 0 96px;width:96px;height:120px;color:var(--ink);opacity:.85;
+}
+@media (max-width:520px){.emblem{flex-basis:64px;width:64px;height:80px;}}
+.emblem .em-cima{color:var(--cima);stroke:var(--cima);animation:emDraw .8s ease both .1s;}
+.emblem .em-umbral{stroke:var(--umbral);animation:emDraw .8s ease both .25s;}
+.emblem .em-bisagra{stroke:var(--bisagra);animation:emDraw .9s ease both .4s;}
+.emblem .em-foso{stroke:var(--foso);animation:emDraw .8s ease both .55s;}
+@keyframes emDraw{from{opacity:0;transform:scaleY(.6);}to{opacity:1;transform:none;}}
+
+.zicon{width:15px;height:15px;flex:0 0 15px;color:var(--zc,var(--ink));}
+.zone-toprow{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.zone-flavor{display:block;font-size:.72rem;font-style:italic;color:var(--ink-faint);margin-top:7px;line-height:1.45;}
+.elev{display:flex;flex-direction:column;gap:3px;align-items:flex-end;padding-top:3px;flex:0 0 auto;}
+.elev i{display:block;width:9px;height:2px;background:var(--hair);border-radius:2px;transition:all .3s ease;}
+.elev i.on{width:16px;height:3px;background:var(--zc,var(--ink));}
+.help-zone-name{display:flex;align-items:center;gap:6px;}
+.help-zone-flavor{font-size:.72rem;font-style:italic;color:var(--ink-faint);margin-top:5px;line-height:1.45;}
+.help-title{font-size:.82rem;font-weight:700;margin-top:3px;letter-spacing:-0.01em;}
+
+/* ===== CARTAS CON COLOR Y GLIFO ===== */
+.card{background:var(--tint,var(--surface));}
+.cface{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:100%;}
+.cwatermark{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--seat,var(--ink));opacity:.17;pointer-events:none;
+}
+.cwatermark .cglyph{width:76%;height:76%;}
+.card .val{position:relative;z-index:1;line-height:1;}
+.card.back .cface .val{opacity:.45;}
+
+/* ===== PANEL DE JUGAR CARTA ===== */
+.play-panel{border:1px solid var(--ink);border-radius:4px;background:var(--surface);padding:15px;margin-top:12px;}
+.play-head{display:flex;gap:15px;align-items:flex-start;margin-bottom:14px;}
+.play-preview{width:66px;height:90px;font-size:1.35rem;flex:0 0 66px;cursor:default;}
+.play-info{flex:1;min-width:0;}
+.ori-toggle{display:flex;gap:0;}
+.play-effect{
+  display:flex;gap:9px;align-items:flex-start;margin-top:11px;
+  font-size:.79rem;line-height:1.5;color:var(--ink-soft);
+  border-left:2px solid var(--seat,var(--line));padding-left:10px;
+}
+.pe-glyph{flex:0 0 20px;color:var(--seat,var(--ink));opacity:.75;}
+.pe-glyph .cglyph{width:20px;height:20px;}
+.ori-toggle button{border-radius:0;flex:1;}
+.ori-toggle button:first-child{border-radius:3px 0 0 3px;}
+.ori-toggle button:last-child{border-radius:0 3px 3px 0;margin-left:-1px;}
+.play-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);margin-bottom:8px;}
+.zone-picker{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+@media (max-width:520px){.zone-picker{grid-template-columns:1fr;}}
+.zpick{
+  position:relative;border:1px solid var(--line);border-top:3px solid var(--zc,var(--ink));
+  border-radius:3px;padding:10px 11px;cursor:pointer;background:var(--surface-2);
+  transition:border-color .15s ease, transform .12s ease, box-shadow .18s ease;
+}
+.zpick.cima{--zc:var(--cima);} .zpick.umbral{--zc:var(--umbral);}
+.zpick.bisagra{--zc:var(--bisagra);} .zpick.foso{--zc:var(--foso);}
+.zpick:hover:not(.off){transform:translateY(-2px);box-shadow:var(--shadow);}
+.zpick.sel{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);background:var(--surface);}
+.zpick.off{opacity:.4;cursor:not-allowed;}
+.zpick-top{display:flex;align-items:center;gap:6px;}
+.zpick-name{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--zc);}
+.zpick-val{display:flex;align-items:baseline;gap:6px;margin-top:7px;}
+.zpick-val.off{font-size:.78rem;color:var(--ink-faint);}
+.zpick-num{font-size:1.5rem;font-weight:700;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;}
+.zpick-mod{font-size:.68rem;font-weight:700;color:var(--zc);}
+.zpick-cond{font-size:.66rem;color:var(--ink-soft);margin-top:4px;line-height:1.4;}
+.play-foot{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap;}
+.play-foot button:first-child{flex:1;min-width:180px;}
+
+/* ===== AYUDA: MÁS CLARA ===== */
+.rules-intro{font-size:.95rem;line-height:1.6;color:var(--ink);}
+.fact-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+@media (max-width:560px){.fact-grid{grid-template-columns:repeat(2,1fr);}}
+.fact{border:1px solid var(--line);border-radius:3px;padding:10px 11px;background:var(--surface-2);display:flex;flex-direction:column;gap:4px;}
+.fact-num{font-size:1.35rem;font-weight:700;letter-spacing:-0.03em;line-height:1;}
+.fact-lbl{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-faint);}
+.steps{display:flex;flex-direction:column;gap:2px;}
+.step{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--hair);}
+.step:last-child{border-bottom:none;}
+.step-n{
+  flex:0 0 22px;height:22px;border:1px solid var(--ink);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;
+}
+.step-t{font-weight:700;font-size:.85rem;}
+.step-d{font-size:.8rem;color:var(--ink-soft);line-height:1.5;margin-top:2px;}
+.mod-table{display:flex;flex-direction:column;gap:1px;border:1px solid var(--line);border-radius:3px;overflow:hidden;}
+.mod-row{display:grid;grid-template-columns:18px 1fr auto 1.5fr;gap:10px;align-items:center;padding:9px 12px;background:var(--surface-2);border-bottom:1px solid var(--hair);}
+.mod-row:last-child{border-bottom:none;}
+.mod-row.cima{--zc:var(--cima);} .mod-row.umbral{--zc:var(--umbral);}
+.mod-row.bisagra{--zc:var(--bisagra);} .mod-row.foso{--zc:var(--foso);}
+.mod-name{font-size:.76rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--zc);}
+.mod-val{font-size:1.05rem;font-weight:700;font-variant-numeric:tabular-nums;}
+.mod-note{font-size:.72rem;color:var(--ink-soft);text-align:right;}
+@media (max-width:520px){.mod-row{grid-template-columns:18px 1fr auto;}.mod-note{display:none;}}
+.help-panel{border-color:var(--ink);border-left-width:3px;}
+.tiebreak{border-left:3px solid var(--bisagra);background:var(--surface-2);padding:10px 13px;border-radius:3px;font-size:.83rem;line-height:1.55;margin-top:4px;}
+.pglyph{width:11px;height:11px;vertical-align:-1px;margin-right:3px;}
+.stat-lbl{display:flex;align-items:center;}
+
+/* ===== CARTA FANTASMA AL ELEGIR DÓNDE JUGAR ===== */
+.ghost-group{border-left-style:dashed;opacity:.95;}
+.ghost-group .owner-label{font-style:italic;opacity:.75;font-size:.6rem;}
+.card.ghost{
+  border-style:dashed;cursor:pointer;
+  box-shadow:none;
+}
+.card.ghost .cfoot{color:var(--seat,var(--ink));font-size:.6rem;}
+.card.ghost-pulse{animation:ghostPulse 1.25s ease-in-out infinite;}
+.card.ghost-sel{
+  border-style:solid;box-shadow:0 0 0 2px var(--ink), var(--shadow-lift);
+  transform:translateY(-3px);
+}
+.card.ghost-off{opacity:.3;cursor:not-allowed;border-style:dashed;}
+.card.ghost:hover:not(.ghost-off){transform:translateY(-4px);}
+@keyframes ghostPulse{
+  0%,100%{opacity:.5;transform:none;}
+  50%{opacity:1;transform:translateY(-3px);}
+}
+.play-hint{font-size:.8rem;line-height:1.5;color:var(--ink-soft);margin-top:13px;padding-top:11px;border-top:1px solid var(--hair);}
+
+/* ===== HABILIDADES ESPECIALES: EFECTOS ===== */
+.ord{font-size:.6rem;font-weight:700;color:var(--ink-faint);letter-spacing:.08em;margin-left:auto;}
+.tag.tag-new{animation:tagBurst .75s cubic-bezier(.2,.9,.25,1) both;}
+@keyframes tagBurst{
+  0%{opacity:0;transform:scale(.5) translateY(-6px);}
+  50%{opacity:1;transform:scale(1.22);}
+  100%{opacity:1;transform:none;}
+}
+/* La J mueve una carta de zona: viaje marcado, con giro y estela */
+@keyframes swapTravel{
+  0%{opacity:0;transform:translateX(-34px) rotate(-16deg) scale(.82);}
+  45%{opacity:1;transform:translateX(6px) rotate(7deg) scale(1.1);}
+  70%{transform:translateX(-3px) rotate(-3deg) scale(1.02);}
+  100%{opacity:1;transform:none;}
+}
+.anim-swap{animation:swapTravel .72s cubic-bezier(.2,.8,.25,1) both;z-index:2;}
+.anim-swap::after{
+  content:'⇄';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;color:var(--umbral);animation:fxFade .8s ease-out both;pointer-events:none;
+}
+/* La Q barre el estrato: la carta se desintegra hacia arriba */
+@keyframes purgeSweep{
+  0%{opacity:1;transform:none;filter:none;}
+  30%{transform:translateY(-7px) scale(1.06);filter:brightness(1.35);}
+  100%{opacity:.4;transform:translateY(4px) scale(.94);filter:grayscale(1);}
+}
+.anim-purge{animation:purgeSweep .8s cubic-bezier(.3,.7,.4,1) both;}
+.anim-purge::after{
+  content:'✖';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:1.35rem;color:var(--foso);animation:fxFade .9s ease-out both;pointer-events:none;
+}
+/* K y As al descubierto: la carta despierta con un destello */
+@keyframes awaken{
+  0%{transform:rotateY(90deg) scale(.9);box-shadow:none;}
+  45%{transform:rotateY(-14deg) scale(1.22);box-shadow:0 0 0 8px var(--hair);}
+  70%{transform:scale(1.08);box-shadow:0 0 0 14px transparent;}
+  100%{transform:none;box-shadow:none;}
+}
+.anim-awaken{animation:awaken .95s cubic-bezier(.2,.9,.25,1) both;z-index:3;}
+.anim-awaken::after{
+  content:'★';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:1.7rem;color:var(--bisagra);animation:fxBurst 1.05s ease-out both;pointer-events:none;
+}
+@keyframes fxFade{0%{opacity:0;transform:scale(.5);}35%{opacity:.95;transform:scale(1.15);}100%{opacity:0;transform:scale(1.5);}}
+@keyframes fxBurst{0%{opacity:0;transform:scale(.3) rotate(-40deg);}40%{opacity:1;transform:scale(1.5) rotate(10deg);}100%{opacity:0;transform:scale(2.2) rotate(25deg);}}
+
+/* ===== ANIMACIONES ===== */
+@keyframes riseIn{from{opacity:0;transform:translateY(9px);}to{opacity:1;transform:none;}}
+@keyframes drawRule{from{width:0;}to{width:64px;}}
+@keyframes dealIn{
+  0%{opacity:0;transform:translateY(-26px) rotate(-7deg) scale(.9);}
+  65%{opacity:1;transform:translateY(3px) rotate(1.5deg) scale(1.01);}
+  100%{opacity:1;transform:none;}
+}
+@keyframes flipIn{
+  0%{transform:rotateY(90deg) scale(.94);}
+  55%{transform:rotateY(-12deg) scale(1.04);}
+  100%{transform:none;}
+}
+@keyframes fallOut{
+  0%{transform:none;opacity:1;}
+  25%{transform:translateY(-6px) rotate(4deg);opacity:1;}
+  60%{transform:translateY(8px) rotate(-11deg);}
+  100%{transform:rotate(-7deg) translateY(5px);opacity:.5;}
+}
+@keyframes hitShake{
+  0%,100%{transform:none;}
+  15%{transform:translateX(-4px) rotate(-2deg);}
+  35%{transform:translateX(4px) rotate(2deg);}
+  55%{transform:translateX(-3px);}
+  75%{transform:translateX(2px);}
+}
+@keyframes slideMove{from{opacity:.3;transform:scale(.9);}to{opacity:1;transform:none;}}
+@keyframes pulseRing{0%,100%{opacity:.5;}50%{opacity:0;}}
+@keyframes focusPulse{0%,100%{box-shadow:0 0 0 3px var(--ink);}50%{box-shadow:0 0 0 6px var(--hair);}}
+@keyframes sweepAcross{0%{left:-45%;}100%{left:105%;}}
+@keyframes zonePulse{
+  0%,100%{box-shadow:0 0 0 0 transparent, var(--shadow);}
+  50%{box-shadow:0 0 22px -4px var(--zc), var(--shadow-lift);}
+}
+@keyframes barPulse{0%,100%{opacity:.55;}50%{opacity:1;}}
+@keyframes growBar{from{width:0 !important;}}
+@keyframes floatUp{0%{opacity:0;transform:translateY(6px);}25%{opacity:1;}100%{opacity:0;transform:translateY(-22px);}}
+@keyframes gainPop{0%,100%{transform:none;}40%{transform:scale(1.16);}}
+@keyframes finaleIn{0%{opacity:0;transform:scale(.94) translateY(14px);}100%{opacity:1;transform:none;}}
+@keyframes fall{
+  0%{opacity:0;transform:translateY(0) rotate(0);}
+  10%{opacity:1;}
+  100%{opacity:0;transform:translateY(230px) rotate(520deg);}
+}
+@keyframes rankIn{from{opacity:0;transform:translateX(-14px);}to{opacity:1;transform:none;}}
+@keyframes resultIn{from{opacity:0;transform:translateY(-7px);}to{opacity:1;transform:none;}}
+
+.anim-deal{animation:dealIn .42s cubic-bezier(.2,.85,.25,1) both;}
+.anim-flip{animation:flipIn .48s cubic-bezier(.2,.85,.25,1) both;}
+.anim-fall{animation:fallOut .55s cubic-bezier(.3,.7,.4,1) both;}
+.anim-hit{animation:hitShake .45s ease both;}
+.anim-move{animation:slideMove .4s cubic-bezier(.2,.8,.2,1) both;}
+.anim-gain{animation:gainPop .6s ease both;}
+.anim-rank{animation:rankIn .45s cubic-bezier(.2,.8,.2,1) both;}
+.anim-result{animation:resultIn .4s cubic-bezier(.2,.8,.2,1) both;}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- ===================== FIREBASE (backend gratuito para multijugador) =====================
+     Sustituye el almacenamiento de Artifacts de Claude por Firebase Realtime Database,
+     para poder alojar esta web en cualquier sitio (GitHub Pages, Netlify, Vercel...) gratis.
+     Instrucciones completas: ver README que acompaña a este archivo. -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script>
+/* ============================= CONFIGURACIÓN DE FIREBASE =============================
+   PEGA AQUÍ el objeto de configuración de tu proyecto de Firebase (Configuración del
+   proyecto → Tus apps → SDK de Firebase). Debe incluir "databaseURL". */
+const firebaseConfig = {
+  apiKey: "AIzaSyCCHr7fUJK7ziNZzACHvQbItJVwiYGkr4k",
+  authDomain: "zonas-4.firebaseapp.com",
+  databaseURL: "https://zonas-4-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "zonas-4",
+  storageBucket: "zonas-4.firebasestorage.app",
+  messagingSenderId: "605071632175",
+  appId: "1:605071632175:web:489ff74fc1be8ad3fde3da",
+  measurementId: "G-8V5R6MFMHN"
+};
+
+firebase.initializeApp(firebaseConfig);
+const fbDb = firebase.database();
+
+/* ============================= SHIM window.storage =============================
+   Reimplementa exactamente la misma interfaz que usaba el Artifact de Claude
+   (get/set/delete/list con clave + flag "shared"), para que el resto del código
+   del juego no necesite ningún otro cambio.
+   - shared=false (preferencias/sesión de ESTE navegador) -> localStorage
+   - shared=true  (partida, presencia, listado de salas)  -> Firebase Realtime Database */
+function fbPath(key){ return 'store/' + key; }
+
+window.storage = {
+  async get(key, shared){
+    if(!shared){
+      try{
+        const raw = localStorage.getItem('4zonas:'+key);
+        return raw===null ? null : { key, value: raw, shared:false };
+      }catch(e){ return null; }
+    }
+    const snap = await fbDb.ref(fbPath(key)).once('value');
+    const v = snap.val();
+    return (v===null || v===undefined) ? null : { key, value:v, shared:true };
+  },
+  async set(key, value, shared){
+    if(!shared){
+      localStorage.setItem('4zonas:'+key, value);
+      return { key, value, shared:false };
+    }
+    await fbDb.ref(fbPath(key)).set(value);
+    return { key, value, shared:true };
+  },
+  async delete(key, shared){
+    if(!shared){
+      try{ localStorage.removeItem('4zonas:'+key); }catch(e){}
+      return { key, deleted:true, shared:false };
+    }
+    await fbDb.ref(fbPath(key)).remove();
+    return { key, deleted:true, shared:true };
+  },
+  async list(prefix, shared){
+    prefix = prefix || '';
+    if(!shared){
+      const keys = [];
+      try{
+        for(let i=0;i<localStorage.length;i++){
+          const k = localStorage.key(i);
+          if(k && k.indexOf('4zonas:'+prefix)===0) keys.push(k.slice(7));
+        }
+      }catch(e){}
+      return { keys, prefix, shared:false };
+    }
+    const snap = await fbDb.ref('store').orderByKey().startAt(prefix).endAt(prefix+'\uf8ff').once('value');
+    const keys = [];
+    snap.forEach(child=>{ keys.push(child.key); });
+    return { keys, prefix, shared:true };
+  }
+};
+</script>
+
+<script>
+/* ============================= CONSTANTS ============================= */
+const CARD_VALUES = [2,3,4,5,6,7,8,9,'J','Q','K','A'];
+const ZONE_KEYS = ['bisagra','umbral','cima','foso'];
+const ZONE_LABEL = {bisagra:'Bisagra', umbral:'Umbral', cima:'Cima', foso:'Foso'};
+/* La ciudad vertical: cada zona es un punto de la estructura. */
+const ZONE_FLAVOR = {
+  bisagra:'La pieza sobre la que gira la ciudad. Su humor cambia cada ronda.',
+  umbral:'El paso entre lo alto y lo bajo. Cruzarlo exige medida exacta.',
+  cima:'Las terrazas altas, donde solo se recuerda lo más grande.',
+  foso:'Los cimientos, donde dura quien menos ruido hace.'
+};
+const ZONE_ELEV = {cima:0, umbral:1, bisagra:2, foso:3};
+const ZONE_DISPLAY = ['cima','umbral','bisagra','foso'];
+const ZONE_SHORT = {
+  bisagra:'Par: gana la alta. Impar: la baja',
+  umbral:'Lo más cerca de 11 sin pasarse',
+  cima:'Gana la carta más alta',
+  foso:'Gana la carta más baja'
+};
+/* Cada carta especial lleva su propio glifo geométrico, para reconocerla
+   de un vistazo sobre el tablero sin tener que leer la letra. */
+const CARD_GLYPH = {
+  J:'<svg viewBox="0 0 20 20" class="cglyph"><path d="M3 7 H15 M12 4 L15 7 L12 10" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M17 13 H5 M8 10 L5 13 L8 16" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  Q:'<svg viewBox="0 0 20 20" class="cglyph"><path d="M3 5 H17 M4 9.5 H16 M6 14 H14 M8.5 17.5 H11.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  K:'<svg viewBox="0 0 20 20" class="cglyph"><path d="M3 15 V6 L7 10 L10 4 L13 10 L17 6 V15 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
+  A:'<svg viewBox="0 0 20 20" class="cglyph"><path d="M10 2 L17 10 L10 18 L3 10 Z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 10 H17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/></svg>'
+};
+/* Símbolo del Prestigio: la clave de bóveda, la pieza que sostiene el arco. */
+const PRESTIGE_GLYPH = '<svg viewBox="0 0 16 16" class="pglyph"><path d="M5.5 2 H10.5 L13 13 H3 Z" fill="currentColor"/><path d="M1.5 15 H14.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+
+const ZONE_ICON = {
+  bisagra:'<svg viewBox="0 0 16 16" class="zicon"><path d="M8 2 V14" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M8 5 L14 2.5 V13.5 L8 11" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 5 L2 2.5 V13.5 L8 11" stroke="currentColor" stroke-width="1.4" fill="none" opacity=".45"/></svg>',
+  umbral:'<svg viewBox="0 0 16 16" class="zicon"><path d="M3 14 V4 H13 V14" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M1 14 H15" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>',
+  cima:'<svg viewBox="0 0 16 16" class="zicon"><path d="M2 13 L8 3 L14 13" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M5.5 8.5 H10.5" stroke="currentColor" stroke-width="1.2" fill="none" opacity=".45"/></svg>',
+  foso:'<svg viewBox="0 0 16 16" class="zicon"><path d="M2 3 L8 13 L14 3" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M5.5 7.5 H10.5" stroke="currentColor" stroke-width="1.2" fill="none" opacity=".45"/></svg>'
+};
+
+const ZONE_COND = {
+  bisagra:'Máximo 2 cartas. Si la suma es par gana la más alta; si es impar, la más baja.',
+  umbral:'Gana quien más se acerque a 11 sumando sus cartas, sin pasarse. Cada carta oculta suma o resta 1, a elección de su dueño.',
+  cima:'Gana la carta más alta. Las ocultas valen +2.',
+  foso:'Gana la carta más baja. Las ocultas valen −2.'
+};
+const ZONE_REWARD = {bisagra:{prestige:1,token:1}, umbral:{prestige:3,token:0}, cima:{prestige:2,token:0}, foso:{prestige:2,token:0}};
+const ZONE_ORDER = ['bisagra','umbral','cima','foso'];
+const PLAYER_MARKS = ['●','■','▲','◆'];
+
+/* Cada jugador tiene un color y un símbolo fijos según su asiento, para poder
+   seguir de un vistazo qué cartas son de quién. */
+function seatOf(g, playerId){
+  const i = g.players.findIndex(p=>p.id===playerId);
+  return i<0 ? 0 : i;
+}
+function markOf(g, playerId){ return PLAYER_MARKS[seatOf(g,playerId) % PLAYER_MARKS.length]; }
+function seatClass(g, playerId){ return 'p'+(seatOf(g,playerId) % 4); }
+
+/* ---- Registro con iconos y énfasis ----
+   Cada línea es {i: icono, t: texto}. En el texto, *lo que va entre asteriscos*
+   se muestra en negrita. */
+const LOG_ICON = {
+  jugar:'▸', ataque:'⚔', activar:'★', cambio:'⇄', purga:'✖',
+  zona:'◈', ronda:'❯', sala:'·', fin:'✦', umbral:'±',
+};
+function addLog(g, kind, text){
+  g.log = g.log || [];
+  g.log.push({i: LOG_ICON[kind] || '·', t: text, k: kind});
+  if(g.log.length>200) g.log = g.log.slice(-200);
+}
+function formatLogText(t){
+  const parts = String(t).split('*');
+  return parts.map((p,i)=> i%2===1 ? '<strong>'+escapeHtml(p)+'</strong>' : escapeHtml(p)).join('');
+}
+
+
+/* ===================== CONTENIDO DE AYUDA =====================
+   Se define una sola vez y se reutiliza en la portada y en la ayuda del juego. */
+const CARD_HELP = [
+  {c:'J', cuando:'Al jugarla boca arriba', titulo:'Reordena la ciudad',
+   efecto:'Intercambia de zona dos cartas cualesquiera que ya estén sobre la mesa. Puede moverse a sí misma.'},
+  {c:'Q', cuando:'Al jugarla boca arriba', titulo:'Arrasa el estrato',
+   efecto:'Ataca de golpe todas las cartas ocultas de su zona, como si las hubieras atacado una por una y sin gastar Ataques.'},
+  {c:'K', cuando:'Al ser atacada estando oculta', titulo:'Un nombre que nadie discute',
+   efecto:'Su dueño gana esa zona automáticamente, aunque después la descarten o la muevan de sitio.'},
+  {c:'A', cuando:'Al ser atacado estando oculto', titulo:'El escándalo',
+   efecto:'Esa zona queda en entredicho: nadie la gana ni recibe recompensa, aunque después lo descarten o lo muevan.'},
+];
+const ZONE_HELP = [
+  {z:'bisagra', premio:'1 Prestigio + 1 Ataque + la ventaja de desempate'},
+  {z:'umbral', premio:'3 Prestigio'},
+  {z:'cima', premio:'2 Prestigio'},
+  {z:'foso', premio:'2 Prestigio'},
+];
+const PHASE_HELP = [
+  ['Robar', 'Robas hasta tener 4 cartas de tu mazo (3 en la última ronda).'],
+  ['Jugar', 'Por turnos, cada jugador coloca 3 cartas en las zonas que quiera, boca arriba o boca abajo.'],
+  ['Atacar', 'Por turnos, puedes gastar Ataques sobre cartas rivales. Una carta oculta cae de un golpe; una que ya esté a la vista necesita dos.'],
+  ['Resolver', 'Se resuelven las cuatro zonas en orden: Bisagra, Umbral, Cima y Foso.'],
+  ['Fin de ronda', 'Si te sobra una carta, la devuelves encima o debajo de tu mazo. Sin turnos: cada uno cuando quiera.'],
+];
+
+/* Emblema: cuatro estratos y la bisagra que los articula. */
+function cityEmblem(){
+  return el('<svg viewBox="0 0 120 150" class="emblem" aria-hidden="true">'
+    +'<path d="M20 26 L60 8 L100 26" fill="none" stroke="currentColor" stroke-width="2.4" class="em-cima"/>'
+    +'<path d="M28 58 H92" fill="none" stroke="currentColor" stroke-width="2.4" class="em-umbral"/>'
+    +'<path d="M40 50 V66 M80 50 V66" fill="none" stroke="currentColor" stroke-width="2.4" class="em-umbral"/>'
+    +'<path d="M60 78 V126" fill="none" stroke="currentColor" stroke-width="2.4" class="em-bisagra"/>'
+    +'<path d="M60 86 L96 74 V112 L60 100" fill="none" stroke="currentColor" stroke-width="1.8" class="em-bisagra"/>'
+    +'<path d="M60 86 L24 74 V112 L60 100" fill="none" stroke="currentColor" stroke-width="1.8" opacity=".4" class="em-bisagra"/>'
+    +'<path d="M20 132 L60 146 L100 132" fill="none" stroke="currentColor" stroke-width="2.4" class="em-foso"/>'
+    +'</svg>');
+}
+
+function renderCardHelp(){
+  const box = el('<div class="help-cards"></div>');
+  CARD_HELP.forEach(h=>{
+    const row = el('<div class="help-card"></div>');
+    row.appendChild(el('<div class="help-card-face">'+h.c+'</div>'));
+    const txt = el('<div></div>');
+    txt.appendChild(el('<div class="help-when">'+h.cuando+'</div>'));
+    if(h.titulo) txt.appendChild(el('<div class="help-title">'+h.titulo+'</div>'));
+    txt.appendChild(el('<div class="help-eff">'+h.efecto+'</div>'));
+    row.appendChild(txt);
+    box.appendChild(row);
+  });
+  return box;
+}
+/* Tabla compacta de qué vale una carta oculta en cada sitio. */
+function renderModTable(){
+  const box = el('<div class="mod-table"></div>');
+  const filas = [
+    ['cima','+2','Ocultar te agranda'],
+    ['umbral','±1','Eliges tú al resolver'],
+    ['bisagra','=','Vale lo que pone'],
+    ['foso','−2','Ocultar te empequeñece']
+  ];
+  filas.forEach(f=>{
+    const r = el('<div class="mod-row '+f[0]+'"></div>');
+    r.appendChild(el(ZONE_ICON[f[0]]));
+    r.appendChild(el('<span class="mod-name">'+ZONE_LABEL[f[0]]+'</span>'));
+    r.appendChild(el('<span class="mod-val">'+f[1]+'</span>'));
+    r.appendChild(el('<span class="mod-note">'+f[2]+'</span>'));
+    box.appendChild(r);
+  });
+  return box;
+}
+
+function renderZoneHelp(){
+  const box = el('<div class="help-zones"></div>');
+  ZONE_HELP.forEach(h=>{
+    const row = el('<div class="help-zone '+h.z+'"></div>');
+    const nm = el('<div class="help-zone-name"></div>');
+    nm.appendChild(el(ZONE_ICON[h.z]));
+    nm.appendChild(el('<span>'+ZONE_LABEL[h.z]+'</span>'));
+    row.appendChild(nm);
+    row.appendChild(el('<div class="help-zone-flavor">'+ZONE_FLAVOR[h.z]+'</div>'));
+    row.appendChild(el('<div class="help-zone-cond">'+ZONE_COND[h.z]+'</div>'));
+    row.appendChild(el('<div class="help-zone-prize">Premio: '+h.premio+'</div>'));
+    box.appendChild(row);
+  });
+  return box;
+}
+
+/* ===================== TEMA CLARO / OSCURO ===================== */
+let theme = 'claro';
+function applyTheme(root){
+  root.className = 'app theme-'+theme;
+  try{ if(document.body) document.body.className = 'theme-'+theme; }catch(e){}
+}
+async function setTheme(t){
+  theme = t;
+  try{ await window.storage.set('theme', t, false); }catch(e){}
+  repaint();
+}
+async function loadTheme(){
+  try{
+    const res = await window.storage.get('theme', false);
+    if(res && (res.value==='claro' || res.value==='oscuro')) theme = res.value;
+  }catch(e){}
+}
+function themeToggle(){
+  const b = el('<button class="theme-btn" title="Cambiar entre claro y oscuro">'+(theme==='claro'?'◐ Oscuro':'◑ Claro')+'</button>');
+  b.onclick = ()=>setTheme(theme==='claro'?'oscuro':'claro');
+  return b;
+}
+
+/* ===================== SEGUIMIENTO PARA ANIMACIONES =====================
+   Guardamos cómo estaba cada carta en el repintado anterior para animar solo
+   lo que acaba de cambiar, en vez de animarlo todo en cada repintado. */
+let prevCards = {};
+let nextCards = {};
+let prevHand = {};
+let nextHand = {};
+let prevPrestige = {};
+let prevRound = 0;
+let prevEnded = false;
+
+let prevFlags = {};
+let nextFlags = {};
+/* Devuelve la clase de animación si la marca de esta zona acaba de aparecer. */
+function zoneFlagAnim(g, zk){
+  const fl = (g.zoneFlags && g.zoneFlags[zk]) || {};
+  const firma = (fl.eclipse?'A':'')+((fl.coronation||[]).length)+((fl.eclipseBy||[]).length);
+  const antes = prevFlags[zk];
+  nextFlags[zk] = firma;
+  return (antes!==undefined && antes!==firma) ? ' tag-new' : '';
+}
+
+function cardState(entry, zk){
+  return zk+'|'+(entry.faceUp?'1':'0')+'|'+(entry.discarded?'1':'0')+'|'+(entry.attackedOnce?'1':'0')+'|'+(entry.activated?'1':'0');
+}
+/* Devuelve la clase de animación que le toca a esta carta ahora mismo. */
+function cardAnim(entry, zk){
+  const id = entry.card.id;
+  const ahora = cardState(entry, zk);
+  const antes = prevCards[id];
+  nextCards[id] = ahora;
+  if(antes === undefined) return ' anim-deal';
+  if(antes === ahora) return '';
+  const [azk, aface, adead, aatk] = antes.split('|');
+  if(adead==='0' && entry.discarded){
+    return entry.discardedBy==='Q' ? ' anim-purge' : ' anim-fall';
+  }
+  if(aface==='0' && entry.faceUp) return entry.activated ? ' anim-awaken' : ' anim-flip';
+  if(aatk==='0' && entry.attackedOnce) return ' anim-hit';
+  if(azk !== zk) return ' anim-swap';
+  return '';
+}
+function handAnim(card){
+  const id = card.id;
+  const nuevo = prevHand[id]===undefined;
+  nextHand[id] = 1;
+  return nuevo ? ' anim-deal' : '';
+}
+
+
+/* ============================================================
+   ADVERSARIO AUTOMÁTICO
+   No juega al azar: lleva la cuenta de las cartas que ya han
+   salido, estima el valor de lo que sigue oculto, y puntúa cada
+   jugada posible por lo que espera ganar menos lo que arriesga.
+   ============================================================ */
+const BOT_NAMES = ['Plomada','Dintel','Cornisa','Contrafuerte'];
+const ZONE_WORTH = {bisagra:1.9, umbral:3, cima:2, foso:2}; // Bisagra vale más de lo que da: ficha + desempate
+
+function isBot(g, id){ const p=g.players.find(x=>x.id===id); return !!(p && p.bot); }
+
+/* Cartas que un jugador todavía puede tener sin que nadie las haya visto. */
+function unseenOf(g, pid){
+  const rest = CARD_VALUES.slice();
+  const quitar = (v)=>{ const i=rest.indexOf(v); if(i>-1) rest.splice(i,1); };
+  (g.discard[pid]||[]).forEach(c=>quitar(c.value));
+  ZONE_KEYS.forEach(zk=> g.zones[zk].forEach(e=>{
+    if(e.card.owner===pid && e.faceUp) quitar(e.card.value);
+  }));
+  return rest;
+}
+/* Valor medio esperado de una carta suya que siga oculta. */
+function expectedHidden(g, pid){
+  const r = unseenOf(g, pid).map(baseValue);
+  return r.length ? r.reduce((a,b)=>a+b,0)/r.length : 5.3;
+}
+function probEsValor(g, pid, valores){
+  const r = unseenOf(g, pid);
+  if(!r.length) return 0;
+  return r.filter(v=>valores.indexOf(v)>-1).length / r.length;
+}
+/* Valor con el que competiría una carta en una zona. */
+function estVal(zk, base, oculta, umbralPref){
+  if(!oculta) return base;
+  if(zk==='cima') return base+2;
+  if(zk==='foso') return base-2;
+  if(zk==='umbral') return base + (umbralPref===undefined ? 0 : umbralPref);
+  return base;
+}
+/* Lo que se estima que vale ahora mismo cada carta viva de una zona. */
+/* perspectiva = quién está mirando el tablero (solo conoce SUS ocultas).
+   Permite estimar también las opciones de un rival sin hacer trampas. */
+function zoneEstimates(g, zk, perspectiva){
+  return liveCards(g, zk).map(e=>{
+    const conocida = e.faceUp || (perspectiva && e.card.owner===perspectiva);
+    return {
+      owner: e.card.owner,
+      oculta: !!e.originalFaceDown && !e.faceUp,
+      val: conocida ? finalValue(zk, e) : estVal(zk, expectedHidden(g, e.card.owner), true)
+    };
+  });
+}
+
+/* ¿Qué posibilidades tiene el bot de llevarse esta zona tal y como está? */
+function zoneOutlook(g, zk, sujeto, perspectiva){
+  const est = zoneEstimates(g, zk, perspectiva===undefined ? sujeto : perspectiva);
+  const mias = est.filter(e=>e.owner===sujeto);
+  const ajenas = est.filter(e=>e.owner!==sujeto);
+  const flags = (g.zoneFlags && g.zoneFlags[zk]) || {};
+  if(flags.eclipse) return {muerta:true, mio:0, rival:0};
+  if(flags.coronation && flags.coronation.length){
+    return {muerta: flags.coronation.indexOf(sujeto)<0, mio:0, rival:0};
+  }
+  if(zk==='umbral'){
+    const suma = arr => arr.reduce((a,b)=>a+b.val,0);
+    const mio = suma(mias);
+    const porRival = {};
+    ajenas.forEach(e=>{ porRival[e.owner]=(porRival[e.owner]||0)+e.val; });
+    const rivales = Object.keys(porRival).map(k=>porRival[k]).filter(v=>v<=11);
+    return {muerta:false, mio: mio<=11?mio:-99, rival: rivales.length?Math.max(...rivales):0};
+  }
+  if(zk==='foso'){
+    return {muerta:false,
+      mio: mias.length ? Math.min(...mias.map(e=>e.val)) : 99,
+      rival: ajenas.length ? Math.min(...ajenas.map(e=>e.val)) : 99};
+  }
+  // cima y bisagra se miden por la carta más alta
+  return {muerta:false,
+    mio: mias.length ? Math.max(...mias.map(e=>e.val)) : -99,
+    rival: ajenas.length ? Math.max(...ajenas.map(e=>e.val)) : -99};
+}
+
+/* Cuántas cartas les quedan por colocar a los rivales en esta ronda. */
+function jugadasPendientesRivales(g, sujeto){
+  const q = quotaThisRound(g);
+  let n = 0;
+  g.players.forEach(p=>{
+    if(p.id===sujeto) return;
+    n += Math.max(0, q - (g.playedThisRound[p.id]||0));
+  });
+  return n;
+}
+
+/* Una zona vacía no está ganada: los rivales todavía tienen cartas que poner.
+   Esto estima contra qué se va a acabar midiendo uno al final de la ronda. */
+function amenazaFutura(g, zk, sujeto){
+  // Solo tiene sentido mientras se están colocando cartas: en la fase de
+  // ataque o en la resolución ya no va a entrar nada nuevo.
+  if(g.phase && g.phase!=='jugar') return null;
+  const n = jugadasPendientesRivales(g, sujeto);
+  if(n<=0) return null;
+  const k = Math.min(n, 5);
+  if(zk==='cima')   return 5.4 + k*0.6;    // colocarán lo más alto que tengan
+  if(zk==='foso')   return 5.4 - k*0.6;    // o lo más bajo
+  if(zk==='umbral') return Math.min(11, 4.5 + k*1.5);
+  return null;
+}
+
+/* Probabilidad aproximada de que el bot se lleve la zona en su estado actual. */
+function zoneWinProb(g, zk, sujeto, perspectiva){
+  const persp = perspectiva===undefined ? sujeto : perspectiva;
+  const flags = (g.zoneFlags && g.zoneFlags[zk]) || {};
+  if(flags.eclipse) return 0;
+  const cor = [...new Set(flags.coronation || [])];
+  if(cor.length===1) return cor[0]===sujeto ? 1 : 0;
+  if(cor.length>1 && g.bisagraAdvantage && cor.indexOf(g.bisagraAdvantage)>-1){
+    return g.bisagraAdvantage===sujeto ? 1 : 0;
+  }
+  // La Bisagra no va de "la más alta": va de la paridad de la suma.
+  if(zk==='bisagra'){
+    const vivas = liveCards(g,'bisagra');
+    if(vivas.length===0) return 0;
+    const valor = e => (e.faceUp || e.card.owner===persp)
+      ? finalValue('bisagra', e) : expectedHidden(g, e.card.owner);
+    if(vivas.length===1){
+      const mia = vivas[0].card.owner===sujeto;
+      // Si a los rivales les quedan cartas, la completarán y todo dependerá
+      // de la paridad: prácticamente una moneda al aire.
+      if(jugadasPendientesRivales(g, sujeto)<=0) return mia ? 1 : 0;
+      return mia ? 0.55 : 0.42;
+    }
+    const [a,b] = vivas;
+    if(a.card.owner===b.card.owner) return a.card.owner===sujeto ? 0.95 : 0;
+    const va = valor(a), vb = valor(b);
+    if(va===vb) return 0;
+    const par = ((va+vb)%2)===0;
+    const gana = par ? (va>vb?a:b) : (va<vb?a:b);
+    const seguro = (a.faceUp || a.card.owner===persp) && (b.faceUp || b.card.owner===persp);
+    if(!seguro) return gana.card.owner===sujeto ? 0.55 : 0.45;
+    return gana.card.owner===sujeto ? 1 : 0;
+  }
+  const o = zoneOutlook(g, zk, sujeto, persp);
+  const futura = amenazaFutura(g, zk, sujeto);
+  if(zk==='umbral'){
+    if(o.mio<=0) return 0;
+    const rival = futura===null ? (o.rival||0) : Math.max(o.rival||0, futura);
+    // Acercarse a 11 importa tanto como superar al rival
+    const cercania = Math.max(0.35, 1 - (11-o.mio)*0.12);
+    return ventajaAProb(o.mio - rival) * cercania;
+  }
+  if(zk==='foso'){
+    if(o.mio>90) return 0;
+    const rival = futura===null ? o.rival : Math.min(o.rival, futura);
+    return ventajaAProb(rival - o.mio);
+  }
+  if(o.mio<-90) return 0;
+  const rival = futura===null ? o.rival : Math.max(o.rival, futura);
+  return ventajaAProb(o.mio - rival);
+}
+
+/* Cómo de bien está el tablero para el bot: suma lo que puede llevarse y resta
+   lo que tienen encarrilado los rivales. Esto es lo que permite que la J sirva
+   también para descolocar al contrario, no solo para colocarse uno. */
+function posicionGlobal(g, botId){
+  let total = 0;
+  ZONE_KEYS.forEach(zk=>{
+    const w = ZONE_WORTH[zk];
+    const mia = zoneWinProb(g, zk, botId, botId);
+    let rival = 0;
+    g.players.forEach(p=>{
+      if(p.id===botId) return;
+      rival = Math.max(rival, zoneWinProb(g, zk, p.id, botId));
+    });
+    total += w * (mia - 0.65*rival);
+  });
+  return total;
+}
+
+/* Coloca una carta de mentira para ver cómo quedaría la zona. */
+function simulaCarta(g, botId, value, zk, oculta, umbralPref, fn){
+  const entry = {card:{id:'__sim', owner:botId, value}, faceUp:!oculta,
+                 originalFaceDown:oculta, revealed:!oculta,
+                 attackedOnce:false, activated:false,
+                 umbralChoice: (oculta && zk==='umbral') ? umbralPref : null};
+  g.zones[zk].push(entry);
+  const r = fn();
+  g.zones[zk].pop();
+  return r;
+}
+
+/* Traduce una ventaja numérica en una probabilidad aproximada de ganar la zona. */
+function ventajaAProb(margen){
+  return 1 / (1 + Math.exp(-margen/1.8));
+}
+
+/* Cómo quedaría la Bisagra si el bot pone esta carta. Aquí no hay que estimar:
+   la paridad es exacta cuando la otra carta está a la vista. */
+function bisagraScore(g, botId, base){
+  const vivas = liveCards(g,'bisagra');
+  if(vivas.length===0) return 0.45;              // abrir es apuesta a ciegas
+  if(vivas.length>=2) return -99;                 // no cabe
+  const otra = vivas[0];
+  if(otra.card.owner===botId) return 0.9;         // completarla propia: se la lleva
+  const v = otra.faceUp ? finalValue('bisagra', otra) : expectedHidden(g, otra.card.owner);
+  if(!otra.faceUp){
+    // A ciegas: la mitad de las veces la paridad nos favorece
+    return 0.5;
+  }
+  if(v===base) return 0;                          // empate: nadie gana
+  const par = ((v+base)%2)===0;
+  const gano = par ? (base>v) : (base<v);
+  return gano ? 1 : 0;
+}
+
+/* Puntúa jugar una carta concreta en una zona, a la vista o en secreto. */
+function scorePlay(g, botId, card, zk, oculta){
+  const base = baseValue(card.value);
+  const val = card.value;
+  const flags = (g.zoneFlags && g.zoneFlags[zk]) || {};
+  if(zk==='bisagra' && liveCards(g,'bisagra').length>=2) return -99;
+
+  let score = 0;
+  const worth = ZONE_WORTH[zk];
+
+  // --- Lo que APORTA la jugada: cuánto sube mi opción de llevarme la zona ---
+  if(flags.eclipse){
+    score -= 1.5;                                  // zona muerta: no malgastes nada
+  } else {
+    const antes = zoneWinProb(g, zk, botId);
+    let despues;
+    if(oculta && zk==='umbral'){
+      // en Umbral el modificador lo elige él, así que cuenta el mejor de los dos
+      despues = Math.max(
+        simulaCarta(g, botId, val, zk, true,  1, ()=>zoneWinProb(g, zk, botId)),
+        simulaCarta(g, botId, val, zk, true, -1, ()=>zoneWinProb(g, zk, botId))
+      );
+    } else {
+      despues = simulaCarta(g, botId, val, zk, oculta, 0, ()=>zoneWinProb(g, zk, botId));
+    }
+    score += (despues - antes) * worth;
+
+    // Empate consigo mismo: dos cartas propias del mismo valor se anulan
+    if(zk==='cima' || zk==='foso'){
+      const miVal = estVal(zk, base, oculta);
+      const choque = liveCards(g, zk).some(e=>e.card.owner===botId &&
+        (e.faceUp ? finalValue(zk,e) : estVal(zk, expectedHidden(g,botId), true)) === miVal);
+      if(choque) score -= 1.1;
+    }
+    // Amontonar cartas donde ya mando no sirve de nada
+    const propias = liveCards(g, zk).filter(e=>e.card.owner===botId).length;
+    if(propias>0 && zk!=='umbral' && zk!=='bisagra') score -= 0.55*propias;
+    if(zk==='umbral' && propias>=1) score -= 0.35*propias;
+  }
+
+  // --- Cartas especiales: su valor está en el efecto, no en el número ---
+  if(val==='K'){
+    if(oculta){
+      // Solo sirve si la atacan: mejor cebo donde no ganarías de otra forma
+      const amenaza = rivalTokens(g, botId) > 0 ? 1 : 0.15;
+      const mia = zoneWinProb(g, zk, botId);
+      score += worth * (0.45 + 0.5*(1-mia)) * amenaza;
+    } else {
+      score -= 1.4;                                // a la vista es una carta muerta
+    }
+  } else if(val==='A'){
+    if(oculta){
+      const amenaza = rivalTokens(g, botId) > 0 ? 1 : 0.15;
+      // Lo que niega el As es lo que un rival iba a llevarse: cuanto más
+      // encarrilada tenga un rival la zona, más daño hace ponerlo ahí.
+      const mia = zoneWinProb(g, zk, botId);
+      const rivalCerca = 1 - mia;
+      score += worth * rivalCerca * 0.9 * amenaza;
+      score -= mia * worth * 0.5;                  // no te sabotees a ti mismo
+    } else {
+      score -= 1.4;
+    }
+  } else if(val==='Q'){
+    if(oculta){
+      score -= 0.9;                                // desperdiciada
+    } else {
+      const ocultasRivales = liveCards(g, zk).filter(e=>!e.faceUp && e.card.owner!==botId).length;
+      score += ocultasRivales * 1.15;
+      if(ocultasRivales===0) score -= 0.7;
+    }
+  } else if(val==='J'){
+    if(oculta) score -= 0.5;
+    else {
+      const enMesa = ZONE_KEYS.reduce((n,z)=>n+liveCards(g,z).length,0);
+      score += enMesa>=2 ? 0.7 : -0.5;
+    }
+  }
+
+  // --- Riesgo de jugar en secreto ---
+  if(oculta && !isSpecial(val)){
+    const fichas = Math.min(rivalTokens(g, botId), 4);
+    score -= fichas * 0.11;                        // un solo ataque la tumba
+  }
+
+  // --- Economía de mano: no malgastar los extremos ---
+  if(!isSpecial(val)){
+    if(zk==='cima' && base<=4) score -= 0.5;
+    if(zk==='foso' && base>=7) score -= 0.5;
+    if(zk==='umbral' && base>=9) score -= 0.25;
+  }
+  return score;
+}
+
+function rivalTokens(g, botId){
+  return g.players.filter(p=>p.id!==botId).reduce((n,p)=>n+(g.tokens[p.id]||0),0);
+}
+
+/* En un juego de faroleo, jugar siempre lo mismo es explotable: si el As
+   acaba siempre en la misma zona, el rival aprende a no atacar allí. Por eso
+   entre las jugadas casi igual de buenas se elige una al azar. */
+function eligeEntreParecidas(opciones, ruido){
+  if(!opciones.length) return null;
+  // Un pellizco de azar sobre cada opción: las claramente mejores siguen
+  // ganando, pero entre las parecidas no siempre sale la misma.
+  let mejor=null, mejorSc=-1e9;
+  opciones.forEach(o=>{
+    const sc = o.score + (Math.random()-0.5)*2*ruido;
+    if(sc>mejorSc){ mejorSc=sc; mejor=o; }
+  });
+  return mejor;
+}
+
+/* Elige la mejor jugada entre todas las combinaciones posibles. */
+function botChoosePlay(g, botId){
+  const mano = g.hands[botId]||[];
+  const opciones = [];
+  mano.forEach((card, idx)=>{
+    ZONE_KEYS.forEach(zk=>{
+      [false, true].forEach(oculta=>{
+        const sc = scorePlay(g, botId, card, zk, oculta);
+        if(sc<=-90) return;
+        opciones.push({idx, card, zk, oculta, score:sc});
+      });
+    });
+  });
+  return eligeEntreParecidas(opciones, 0.55);
+}
+
+/* ---------------- Ataques ---------------- */
+function scoreAttack(g, botId, zk, entry){
+  const flags = (g.zoneFlags && g.zoneFlags[zk]) || {};
+  if(flags.eclipse) return -1;                     // zona muerta: no tiene sentido
+  const worth = ZONE_WORTH[zk];
+  const dueno = entry.card.owner;
+
+  // ¿Cuánto mejora mi posición si esta carta desaparece?
+  const antes = zoneWinProb(g, zk, botId);
+  entry.discarded = true;
+  const despues = zoneWinProb(g, zk, botId);
+  entry.discarded = false;
+  const ganancia = (despues - antes) * worth;
+
+  // En la última ronda las fichas que sobren no valen nada: casi no cuestan
+  const coste = g.round>=4 ? 0.03 : 0.22;
+  const mias = g.tokens[botId]||0;
+
+  if(entry.faceUp){
+    if(entry.attackedOnce) return ganancia - coste;      // un golpe y cae
+    if(mias>=2) return ganancia - coste*2 - 0.1;         // puede rematarla en este mismo turno
+    return ganancia*0.45 - coste;                         // solo la deja señalada
+  }
+
+  // Oculta: cae de un golpe, pero puede ser una K o un As
+  const pK = probEsValor(g, dueno, ['K']);
+  const pA = probEsValor(g, dueno, ['A']);
+  let sc = ganancia * (1 - pK - pA);
+  sc -= pK * (antes*worth + worth*0.8);            // le regalaríamos la zona entera
+  sc -= pA * antes * worth;                        // anularíamos lo que íbamos ganando
+  sc -= coste;
+  return sc;
+}
+
+function botChooseAttack(g, botId){
+  if((g.tokens[botId]||0) < 1) return null;
+  const candidatos = [];
+  let mejor = null;
+  ZONE_KEYS.forEach(zk=>{
+    liveCards(g, zk).forEach(e=>{
+      if(e.card.owner===botId) return;
+      const sc = scoreAttack(g, botId, zk, e);
+      candidatos.push({zk, entry:e, score:sc});
+      if(!mejor || sc>mejor.score) mejor = {zk, entry:e, score:sc};
+    });
+  });
+  if(!mejor) return null;
+  // Las fichas no se reponen, pero guardarlas hasta el final tampoco vale nada:
+  // cuanto más avanza la partida, menos exigente se pone.
+  const umbral = g.round>=4 ? -0.04 : (g.round===3 ? 0.1 : 0.3);
+  if(mejor.score <= umbral) return null;
+  const validas = candidatos.filter(o=>o.score > umbral);
+  return eligeEntreParecidas(validas, 0.3);
+}
+
+/* ---------------- Umbral: elegir +1 o -1 ---------------- */
+function botUmbralChoice(g, botId, cardId){
+  const entry = g.zones.umbral.find(e=>e.card.id===cardId);
+  if(!entry) return 1;
+  let fijo = 0;
+  liveCards(g,'umbral').forEach(e=>{
+    if(e.card.owner!==botId || e.card.id===cardId) return;
+    fijo += finalValue('umbral', e);
+  });
+  const base = baseValue(entry.card.value);
+  const conMas = fijo + base + 1;
+  const conMenos = fijo + base - 1;
+  if(conMas<=11) return 1;        // más cerca de 11 sin pasarse
+  if(conMenos<=11) return -1;     // evita pasarte
+  return -1;
+}
+
+/* ---------------- Intercambio de la J ---------------- */
+function botChooseSwap(g, botId){
+  const todas = [];
+  ZONE_KEYS.forEach(zk=> liveCards(g,zk).forEach(e=> todas.push({zk, e})));
+  if(todas.length<2) return null;
+  const base = posicionGlobal(g, botId);
+  const opciones = [];
+  for(let i=0;i<todas.length;i++){
+    for(let j=0;j<todas.length;j++){
+      if(i===j) continue;
+      const a = todas[i], b = todas[j];
+      if(a.zk===b.zk) continue;                 // tiene que mover algo de verdad
+      const za=g.zones[a.zk], zb=g.zones[b.zk];
+      const ia=za.indexOf(a.e), ib=zb.indexOf(b.e);
+      if(ia<0||ib<0) continue;
+      za.splice(ia,1); zb.splice(ib,1); za.push(b.e); zb.push(a.e);
+      const despues = posicionGlobal(g, botId);
+      za.pop(); zb.pop(); za.splice(ia,0,a.e); zb.splice(ib,0,b.e);
+      let delta = despues - base;
+      // A igualdad, mejor tocar una carta rival que barajar las propias
+      const tocaRival = (a.e.card.owner!==botId) || (b.e.card.owner!==botId);
+      if(tocaRival) delta += 0.05;
+      opciones.push({a, b, delta, score: delta});
+    }
+  }
+  if(!opciones.length) return null;
+  return eligeEntreParecidas(opciones, 0.15);
+}
+
+/* ---------------- Carta sobrante ---------------- */
+function botKeepOnTop(g, botId){
+  const mano = g.hands[botId]||[];
+  const c = mano[mano.length-1];
+  if(!c) return true;
+  // Guarda arriba lo que más juego da: especiales y extremos
+  if(isSpecial(c.value)) return true;
+  const b = baseValue(c.value);
+  return (b<=3 || b>=8);
+}
+
+
+/* ===== La IA actúa sobre el estado compartido ===== */
+function botPlayCard(g, botId, plan){
+  const mano = g.hands[botId];
+  const card = mano.splice(plan.idx,1)[0];
+  const faceUp = !plan.oculta;
+  const entry = {card, faceUp, originalFaceDown: !faceUp, revealed: faceUp,
+                 attackedOnce:false, activated:false, umbralChoice:null};
+  g.zones[plan.zk].push(entry);
+  g.playedThisRound[botId] = (g.playedThisRound[botId]||0)+1;
+  addLog(g,'jugar','*'+nameOf(g,botId)+'* juega '+(faceUp?('*'+cardLabel(card.value)+'*'):'una carta *oculta*')+' en *'+ZONE_LABEL[plan.zk]+'*.');
+
+  if(faceUp && specialType(card.value)==='q'){ resolveQ(g, plan.zk, entry); }
+  if(faceUp && specialType(card.value)==='j'){
+    if(swapPosible(g)){
+      const sw = botChooseSwap(g, botId);
+      if(sw){
+        const za=g.zones[sw.a.zk], zb=g.zones[sw.b.zk];
+        const ia=za.indexOf(sw.a.e), ib=zb.indexOf(sw.b.e);
+        if(ia>-1 && ib>-1){
+          const dA = describeEntry(g, sw.a.e), dB = describeEntry(g, sw.b.e);
+          za.splice(ia,1); zb.splice(ib,1); za.push(sw.b.e); zb.push(sw.a.e);
+          addLog(g,'cambio','*'+nameOf(g,botId)+'* usa la *J*: '+dA+' pasa de *'+ZONE_LABEL[sw.a.zk]+'* a *'+ZONE_LABEL[sw.b.zk]+'*, y '+dB+' pasa de *'+ZONE_LABEL[sw.b.zk]+'* a *'+ZONE_LABEL[sw.a.zk]+'*.');
+        }
+      }
+    } else {
+      addLog(g,'cambio','*J* jugada, pero no hay cartas en dos zonas distintas para intercambiar.');
+    }
+  }
+  g.pendingSwap = null;
+  advancePlayTurn(g);
+}
+
+/* Un único paso de la IA. Devuelve true si ha hecho algo. */
+function botStep(g, botId){
+  if(g.status!=='playing') return false;
+
+  if(g.phase==='jugar'){
+    if(g.pendingSwap && g.pendingSwap.by!==botId) return false;
+    if(currentPlayTurnPlayer(g)!==botId) return false;
+    const plan = botChoosePlay(g, botId);
+    if(!plan) return false;
+    botPlayCard(g, botId, plan);
+    return true;
+  }
+
+  if(g.phase==='atacar'){
+    if(currentAttacker(g)!==botId || g.attackPassed[botId]) return false;
+    const atq = botChooseAttack(g, botId);
+    if(atq){ applyAttack(g, botId, atq.zk, atq.entry); return true; }
+    applyPass(g, botId, false);
+    return true;
+  }
+
+  if(g.phase==='resolver' && g.pendingUmbralChoices){
+    const cid = Object.keys(g.pendingUmbralChoices).find(c=>{
+      if(g.pendingUmbralChoices[c]!==null) return false;
+      const e = g.zones.umbral.find(x=>x.card.id===c);
+      return e && e.card.owner===botId;
+    });
+    if(!cid) return false;
+    const elec = botUmbralChoice(g, botId, cid);
+    g.pendingUmbralChoices[cid] = elec;
+    const entry = g.zones.umbral.find(e=>e.card.id===cid);
+    if(entry){ entry.revealed=true; entry.umbralChoice=elec; }
+    addLog(g,'umbral','*'+nameOf(g,botId)+'* fija un modificador en *Umbral*.');
+    return true;
+  }
+
+  if(g.phase==='mantenimiento' && g.pendingMaintenance && g.pendingMaintenance[botId]===false){
+    const arriba = botKeepOnTop(g, botId);
+    const mano = g.hands[botId]||[];
+    const card = mano.pop();
+    if(card){ if(arriba) g.decks[botId].unshift(card); else g.decks[botId].push(card); }
+    g.pendingMaintenance[botId] = true;
+    addLog(g,'jugar','*'+nameOf(g,botId)+'* coloca su carta sobrante '+(arriba?'encima':'debajo')+' del mazo.');
+    return true;
+  }
+  return false;
+}
+
+/* El anfitrión es quien mueve a las IAs, con una pausa para que se vea. */
+let botTimer = null;
+let botBusy = false;
+function maybeRunBots(){
+  if(botBusy || botTimer) return;
+  if(!game || game.status!=='playing' || screen!=='game') return;
+  if(game.hostId !== myId) return;
+  const espera = waitingOn(game);
+  if(!espera || !isBot(game, espera.id)) return;
+  botTimer = setTimeout(async ()=>{
+    botTimer = null;
+    if(botBusy) return;
+    botBusy = true;
+    try{
+      const g = await readGame(roomCodeVal);
+      if(g && g.status==='playing' && g.hostId===myId){
+        const e2 = waitingOn(g);
+        if(e2 && isBot(g, e2.id) && botStep(g, e2.id)){
+          await writeGame(g);
+        }
+      }
+    }catch(err){ /* si falla, el siguiente sondeo lo reintenta */ }
+    botBusy = false;
+  }, 850);
+}
+
+/* Añadir una IA a la sala (solo el anfitrión, y solo antes de empezar). */
+async function addBot(){
+  const g = await readGame(roomCodeVal);
+  if(!g){ errorMsg='No se pudo leer la sala.'; render(); return; }
+  if(g.hostId!==myId){ errorMsg='Solo el anfitrión puede añadir jugadores automáticos.'; render(); return; }
+  if(g.status!=='lobby'){ errorMsg='Solo se pueden añadir antes de empezar la partida.'; render(); return; }
+  if(g.players.length>=MAX_PLAYERS){ errorMsg='La sala ya está completa.'; render(); return; }
+  const usados = g.players.map(p=>p.name);
+  const nombre = BOT_NAMES.find(n=>usados.indexOf(n)<0) || ('Autómata '+(g.players.length+1));
+  g.players.push({id:'b'+uid(6), name:nombre, bot:true});
+  addLog(g,'sala','*'+nombre+'* se suma a la sala como jugador automático.');
+  await writeGame(g);
+}
+
+/* ============================= HELPERS ============================= */
+function uid(n){ const c='abcdefghjkmnpqrstuvwxyz23456789'; let s=''; for(let i=0;i<n;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
+function roomCode(){ return uid(4).toUpperCase(); }
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function baseValue(value){ return typeof value==='number' ? value : 5; }
+function specialType(value){ return {J:'j',Q:'q',K:'k',A:'a'}[value] || null; }
+function makeDeck(ownerId){ return CARD_VALUES.map(v=>({id:ownerId+'-'+v, owner:ownerId, value:v})); }
+function cardLabel(value){ return String(value); }
+function isSpecial(value){ return !!CARD_GLYPH[String(value)]; }
+/* Contenido visual de una carta boca arriba. */
+function cardFaceHTML(value){
+  const g = CARD_GLYPH[String(value)];
+  return (g ? '<span class="cwatermark">'+g+'</span>' : '')
+       + '<span class="val">'+cardLabel(value)+'</span>';
+}
+/* Las especiales llevan siempre a la vista el valor con el que compiten. */
+function weightBadge(value){
+  return isSpecial(value) ? '<div class="cwt" title="Valor con el que compite">'+baseValue(value)+'</div>' : '';
+}
+
+/* ============================= LOCAL CLIENT STATE ============================= */
+let myId = null;
+let myName = '';
+let roomCodeVal = null;
+let screen = 'landing'; // landing | lobby | game
+let game = null; // last known shared state
+let pollTimer = null;
+let heartbeatTimer = null;
+let presenceMap = {};
+let missedReads = 0;
+let notice = '';
+let confirmDelete = false;
+let confirmLeave = false;
+let autoRetryTimer = null;
+let autoRetries = 0;
+let showManualCopy = false;
+let newRoomPublic = true;
+let joinCodeDraft = '';
+let rulesOpen = false;
+let roomList = null;
+let browsing = false;
+let helpOpen = false;
+let logStick = true;
+let logScrollTop = 0;
+let errorMsg = '';
+let lastAttemptedState = null;
+let ui = { mode:'idle', selectedHandCard:null, selectedZone:null, orientation:'up', jSwapPicks:[], pendingAttack:null, highlightCardId:null };
+
+/* ============================= STORAGE ============================= */
+const MAX_NAME = 16;
+const MAX_PLAYERS = 4;
+const PRESENCE_TTL = 30000;
+
+function gameKey(code){ return 'game:'+code; }
+function presenceKey(code){ return 'presence:'+code; }
+
+async function readGame(code){
+  try{
+    const res = await window.storage.get(gameKey(code), true);
+    return res ? JSON.parse(res.value) : null;
+  }catch(e){ return null; }
+}
+async function writeGame(state, attempt){
+  attempt = attempt || 0;
+  state.updatedAt = Date.now();
+  lastAttemptedState = state;
+  try{
+    await window.storage.set(gameKey(state.roomCode), JSON.stringify(state), true);
+    game = state;
+    errorMsg='';
+    maybeRunBots();
+    if(autoRetryTimer){ clearTimeout(autoRetryTimer); autoRetryTimer=null; }
+    autoRetries = 0;
+    render();
+    return true;
+  }catch(e){
+    const delays = [300, 700, 1500, 3000];
+    if(attempt < delays.length){
+      await new Promise(r=>setTimeout(r, delays[attempt]));
+      return writeGame(state, attempt+1);
+    }
+    // Sigue fallando: reintentamos solos en segundo plano antes de molestar al jugador.
+    if(autoRetries < 3){
+      autoRetries++;
+      errorMsg = 'La conexión con el almacenamiento está fallando. Reintentando guardar automáticamente ('+autoRetries+'/3)…';
+      render();
+      if(autoRetryTimer) clearTimeout(autoRetryTimer);
+      autoRetryTimer = setTimeout(()=>{ writeGame(lastAttemptedState); }, 2500);
+      return false;
+    }
+    errorMsg = 'No se pudo guardar tras varios intentos. Tu jugada está guardada en memoria: pulsa "Reintentar guardado" y se enviará tal cual.';
+    render();
+    return false;
+  }
+}
+async function retryLastWrite(){
+  if(!lastAttemptedState) return;
+  autoRetries = 0;
+  errorMsg='';
+  render();
+  await writeGame(lastAttemptedState);
+}
+function storageAvailable(){ return typeof window!=='undefined' && !!window.storage && typeof window.storage.get==='function'; }
+
+async function rememberSession(){
+  try{ await window.storage.set('mysession', JSON.stringify({roomCodeVal, myId, myName}), false); }catch(e){}
+}
+async function clearSession(){
+  try{ await window.storage.delete('mysession', false); }catch(e){}
+}
+async function loadSession(){
+  try{
+    const res = await window.storage.get('mysession', false);
+    if(res){
+      const d = JSON.parse(res.value);
+      if(d.roomCodeVal && d.myId){
+        const g = await readGame(d.roomCodeVal);
+        if(g && g.players.some(p=>p.id===d.myId) && g.status!=='closed' && g.status!=='abandoned'){
+          myId=d.myId; myName=d.myName; roomCodeVal=d.roomCodeVal;
+          game=g; screen = g.status==='lobby' ? 'lobby' : 'game';
+          const yo = g.players.find(p=>p.id===myId);
+          if(yo && yo.away){
+            yo.away = false; delete yo.awaySince;
+            addLog(g,'sala','*'+yo.name+'* ha vuelto a la partida.');
+            writeGame(g);
+          }
+          startPolling(); startHeartbeat();
+        } else {
+          // la sala ya no existe o ya no estoy en ella: no arrastramos una sesión zombi
+          myName = d.myName || '';
+          await clearSession();
+        }
+      }
+    }
+  }catch(e){}
+  render();
+}
+
+/* ============================= PRESENCIA ============================= */
+async function heartbeat(){
+  if(!roomCodeVal || !myId || !storageAvailable()) return;
+  // El indicador de conexión solo se muestra en la sala de espera. Durante la
+  // partida no escribimos presencia, para no saturar el almacenamiento.
+  if(screen!=='lobby') return;
+  try{
+    let map = {};
+    try{
+      const res = await window.storage.get(presenceKey(roomCodeVal), true);
+      if(res) map = JSON.parse(res.value) || {};
+    }catch(e){ map = {}; }
+    const now = Date.now();
+    map[myId] = now;
+    Object.keys(map).forEach(k=>{ if(now - map[k] > 300000) delete map[k]; });
+    await window.storage.set(presenceKey(roomCodeVal), JSON.stringify(map), true);
+    presenceMap = map;
+    render();
+  }catch(e){ /* la presencia es informativa: si falla, no molestamos al usuario */ }
+}
+function startHeartbeat(){
+  if(heartbeatTimer) clearInterval(heartbeatTimer);
+  heartbeat();
+  heartbeatTimer = setInterval(heartbeat, 15000);
+}
+function stopHeartbeat(){
+  if(heartbeatTimer) clearInterval(heartbeatTimer);
+  heartbeatTimer = null;
+  presenceMap = {};
+}
+function isOnline(pid){
+  if(pid===myId) return true;
+  if(game && isBot(game, pid)) return true;
+  const t = presenceMap[pid];
+  return !!t && (Date.now() - t) < PRESENCE_TTL;
+}
+
+function stopPolling(){
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer = null;
+}
+function startPolling(){
+  stopPolling();
+  pollTimer = setInterval(async ()=>{
+    if(!roomCodeVal) return;
+    const g = await readGame(roomCodeVal);
+    if(g){
+      missedReads = 0;
+      if(handleRoomEnded(g)) return;
+      // Una lectura más antigua que nuestro propio estado revertiría en pantalla
+      // lo que el jugador acaba de hacer, obligándole a pulsar dos veces.
+      if(game && game.updatedAt && g.updatedAt && g.updatedAt < game.updatedAt){ return; }
+      game=g;
+      if(screen==='lobby' && g.status==='playing') screen='game';
+      if(screen==='game' && g.status==='lobby') screen='lobby'; // revancha: todos vuelven al lobby
+      render();
+      maybeRunBots();
+    } else {
+      // No distinguimos "borrada" de "fallo puntual de lectura", así que no
+      // expulsamos al jugador: avisamos y que decida él.
+      missedReads++;
+      render();
+    }
+  }, 2200);
+}
+
+/* Detecta que la sala terminó para mí (cerrada, abandonada o me han sacado). */
+function handleRoomEnded(g){
+  if(g.status==='closed'){
+    goToNotice('El anfitrión ha eliminado la sala.');
+    return true;
+  }
+  if(g.status==='abandoned'){
+    goToNotice((g.abandonedBy||'Un jugador')+' ha abandonado, así que la partida ha terminado.');
+    return true;
+  }
+  if(!g.players.some(p=>p.id===myId)){
+    const rec = (g.removedPlayers||[]).find(r=>r.id===myId);
+    goToNotice(rec && rec.reason==='kicked'
+      ? 'El anfitrión te ha expulsado de la sala.'
+      : 'Ya no estás en esta sala.');
+    return true;
+  }
+  return false;
+}
+
+function goToNotice(text){
+  stopPolling(); stopHeartbeat();
+  notice = text;
+  screen = 'notice';
+  game = null; roomCodeVal = null; myId = null;
+  missedReads = 0;
+  clearSession();
+  render();
+}
+function backToLanding(){
+  notice=''; errorMsg=''; missedReads=0;
+  screen='landing';
+  render();
+}
+
+/* ============================= ROOM ACTIONS ============================= */
+function validateName(){
+  const name = (myName||'').trim();
+  if(!name) return {ok:false, msg:'Escribe tu nombre.'};
+  if(name.length>MAX_NAME) return {ok:false, msg:'El nombre no puede pasar de '+MAX_NAME+' caracteres.'};
+  return {ok:true, name};
+}
+
+async function freshRoomCode(){
+  for(let i=0;i<6;i++){
+    const code = roomCode();
+    const existing = await readGame(code);
+    if(!existing) return code;
+  }
+  return null;
+}
+
+async function createRoom(){
+  if(!storageAvailable()){ errorMsg='Esta app necesita ejecutarse como artifact dentro de Claude (no como archivo descargado) para poder crear salas online.'; render(); return; }
+  const v = validateName();
+  if(!v.ok){ errorMsg=v.msg; render(); return; }
+
+  const code = await freshRoomCode();
+  if(!code){ errorMsg='No se pudo generar un código libre. Vuelve a intentarlo.'; render(); return; }
+
+  myId = 'p'+uid(6);
+  roomCodeVal = code;
+  const state = {
+    roomCode: code, status:'lobby', hostId: myId, isPublic: !!newRoomPublic,
+    players: [{id:myId, name:v.name}],
+    removedPlayers: [],
+    log: ['Sala creada por '+v.name+'.']
+  };
+  const ok = await writeGame(state);
+  if(!ok){ roomCodeVal=null; myId=null; return; }
+  myName = v.name;
+  await rememberSession();
+  screen='lobby'; startPolling(); startHeartbeat(); render();
+}
+
+async function joinRoom(codeInput){
+  if(!storageAvailable()){ errorMsg='Esta app necesita ejecutarse como artifact dentro de Claude (no como archivo descargado) para poder unirse a salas online.'; render(); return; }
+  const v = validateName();
+  if(!v.ok){ errorMsg=v.msg; render(); return; }
+  const code = (codeInput||'').trim().toUpperCase();
+  if(!code){ errorMsg='Escribe el código de la sala.'; render(); return; }
+
+  const candidateId = 'p'+uid(6);
+
+  // Varios jugadores pueden entrar a la vez y pisarse (el almacenamiento es
+  // "gana el último"), así que escribimos, verificamos que seguimos dentro y,
+  // si no, reintentamos con el estado más reciente.
+  for(let attempt=0; attempt<4; attempt++){
+    const g = await readGame(code);
+    if(!g){ errorMsg='No existe esa sala.'; render(); return; }
+    if(g.status==='closed' || g.status==='abandoned'){ errorMsg='Esa sala ya se ha cerrado.'; render(); return; }
+
+    // Reconexión: si la partida está en curso y ya existe un jugador con ese
+    // nombre, recuperamos su sitio en vez de crear uno nuevo.
+    if(g.status==='playing' || g.status==='ended'){
+      const asiento = g.players.find(p=>p.name.toLowerCase()===v.name.toLowerCase());
+      if(!asiento){ errorMsg='Esa partida ya ha empezado y no hay ningún jugador con ese nombre.'; render(); return; }
+      asiento.away = false;
+      delete asiento.awaySince;
+      addLog(g,'sala','*'+asiento.name+'* ha vuelto a la partida.');
+      roomCodeVal = code; myId = asiento.id; myName = asiento.name;
+      const vuelto = await writeGame(g);
+      if(!vuelto){ roomCodeVal=null; myId=null; return; }
+      await rememberSession();
+      screen='game'; startPolling(); startHeartbeat(); render();
+      return;
+    }
+
+    if(g.players.length>=MAX_PLAYERS){ errorMsg='La sala ya tiene '+MAX_PLAYERS+' jugadores.'; render(); return; }
+    if(g.players.some(p=>p.name.toLowerCase()===v.name.toLowerCase())){
+      errorMsg='Ya hay alguien con ese nombre en la sala. Elige otro.'; render(); return;
+    }
+
+    g.players.push({id:candidateId, name:v.name});
+    addLog(g,'sala','*'+v.name+'* se ha unido a la sala.');
+
+    roomCodeVal = code; myId = candidateId;
+    const ok = await writeGame(g);
+    if(!ok){ roomCodeVal=null; myId=null; return; }
+
+    await new Promise(r=>setTimeout(r, 250));
+    const check = await readGame(code);
+    if(check && check.players.some(p=>p.id===candidateId)){
+      game = check;
+      myName = v.name;
+      await rememberSession();
+      screen='lobby'; startPolling(); startHeartbeat(); render();
+      return;
+    }
+  }
+  roomCodeVal=null; myId=null; game=null;
+  errorMsg='No se pudo entrar: varios jugadores estaban entrando a la vez. Prueba otra vez.';
+  render();
+}
+
+/* Salir de la sala por decisión propia. En el lobby simplemente te quitas;
+   en partida se termina para todos, porque el motor no puede continuar sin
+   uno de los jugadores (sus cartas y turnos están en juego). */
+async function leaveRoom(){
+  const code = roomCodeVal;
+  if(!code) { backToLanding(); return; }
+  const g = await readGame(code);
+  if(!g){ goToNotice('Has salido de la sala.'); return; }
+
+  if(g.status==='playing'){
+    // No cerramos la partida: marcamos al jugador como ausente para que pueda
+    // volver con el mismo código y su mismo nombre.
+    const yo = g.players.find(p=>p.id===myId);
+    if(yo){ yo.away = true; yo.awaySince = Date.now(); }
+    addLog(g,'sala','*'+myName+'* se ha desconectado. Puede volver con el código de la sala.');
+    if(g.players.every(p=>p.away)){
+      g.status='closed';
+      addLog(g,'sala','No queda nadie en la partida: la sala se cierra.');
+      await writeGame(g);
+      goToNotice('Has salido y no quedaba nadie más, así que la sala se ha cerrado.');
+      return;
+    }
+    await writeGame(g);
+    goToNotice('Has salido de la partida. Puedes volver entrando con el código '+code+' y el mismo nombre.');
+    return;
+  }
+
+  const wasHost = g.hostId===myId;
+  g.players = g.players.filter(p=>p.id!==myId);
+  g.removedPlayers = (g.removedPlayers||[]).concat([{id:myId, name:myName, reason:'left', at:Date.now()}]);
+  addLog(g,'sala','*'+myName+'* ha salido de la sala.');
+
+  if(g.players.length===0){
+    // Nadie queda: borramos la sala en vez de dejar basura en el almacenamiento.
+    try{ await window.storage.delete(gameKey(code), true); }catch(e){}
+    try{ await window.storage.delete(presenceKey(code), true); }catch(e){}
+    goToNotice('Has salido y la sala se ha eliminado (no quedaba nadie).');
+    return;
+  }
+  if(wasHost){
+    g.hostId = g.players[0].id;
+    addLog(g,'sala','*'+g.players[0].name+'* pasa a ser el anfitrión.');
+  }
+  await writeGame(g);
+  goToNotice('Has salido de la sala.');
+}
+
+/* El anfitrión expulsa a alguien (solo en el lobby: a mitad de partida
+   quitar a un jugador dejaría sus cartas y turnos en un estado inconsistente). */
+async function kickPlayer(targetId){
+  const g = await readGame(roomCodeVal);
+  if(!g) return;
+  if(g.hostId!==myId){ errorMsg='Solo el anfitrión puede expulsar jugadores.'; render(); return; }
+  if(g.status!=='lobby'){ errorMsg='Solo puedes expulsar jugadores antes de empezar la partida.'; render(); return; }
+  if(targetId===myId){ errorMsg='No puedes expulsarte a ti mismo. Usa "Salir de la sala".'; render(); return; }
+  const target = g.players.find(p=>p.id===targetId);
+  if(!target) return;
+  g.players = g.players.filter(p=>p.id!==targetId);
+  g.removedPlayers = (g.removedPlayers||[]).concat([{id:targetId, name:target.name, reason:'kicked', at:Date.now()}]);
+  addLog(g,'sala','*'+target.name+'* ha sido expulsado por el anfitrión.');
+  await writeGame(g);
+}
+
+/* El anfitrión cierra la sala para todos. Marcamos 'closed' primero para que
+   el resto lo vea al sondear, y borramos la clave poco después. */
+async function closeRoom(){
+  const code = roomCodeVal;
+  const g = await readGame(code);
+  if(!g) { goToNotice('La sala ya no existe.'); return; }
+  if(g.hostId!==myId){ errorMsg='Solo el anfitrión puede eliminar la sala.'; render(); return; }
+  g.status='closed';
+  g.closedAt = Date.now();
+  addLog(g,'sala','*'+myName+'* ha eliminado la sala.');
+  await writeGame(g);
+  setTimeout(async ()=>{
+    try{ await window.storage.delete(gameKey(code), true); }catch(e){}
+    try{ await window.storage.delete(presenceKey(code), true); }catch(e){}
+  }, 5000);
+  goToNotice('Has eliminado la sala.');
+}
+
+/* Vuelve al lobby con los mismos jugadores para jugar otra partida. */
+async function rematch(){
+  const fresh = await readGame(roomCodeVal);
+  if(!fresh){ errorMsg='No se pudo leer la sala.'; render(); return; }
+  if(fresh.hostId!==myId){ errorMsg='Solo el anfitrión puede empezar otra partida.'; render(); return; }
+  const g = {
+    roomCode: fresh.roomCode, status:'lobby', hostId: fresh.hostId, isPublic: !!fresh.isPublic,
+    players: fresh.players, removedPlayers: fresh.removedPlayers||[],
+    log: ['Nueva partida: volvéis a la sala de espera.']
+  };
+  ui = {mode:'idle', selectedHandCard:null, selectedZone:null, orientation:'up', jSwapPicks:[], pendingAttack:null, highlightCardId:null};
+  screen='lobby';
+  await writeGame(g);
+}
+
+async function startGame(){
+  // Releemos por si alguien acaba de entrar o salir mientras mirábamos el lobby.
+  const fresh = await readGame(roomCodeVal);
+  if(!fresh){ errorMsg='No se pudo leer la sala. Inténtalo otra vez.'; render(); return; }
+  const g = fresh;
+  confirmDelete=false; confirmLeave=false;
+  if(g.hostId!==myId){ errorMsg='Solo el anfitrión puede empezar la partida.'; render(); return; }
+  if(g.status!=='lobby') return;
+  if(g.players.length<2 || g.players.length>MAX_PLAYERS){
+    errorMsg='Hacen falta entre 2 y '+MAX_PLAYERS+' jugadores para empezar.'; render(); return;
+  }
+  const order = shuffle(g.players.map(p=>p.id));
+  g.status='playing';
+  g.startedAt=Date.now();
+  g.round=1;
+  g.phase='jugar';
+  g.turnOrder=order;
+  g.decks={}; g.hands={}; g.discard={}; g.tokens={}; g.prestige={};
+  g.playedThisRound={}; g.spentThisRound={};
+  g.players.forEach(p=>{
+    g.decks[p.id]=shuffle(makeDeck(p.id));
+    g.discard[p.id]=[];
+    g.tokens[p.id]=3;
+    g.prestige[p.id]=0;
+    g.spentThisRound[p.id]=0;
+  });
+  g.zones={bisagra:[],umbral:[],cima:[],foso:[]};
+  g.bisagraAdvantage=null;
+  g.zoneFlags={};
+  g.pendingSwap=null;
+  g.resolvedZones={};
+  g.roundResults=[];
+  g.pendingUmbralChoices=null;
+  g.pendingMaintenance=null;
+  g.resolveStep=0;
+  g.winner=null;
+  drawForRound(g);
+  g.playTurnIndex=0;
+  g.attackTurnIndex=0;
+  g.attackPassed={};
+  addLog(g,'ronda','*Ronda 1.* Orden: '+order.map(id=>nameOf(g,id)).join(' → ')+'.');
+  await writeGame(g);
+}
+
+function drawForRound(g){
+  const n = g.round===4 ? 3 : 4;
+  g.players.forEach(p=>{
+    g.hands = g.hands || {};
+    const drawn = g.decks[p.id].splice(0, n);
+    g.hands[p.id] = drawn;
+  });
+  g.playedThisRound = {};
+  g.players.forEach(p=> g.playedThisRound[p.id]=0);
+}
+
+function nameOf(g,id){ const p=g.players.find(pp=>pp.id===id); return p?p.name:'?'; }
+
+/* ============================= JUGAR PHASE ============================= */
+function quotaThisRound(g){ return g.round===4 ? 3 : 3; }
+
+async function playCard(cardIndex, zoneKey, faceUp){
+  const g = game;
+  if(g.phase!=='jugar') return;
+  const currentId = currentPlayTurnPlayer(g);
+  if(currentId!==myId) return;
+  const hand = g.hands[myId];
+  const card = hand[cardIndex];
+  if(!card) return;
+  if(zoneKey==='bisagra' && liveCards(g,'bisagra').length>=2){ errorMsg='Bisagra ya está llena.'; render(); return; }
+  hand.splice(cardIndex,1);
+  const entry = {card, faceUp: !!faceUp, originalFaceDown: !faceUp, revealed: !!faceUp, attackedOnce:false, activated:false, umbralChoice:null};
+  g.zones[zoneKey].push(entry);
+  g.playedThisRound[myId] = (g.playedThisRound[myId]||0)+1;
+  addLog(g,'jugar','*'+myName+'* juega '+(faceUp?('*'+cardLabel(card.value)+'*'):'una carta *oculta*')+' en *'+ZONE_LABEL[zoneKey]+'*.');
+
+  let pendingSwap = false;
+  if(faceUp && specialType(card.value)==='j'){
+    if(swapPosible(g)){
+      pendingSwap = true;
+    } else {
+      addLog(g,'cambio','*J* jugada, pero no hay cartas en dos zonas distintas para intercambiar.');
+    }
+  }
+  if(faceUp && specialType(card.value)==='q'){
+    resolveQ(g, zoneKey, entry);
+  }
+
+  if(pendingSwap){
+    // Vive en el estado compartido, no solo en este navegador: así sobrevive a
+    // una recarga y los demás saben a qué se está esperando.
+    g.pendingSwap = {by: myId, cardId: card.id};
+    ui.jSwapPicks=[];
+    await writeGame(g);
+    return;
+  }
+  g.pendingSwap = null;
+
+  advancePlayTurn(g);
+  ui = {mode:'idle', selectedHandCard:null, selectedZone:null, orientation:'up', jSwapPicks:[], pendingAttack:null, highlightCardId:null};
+  await writeGame(g);
+}
+
+/* Describe una carta de la mesa sin revelar información oculta. */
+function describeEntry(g, entry){
+  const owner = nameOf(g, entry.card.owner);
+  return entry.faceUp
+    ? ('el '+cardLabel(entry.card.value)+' de '+owner)
+    : ('una carta oculta de '+owner);
+}
+
+/* ¿Estoy yo con un intercambio de J pendiente? Se lee del estado compartido. */
+/* La J solo puede intercambiar si hay cartas en al menos dos zonas distintas. */
+function swapPosible(g){
+  return ZONE_KEYS.filter(zk=>liveCards(g,zk).length>0).length >= 2;
+}
+function swapMode(){
+  return !!(game && game.pendingSwap && game.pendingSwap.by===myId);
+}
+function liveCards(g, zoneKey){ return g.zones[zoneKey].filter(e=>!e.discarded); }
+
+/* ¿Estoy yo con un intercambio de J pendiente? Se lee del estado compartido. */
+function swapMode(){
+  return !!(game && game.pendingSwap && game.pendingSwap.by===myId);
+}
+function liveCards(g, zoneKey){ return g.zones[zoneKey].filter(e=>!e.discarded); }
+
+function markZoneFlag(g, zoneKey, entry){
+  g.zoneFlags = g.zoneFlags || {};
+  const f = g.zoneFlags[zoneKey] = g.zoneFlags[zoneKey] || {};
+  if(entry.card.value==='A'){
+    f.eclipse = true;
+    f.eclipseBy = (f.eclipseBy||[]).concat([entry.card.owner]);
+  }
+  if(entry.card.value==='K') f.coronation = (f.coronation||[]).concat([entry.card.owner]);
+}
+
+function resolveQ(g, zoneKey, qEntry){
+  const zone = g.zones[zoneKey];
+  const targets = zone.filter(e=>e!==qEntry && e.faceUp===false);
+  targets.forEach(e=>{
+    if(specialType(e.card.value)==='k' || specialType(e.card.value)==='a'){
+      e.revealed=true; e.faceUp=true; e.activated=true;
+      markZoneFlag(g, zoneKey, e);
+      e.revealedBy = 'Q';
+      addLog(g,'activar','La *Q* ataca una oculta de *'+nameOf(g,e.card.owner)+'* en *'+ZONE_LABEL[zoneKey]+'*: era un *'+cardLabel(e.card.value)+'* y se activa.');
+    } else {
+      addLog(g,'purga','La *Q* derriba una carta oculta de *'+nameOf(g,e.card.owner)+'* en *'+ZONE_LABEL[zoneKey]+'*: era un *'+cardLabel(e.card.value)+'*.');
+      e.faceUp = true;
+      e.revealed = true;
+      e.discarded = true;
+      e.discardedBy = 'Q';
+    }
+  });
+}
+
+function allZoneCardRefs(g){
+  const out=[];
+  ZONE_KEYS.forEach(zk=> g.zones[zk].forEach(e=> out.push({zone:zk, entry:e})));
+  return out;
+}
+
+async function pickJSwapTarget(zoneKey, entry){
+  if(!swapMode()) return;
+  const cardId = entry.card.id;
+  const already = ui.jSwapPicks.find(p=>p.cardId===cardId);
+  if(already){ ui.jSwapPicks = ui.jSwapPicks.filter(p=>p!==already); render(); return; }
+  ui.jSwapPicks.push({zone:zoneKey, cardId});
+  if(ui.jSwapPicks.length===2){
+    const [a,b] = ui.jSwapPicks;
+    const g = game;
+    // resolvemos siempre contra el estado más reciente por si ha pasado tiempo entre los dos clics
+    const liveA = findLiveEntry(g, a.zone, a.cardId);
+    const liveB = findLiveEntry(g, b.zone, b.cardId);
+    if(!liveA || !liveB){
+      addLog(g,'cambio','*'+myName+'* intentó usar la *J*, pero una de las cartas elegidas ya no está en la mesa.');
+    } else if(a.zone===b.zone){
+      // El intercambio tiene que mover algo: si es la misma zona, no cuenta
+      ui.jSwapPicks = [a];
+      errorMsg = 'Las dos cartas tienen que estar en zonas distintas. Elige otra.';
+      render();
+      return;
+    } else {
+      const zoneA = g.zones[a.zone], zoneB = g.zones[b.zone];
+      const idxA = zoneA.indexOf(liveA), idxB = zoneB.indexOf(liveB);
+      if(idxA>-1 && idxB>-1){
+        const descA = describeEntry(g, liveA);
+        const descB = describeEntry(g, liveB);
+        zoneA.splice(idxA,1);
+        zoneB.splice(idxB,1);
+        zoneA.push(liveB);
+        zoneB.push(liveA);
+        const txt = '*'+myName+'* usa la *J*: '+descA+' pasa de *'+ZONE_LABEL[a.zone]+'* a *'+ZONE_LABEL[b.zone]
+                  +'*, y '+descB+' pasa de *'+ZONE_LABEL[b.zone]+'* a *'+ZONE_LABEL[a.zone]+'*.';
+        addLog(g,'cambio',txt);
+      }
+    }
+    ui.jSwapPicks=[];
+    g.pendingSwap = null;
+    advancePlayTurn(g);
+    await writeGame(g);
+  } else {
+    render();
+  }
+}
+/* Solo se usa cuando ya no queda intercambio posible sobre la mesa. */
+function cancelJSwap(){
+  const g = game;
+  ui.jSwapPicks=[];
+  g.pendingSwap = null;
+  addLog(g,'cambio','No quedan cartas en dos zonas distintas: la *J* se queda donde está.');
+  advancePlayTurn(g);
+  writeGame(g);
+}
+/* Otro jugador salta el intercambio de quien no responde. */
+async function skipSwapFor(playerId){
+  const g = await readGame(roomCodeVal);
+  if(!g || !g.pendingSwap || g.pendingSwap.by!==playerId) return;
+  if(secondsStalled(g) < STALL_SECONDS){ errorMsg='La partida ha vuelto a moverse.'; render(); return; }
+  g.pendingSwap = null;
+  addLog(g,'cambio','Se salta el intercambio de la *J* de *'+nameOf(g,playerId)+'*: llevaba demasiado tiempo sin responder.');
+  advancePlayTurn(g);
+  await writeGame(g);
+}
+
+function currentPlayTurnPlayer(g){
+  const order = g.turnOrder;
+  let idx = g.playTurnIndex % order.length;
+  return order[idx];
+}
+function advancePlayTurn(g){
+  const quota = quotaThisRound(g);
+  const order = g.turnOrder;
+  let tries=0;
+  do{
+    g.playTurnIndex = (g.playTurnIndex+1) % order.length;
+    tries++;
+  } while(g.playedThisRound[order[g.playTurnIndex]]>=quota && tries<=order.length);
+  const allDone = order.every(id => g.playedThisRound[id]>=quota);
+  if(allDone){
+    g.phase='atacar';
+    g.attackTurnIndex=0;
+    g.turnAttacks=0;
+    g.attackPassed={};
+    order.forEach(id=>g.attackPassed[id]=false);
+    addLog(g,'ronda','*Fase de ataque.*');
+  }
+}
+
+/* ============================= ATACAR PHASE ============================= */
+function currentAttacker(g){
+  const order=g.turnOrder;
+  let idx = g.attackTurnIndex % order.length;
+  return order[idx];
+}
+function findLiveEntry(g, zoneKey, cardId){
+  return g.zones[zoneKey].find(e=>e.card.id===cardId);
+}
+function requestAttack(zoneKey, entry){
+  ui.pendingAttack = {zone:zoneKey, cardId:entry.card.id};
+  render();
+}
+function cancelAttack(){
+  ui.pendingAttack = null;
+  render();
+}
+async function confirmAttack(){
+  if(!ui.pendingAttack) return;
+  const {zone, cardId} = ui.pendingAttack;
+  ui.pendingAttack = null;
+  const liveEntry = findLiveEntry(game, zone, cardId);
+  if(!liveEntry){ render(); return; } // la carta ya no está ahí (otro jugador actuó primero)
+  await attackTarget(zone, liveEntry);
+}
+function applyAttack(g, attackerId, zoneKey, entry){
+  const nombre = nameOf(g, attackerId);
+  g.tokens[attackerId]-=1;
+  g.spentThisRound[attackerId] = (g.spentThisRound[attackerId]||0)+1;
+  g.turnAttacks = (g.turnAttacks||0)+1;
+  if(entry.faceUp===false){
+    entry.revealed=true;
+    const t = specialType(entry.card.value);
+    if(t==='k' || t==='a'){
+      entry.faceUp=true; entry.activated=true;
+      markZoneFlag(g, zoneKey, entry);
+      entry.revealedBy = nombre;
+      const habilidad = t==='a'
+        ? ZONE_LABEL[zoneKey]+' *queda inhabilitada*'
+        : '*'+nameOf(g,entry.card.owner)+'* se lleva '+ZONE_LABEL[zoneKey];
+      addLog(g,'activar','*'+nombre+'* ataca una oculta de *'+nameOf(g,entry.card.owner)+'* en *'+ZONE_LABEL[zoneKey]+'*: era un *'+cardLabel(entry.card.value)+'*. '+habilidad+'.');
+    } else {
+      addLog(g,'ataque','*'+nombre+'* ataca una oculta de *'+nameOf(g,entry.card.owner)+'* en *'+ZONE_LABEL[zoneKey]+'*: era un *'+cardLabel(entry.card.value)+'* y se descarta.');
+      entry.faceUp = true;
+      entry.discarded = true;
+      entry.discardedBy = nombre;
+      entry.revealedBy = nombre;
+    }
+  } else {
+    if(!entry.attackedOnce){
+      entry.attackedOnce=true;
+      entry.attackedBy = (entry.attackedBy||[]).concat([nombre]);
+      addLog(g,'ataque','*'+nombre+'* marca el *'+cardLabel(entry.card.value)+'* de *'+nameOf(g,entry.card.owner)+'* en *'+ZONE_LABEL[zoneKey]+'*: un ataque más y cae.');
+    } else {
+      entry.attackedBy = (entry.attackedBy||[]).concat([nombre]);
+      addLog(g,'ataque','*'+nombre+'* derriba el *'+cardLabel(entry.card.value)+'* de *'+nameOf(g,entry.card.owner)+'* en *'+ZONE_LABEL[zoneKey]+'* con el segundo ataque.');
+      entry.discarded = true;
+      entry.discardedBy = nombre;
+    }
+  }
+}
+
+async function attackTarget(zoneKey, entry){
+  const g = game;
+  if(g.phase!=='atacar') return;
+  const attacker = currentAttacker(g);
+  if(attacker!==myId) return;
+  if(entry.card.owner===myId) return;
+  if(g.tokens[myId]<1){ errorMsg='No te quedan Ataques.'; render(); return; }
+  const zone = g.zones[zoneKey];
+  if(!zone.includes(entry) || entry.discarded){ render(); return; }
+  applyAttack(g, myId, zoneKey, entry);
+  await writeGame(g);
+}
+function applyPass(g, playerId, forzado){
+  g.attackPassed[playerId]=true;
+  g.turnAttacks = 0;
+  addLog(g,'ataque', forzado
+    ? '*'+nameOf(g,playerId)+'* pasa automáticamente: llevaba demasiado tiempo sin responder.'
+    : '*'+nameOf(g,playerId)+'* pasa sin atacar.');
+  const order=g.turnOrder;
+  const allPassed = order.every(id=>g.attackPassed[id]);
+  if(allPassed){
+    g.phase='resolver';
+    g.resolveStep=0;
+    g.roundResults=[];
+    prepareUmbralChoicesIfNeeded(g);
+    addLog(g,'ronda','*Resolución de zonas.*');
+  } else {
+    let tries=0;
+    do{
+      g.attackTurnIndex=(g.attackTurnIndex+1)%order.length;
+      tries++;
+    } while(g.attackPassed[order[g.attackTurnIndex]] && tries<=order.length);
+  }
+}
+
+/* ================= PARTIDA BLOQUEADA / RELEVO DE ANFITRIÓN =================
+   El anfitrión era un punto único de fallo: si cerraba la pestaña, nadie podía
+   resolver zonas ni pasar de ronda. Detectamos el bloqueo con updatedAt (que ya
+   se escribe en cada acción, así que no añade tráfico) y dejamos que cualquiera
+   tome el relevo. Es seguro porque resolver y avanzar de ronda son operaciones
+   deterministas: dos jugadores que las ejecuten sobre el mismo estado producen
+   exactamente el mismo resultado. */
+const STALL_SECONDS = 45;
+const GRACE_SECONDS = 300;  // cortesía antes de poder cerrar la partida sin quien falta
+
+function secondsStalled(g){
+  if(!g || !g.updatedAt) return 0;
+  return Math.max(0, Math.floor((Date.now() - g.updatedAt)/1000));
+}
+
+/* Quién está bloqueando la partida ahora mismo, y qué se espera de él. */
+function waitingOn(g){
+  if(!g) return null;
+  if(g.status==='lobby') return {id:g.hostId, que:'empezar la partida', esAnfitrion:true};
+  if(g.status!=='playing') return null;
+  if(g.phase==='jugar'){
+    if(g.pendingSwap) return {id: g.pendingSwap.by, que:'terminar el intercambio de su J', esAnfitrion:false, puedeSaltarse:true};
+    return {id: currentPlayTurnPlayer(g), que:'jugar una carta', esAnfitrion:false};
+  }
+  if(g.phase==='atacar') return {id: currentAttacker(g), que:'atacar o pasar', esAnfitrion:false, puedePasarse:true};
+  if(g.phase==='resolver'){
+    if(umbralChoicesPending(g)){
+      const cid = Object.keys(g.pendingUmbralChoices).find(c=>g.pendingUmbralChoices[c]===null);
+      const e = cid && g.zones.umbral.find(x=>x.card.id===cid);
+      if(e) return {id:e.card.owner, que:'elegir su modificador de Umbral', esAnfitrion:false};
+    }
+    return {id:g.hostId, que:'resolver la zona', esAnfitrion:true};
+  }
+  if(g.phase==='mantenimiento'){
+    if(maintenancePending(g)){
+      const pid = g.players.map(p=>p.id).find(id=>g.pendingMaintenance && g.pendingMaintenance[id]===false);
+      if(pid) return {id:pid, que:'colocar su carta sobrante', esAnfitrion:false};
+    }
+    return {id:g.hostId, que:(g.round>=4?'terminar la partida':'empezar la ronda siguiente'), esAnfitrion:true};
+  }
+  return null;
+}
+
+/* Tomar el papel de anfitrión cuando el actual no responde. */
+async function claimHost(){
+  const g = await readGame(roomCodeVal);
+  if(!g){ errorMsg='No se pudo leer la sala.'; render(); return; }
+  if(g.hostId===myId) return;
+  if(secondsStalled(g) < STALL_SECONDS){ errorMsg='La partida ha vuelto a moverse: ya no hace falta el relevo.'; render(); return; }
+  const anterior = nameOf(g, g.hostId);
+  g.hostId = myId;
+  addLog(g,'sala','*'+myName+'* toma el control: *'+anterior+'* llevaba demasiado tiempo sin responder.');
+  await writeGame(g);
+}
+
+/* Cierra la partida antes de tiempo cuando alguien no vuelve. Se conserva el
+   marcador tal y como está y se declara el ganador provisional. */
+async function endEarly(){
+  const g = await readGame(roomCodeVal);
+  if(!g || g.status!=='playing') return;
+  if(secondsStalled(g) < GRACE_SECONDS){ errorMsg='Todavía queda tiempo de cortesía.'; render(); return; }
+  g.status='ended';
+  g.endedEarly=true;
+  g.winner = computeFinalWinner(g);
+  addLog(g,'fin','Partida terminada antes de tiempo: alguien no ha vuelto. '+
+    (g.winner ? 'Gana *'+nameOf(g,g.winner)+'* con el marcador actual.' : 'Nadie va en cabeza: sin ganador.'));
+  await writeGame(g);
+}
+
+async function passAttack(){
+  const g = game;
+  if(g.phase!=='atacar') return;
+  if(currentAttacker(g)!==myId) return;
+  ui.pendingAttack = null;
+  applyPass(g, myId, false);
+  await writeGame(g);
+}
+
+/* Pasar el turno de alguien que lleva demasiado tiempo sin responder.
+   Es seguro: pasar es una jugada legal que no altera el tablero, y si dos
+   jugadores lo hacen a la vez ambos calculan el mismo estado resultante. */
+async function passAttackFor(playerId){
+  const g = await readGame(roomCodeVal);
+  if(!g || g.phase!=='atacar') return;
+  if(currentAttacker(g)!==playerId || g.attackPassed[playerId]) return;
+  if(secondsStalled(g) < STALL_SECONDS){ errorMsg='La partida ha vuelto a moverse.'; render(); return; }
+  applyPass(g, playerId, true);
+  await writeGame(g);
+}
+
+/* ============================= RESOLVER PHASE ============================= */
+function prepareUmbralChoicesIfNeeded(g){
+  g.pendingUmbralChoices=null;
+  const currentZone = ZONE_ORDER[g.resolveStep];
+  if(currentZone==='umbral'){
+    const need = g.zones.umbral.filter(e=>!e.revealed);
+    if(need.length>0){
+      g.pendingUmbralChoices = {};
+      need.forEach(e=> g.pendingUmbralChoices[e.card.id]=null);
+    }
+  }
+}
+function umbralChoicesPending(g){
+  if(!g.pendingUmbralChoices) return false;
+  return Object.values(g.pendingUmbralChoices).some(v=>v===null);
+}
+async function submitUmbralChoice(cardId, choice){
+  const g = game;
+  g.pendingUmbralChoices[cardId]=choice;
+  const entry = g.zones.umbral.find(e=>e.card.id===cardId);
+  if(entry){ entry.revealed=true; entry.umbralChoice=choice; }
+  addLog(g,'umbral','*'+myName+'* fija un modificador en *Umbral*.');
+  await writeGame(g);
+}
+
+function finalValue(zoneKey, entry){
+  const base = baseValue(entry.card.value);
+  if(!entry.originalFaceDown) return base;
+  if(zoneKey==='bisagra') return base;
+  if(zoneKey==='umbral') return base + (entry.umbralChoice||0);
+  if(zoneKey==='cima') return base+2;
+  if(zoneKey==='foso') return base-2;
+  return base;
+}
+
+/* Devuelve {winner, viaAdvantage}.
+   - Si las cartas empatadas en cabeza son todas del MISMO jugador, es un empate
+     consigo mismo: sus cartas se anulan y queda fuera de la zona. La ventaja de
+     Bisagra NO lo rescata, porque no hay carta más alta ni más baja que valga.
+   - Si el empate es entre jugadores distintos, sí lo rompe la ventaja de Bisagra. */
+function resolveMaxMinCascade(cards, mode, bisagraAdvantage){
+  let remaining = cards.slice();
+  while(remaining.length>0){
+    const vals = remaining.map(c=>c.value);
+    const target = mode==='max' ? Math.max(...vals) : Math.min(...vals);
+    const atTarget = remaining.filter(c=>c.value===target);
+    const owners = [...new Set(atTarget.map(c=>c.owner))];
+    if(owners.length===1){
+      if(atTarget.length===1) return {winner: owners[0], viaAdvantage:false};
+      remaining = remaining.filter(c=>c.owner!==owners[0]);
+      continue;
+    }
+    if(bisagraAdvantage && owners.includes(bisagraAdvantage)){
+      return {winner: bisagraAdvantage, viaAdvantage:true};
+    }
+    remaining = remaining.filter(c=>!owners.includes(c.owner));
+  }
+  return {winner:null, viaAdvantage:false};
+}
+
+async function resolveCurrentZone(){
+  const g = game;
+  if(g.hostId!==myId) return;
+  if(g.phase!=='resolver') return;
+  if(umbralChoicesPending(g)) return;
+  const zoneKey = ZONE_ORDER[g.resolveStep];
+  const todasVivas = liveCards(g, zoneKey);
+  g.roundResults = g.roundResults || [];
+
+  // Las cartas se revelan al resolver la zona y se quedan visibles en la mesa
+  // hasta que se hayan resuelto las cuatro zonas.
+  todasVivas.forEach(e=>{ e.revealed=true; e.faceUp=true; });
+  g.resolvedZones = g.resolvedZones || {};
+  g.resolvedZones[zoneKey] = true;
+
+  const flags = (g.zoneFlags && g.zoneFlags[zoneKey]) || {};
+  const caidas = g.zones[zoneKey].filter(e=>e.discarded).length;
+  /* Frase para cuando la zona se resuelve sin ninguna carta en pie. */
+  const sinCartas = caidas>0
+    ? ('Las '+(caidas===1?'única carta que se jugó aquí cayó':caidas+' cartas que se jugaron aquí cayeron')+' antes de la resolución. La zona queda desierta.')
+    : null;
+
+  let winner=null;
+  let reasonText='';
+  let viaAdvantage=false;
+  let excluidos=[];
+  let prefacio='';
+  // El efecto de la K y del As se registra a nivel de ZONA cuando se activan, así que
+  // siguen aplicando aunque la carta se descarte después con ataques o la mueva una J.
+  let entries = todasVivas;
+  if(flags.eclipse){
+    reasonText = 'Un As al descubierto ha dejado el estrato en entredicho. La zona no se adjudica.';
+  } else {
+    const coronationOwners = [...new Set(flags.coronation || [])];
+    let coronaResuelta = false;
+    if(coronationOwners.length>0){
+      if(coronationOwners.length===1){
+        winner = coronationOwners[0];
+        coronaResuelta = true;
+        reasonText = 'La K de '+nameOf(g,winner)+' quedó al descubierto: un nombre que nadie discute se lleva la zona.';
+      } else if(g.bisagraAdvantage && coronationOwners.includes(g.bisagraAdvantage)){
+        winner = g.bisagraAdvantage; viaAdvantage = true; coronaResuelta = true;
+        reasonText = 'Varias K al descubierto, pero '+nameOf(g,winner)+' controla la Bisagra y se lleva la zona.';
+      } else {
+        // Se anulan entre sí: quedan fuera y la zona se resuelve entre los demás.
+        excluidos = coronationOwners.slice();
+        prefacio = 'Las K de '+listar(coronationOwners.map(id=>nameOf(g,id)))+' se anulan entre sí y quedan fuera del reparto. ';
+      }
+    }
+    if(excluidos.length) entries = todasVivas.filter(e=>excluidos.indexOf(e.card.owner)<0);
+    if(coronaResuelta){
+      /* ya decidida */
+    } else if(zoneKey==='bisagra'){
+      if(entries.length===0){
+        reasonText = sinCartas || 'No se jugó ninguna carta en la Bisagra.';
+      } else if(entries.length===1){
+        winner = entries[0].card.owner;
+        reasonText = 'Única carta en juego: se lleva la Bisagra sin oposición.';
+      } else if(entries.length===2){
+        const [c1,c2] = entries;
+        const v1=finalValue('bisagra',c1), v2=finalValue('bisagra',c2);
+        if(v1===v2){
+          reasonText = c1.card.owner===c2.card.owner
+            ? 'Dos cartas de la misma casa con idéntico valor ('+v1+'): sin carta alta ni baja, la Bisagra queda desierta.'
+            : 'Ambas cartas valen '+v1+'. Empate sin desempate posible: la Bisagra queda desierta.';
+        } else if(c1.card.owner===c2.card.owner){
+          const par = (v1+v2)%2===0;
+          winner = c1.card.owner;
+          reasonText = 'Ambas cartas son de la misma casa (suma '+(v1+v2)+', '+(par?'par':'impar')+'), que se lleva la Bisagra sin disputa.';
+        } else {
+          const sum=v1+v2;
+          const par = sum%2===0;
+          winner = par ? (v1>v2?c1:c2).card.owner : (v1<v2?c1:c2).card.owner;
+          reasonText = 'Suma '+sum+', '+(par?'par':'impar')+': la Bisagra se inclina hacia la carta '+(par?'más alta, el '+Math.max(v1,v2):'más baja, el '+Math.min(v1,v2))+'.';
+        }
+      } else {
+        reasonText = 'La Bisagra no admite más de dos cartas. Queda desierta.';
+      }
+    } else if(zoneKey==='umbral'){
+      if(entries.length===0){
+        reasonText = sinCartas || 'No se jugó ninguna carta en el Umbral.';
+      } else {
+        const sums={};
+        entries.forEach(e=>{ sums[e.card.owner]=(sums[e.card.owner]||0)+finalValue('umbral',e); });
+        const detalle = g.players.filter(p=>sums[p.id]!==undefined)
+          .map(p=>nameOf(g,p.id)+' '+sums[p.id]+(sums[p.id]>11?' (se pasa)':''))
+          .join(' · ');
+        let candidates = Object.entries(sums).filter(([id,s])=>s<=11).map(([id,s])=>({owner:id,value:s}));
+        if(candidates.length===0){
+          reasonText = detalle+'. Todas las casas se exceden de 11: nadie cruza el Umbral.';
+        } else {
+          const r = resolveMaxMinCascade(candidates,'max', g.bisagraAdvantage);
+          winner = r.winner; viaAdvantage = r.viaAdvantage;
+          reasonText = detalle+'. '+(winner ? sums[winner]+' es la medida más ajustada a 11 sin excederse.' : 'Empate irresoluble: el Umbral queda desierto.');
+        }
+      }
+    } else if(zoneKey==='cima'){
+      if(entries.length===0){
+        reasonText = sinCartas || 'No se jugó ninguna carta en la Cima.';
+      } else {
+        const cards = entries.map(e=>({owner:e.card.owner, value:finalValue('cima',e)}));
+        const r = resolveMaxMinCascade(cards,'max', g.bisagraAdvantage);
+        winner = r.winner; viaAdvantage = r.viaAdvantage;
+        reasonText = winner ? 'Suya es la carta más alta de la Cima.' : 'Los empates se anulan y nadie queda por encima del resto: la Cima no reconoce a nadie.';
+      }
+    } else if(zoneKey==='foso'){
+      if(entries.length===0){
+        reasonText = sinCartas || 'No se jugó ninguna carta en el Foso.';
+      } else {
+        const cards = entries.map(e=>({owner:e.card.owner, value:finalValue('foso',e)}));
+        const r = resolveMaxMinCascade(cards,'min', g.bisagraAdvantage);
+        winner = r.winner; viaAdvantage = r.viaAdvantage;
+        reasonText = winner ? 'Suya es la carta más discreta del Foso.' : 'Los empates se anulan y nadie queda por debajo del resto: el Foso no reconoce a nadie.';
+      }
+    }
+  }
+  if(prefacio) reasonText = prefacio + reasonText;
+  addLog(g,'zona','*'+ZONE_LABEL[zoneKey]+'*: '+reasonText);
+
+  let gainsText = '';
+  if(winner){
+    const reward = ZONE_REWARD[zoneKey];
+    g.prestige[winner] = (g.prestige[winner]||0) + reward.prestige;
+    const gains = ['+'+reward.prestige+' Prestigio'];
+    if(reward.token>0){
+      g.tokens[winner] = (g.tokens[winner]||0) + reward.token;
+      gains.push('+'+reward.token+' Ataque');
+    }
+    if(zoneKey==='bisagra'){
+      g.bisagraAdvantage=winner;
+      gains.push('⚖ ventaja');
+    }
+    gainsText = gains.join(' · ');
+  }
+  g.roundResults.push({
+    zone: zoneKey,
+    winner: winner || null,
+    gains: gainsText,
+    reason: reasonText,
+    advantage: !!viaAdvantage,
+    text: (winner ? nameOf(g,winner)+' gana '+ZONE_LABEL[zoneKey]+' — '+gainsText+'. ' : 'Nadie gana '+ZONE_LABEL[zoneKey]+'. ')+reasonText
+  });
+
+  g.resolveStep+=1;
+  if(g.resolveStep>=ZONE_ORDER.length){
+    // Las cartas se quedan en la mesa durante el mantenimiento para poder comentar
+    // los resultados; se retiran al pulsar "Siguiente ronda" / "Terminar partida".
+    g.phase='mantenimiento';
+    preparePendingMaintenance(g);
+    addLog(g,'ronda','Resueltas las cuatro zonas de la ronda '+g.round+'.');
+  } else {
+    prepareUmbralChoicesIfNeeded(g);
+  }
+  await writeGame(g);
+}
+
+function clearTable(g){
+  ZONE_KEYS.forEach(zk=>{
+    g.zones[zk].forEach(e=> g.discard[e.card.owner].push(e.card));
+    g.zones[zk]=[];
+  });
+}
+
+/* ============================= MANTENIMIENTO ============================= */
+function preparePendingMaintenance(g){
+  g.pendingMaintenance=null;
+  if(g.round>=4) return;
+  const need = g.players.filter(p=> (g.hands[p.id]||[]).length>0);
+  if(need.length>0){
+    g.pendingMaintenance={};
+    need.forEach(p=> g.pendingMaintenance[p.id]=false);
+  }
+}
+function maintenancePending(g){
+  if(!g.pendingMaintenance) return false;
+  return Object.values(g.pendingMaintenance).some(v=>v===false);
+}
+async function submitMaintenanceChoice(top){
+  const g = game;
+  if(!g.pendingMaintenance || g.pendingMaintenance[myId]!==false) return; // ya resuelto
+  const hand = g.hands[myId] || [];
+  const card = hand.pop();
+  if(!card){ g.pendingMaintenance[myId]=true; await writeGame(g); return; }
+  if(top) g.decks[myId].unshift(card); else g.decks[myId].push(card);
+  g.pendingMaintenance[myId]=true;
+  addLog(g,'jugar','*'+myName+'* coloca su carta sobrante '+(top?'encima':'debajo')+' del mazo.');
+  await writeGame(g);
+}
+
+async function nextRoundOrEnd(){
+  const g = game;
+  if(g.hostId!==myId) return;
+  if(g.phase!=='mantenimiento') return;
+  if(maintenancePending(g)) return;
+  // los Ataques gastados no se recuperan (salvo el que da ganar Bisagra, ya aplicado)
+  g.players.forEach(p=>{ g.spentThisRound[p.id]=0; });
+  clearTable(g);
+  if(g.round>=4){
+    g.status='ended';
+    g.winner = computeFinalWinner(g);
+    const out = finalOutcome(g);
+    out.anulados.forEach(a=>{
+      addLog(g,'fin','Empate a *'+a.tope+'* de Prestigio entre *'+listar(a.ids.map(id=>nameOf(g,id)))
+        +'*: se anulan entre sí y quedan fuera del reparto.');
+    });
+    if(!g.winner){
+      addLog(g,'fin','Fin de la partida: todas las casas quedaron anuladas, *nadie gana*.');
+    } else if(out.porBisagra){
+      const otros = out.empatados.filter(id=>id!==g.winner).map(id=>nameOf(g,id));
+      addLog(g,'fin','Empate a *'+out.tope+'* con *'+listar(otros)+'*, pero *'+nameOf(g,g.winner)
+        +'* controlaba la *Bisagra* y se lleva la partida con '+g.prestige[g.winner]+' de Prestigio.');
+    } else if(out.anulados.length){
+      addLog(g,'fin','Con los de arriba anulados, la partida cae para *'+nameOf(g,g.winner)
+        +'* con '+g.prestige[g.winner]+' de Prestigio.');
+    } else {
+      addLog(g,'fin','Fin de la partida. Gana *'+nameOf(g,g.winner)+'* con '+g.prestige[g.winner]+' de Prestigio.');
+    }
+    await writeGame(g);
+    return;
+  }
+  g.turnOrder = nextTurnOrder(g.turnOrder, g.prestige);
+  g.round += 1;
+  g.phase='jugar';
+  g.bisagraAdvantage=null;
+  g.zoneFlags={};
+  g.pendingSwap=null;
+  g.resolvedZones={};
+  g.roundResults=[];
+  g.pendingUmbralChoices=null;
+  g.pendingMaintenance=null;
+  g.resolveStep=0;
+  g.playTurnIndex=0;
+  g.attackTurnIndex=0;
+  g.attackPassed={};
+  drawForRound(g);
+  addLog(g,'ronda','*Ronda '+g.round+'.* Abre *'+nameOf(g,g.turnOrder[0])+'* por Prestigio. Orden: '
+    +g.turnOrder.map(id=>nameOf(g,id)+' ('+(g.prestige[id]||0)+')').join(' → ')+'.');
+  await writeGame(g);
+}
+
+function nextTurnOrder(prevOrder, prestige){
+  const groups={};
+  prevOrder.forEach(id=>{ const p=prestige[id]; (groups[p]=groups[p]||[]).push(id); });
+  const desc = Object.keys(groups).map(Number).sort((a,b)=>b-a);
+  const out=[];
+  desc.forEach(p=>{
+    let grp = groups[p];
+    if(grp.length>1) grp = grp.slice().reverse();
+    out.push(...grp);
+  });
+  return out;
+}
+
+function computeFinalWinner(g){
+  const r = finalOutcome(g);
+  return r.winner;
+}
+/* Devuelve quién gana y, si hubo empate a Prestigio, cómo se resolvió. */
+/* Los empatados en cabeza se anulan entre sí y la victoria baja al siguiente,
+   salvo que uno de ellos controle la Bisagra: por eso ganarla vale tanto. */
+function finalOutcome(g){
+  let remaining = g.players.map(p=>p.id);
+  let anulados = [];
+  while(remaining.length>0){
+    const tope = Math.max(...remaining.map(id=>g.prestige[id]||0));
+    const arriba = remaining.filter(id=>(g.prestige[id]||0)===tope);
+    if(arriba.length===1){
+      return {winner:arriba[0], porBisagra:false, empatados:[], tope, anulados};
+    }
+    if(g.bisagraAdvantage && arriba.includes(g.bisagraAdvantage)){
+      return {winner:g.bisagraAdvantage, porBisagra:true, empatados:arriba, tope, anulados};
+    }
+    anulados.push({tope, ids:arriba});
+    remaining = remaining.filter(id=>arriba.indexOf(id)<0);
+  }
+  return {winner:null, porBisagra:false, empatados:[], tope:0, anulados};
+}
+
+/* ============================= RENDER ============================= */
+function el(html){ const d=document.createElement('div'); d.innerHTML=html; return d.firstElementChild; }
+
+/* El sondeo llamaba a render() cada 2,2 s y reconstruía toda la pantalla, lo que
+   reiniciaba cualquier animación en curso. Ahora calculamos una firma del estado
+   visible y solo repintamos cuando cambia de verdad. */
+let lastSignature = null;
+function renderSignature(){
+  let stallBucket = 0;
+  if(game && game.updatedAt){
+    const seg = secondsStalled(game);
+    if(seg >= STALL_SECONDS) stallBucket = Math.floor(seg/5);
+  }
+  return JSON.stringify([
+    screen, errorMsg, notice, missedReads, confirmDelete, confirmLeave,
+    helpOpen, rulesOpen, showManualCopy, newRoomPublic, browsing,
+    roomList,
+    theme, stallBucket,
+    game && game.players ? game.players.map(p=>isOnline(p.id)) : null,
+    ui, game
+  ]);
+}
+
+function render(){
+  const sig = renderSignature();
+  if(sig === lastSignature) return;
+  lastSignature = sig;
+  paint();
+}
+/* Fuerza un repintado aunque la firma no haya cambiado. */
+function repaint(){ lastSignature = null; render(); }
+
+function paint(){
+  const root = document.getElementById('app');
+  applyTheme(root);
+  root.innerHTML='';
+  if(errorMsg){
+    const box = el('<div class="banner" style="border:1px solid var(--danger);"></div>');
+    box.appendChild(el('<div class="err">'+errorMsg+'</div>'));
+    if(lastAttemptedState){
+      const retryBtn = el('<button class="secondary" style="margin-top:8px;">Reintentar guardado</button>');
+      retryBtn.onclick = ()=>retryLastWrite();
+      box.appendChild(retryBtn);
+    }
+    root.appendChild(box);
+  }
+  if(missedReads>=4 && (screen==='lobby' || screen==='game')){
+    const box = el('<div class="banner" style="border:1px solid var(--danger);"></div>');
+    box.appendChild(el('<div class="err">No se consigue leer la sala desde hace unos segundos. Puede ser un fallo pasajero de conexión, o que la sala se haya eliminado.</div>'));
+    const outBtn = el('<button class="secondary" style="margin-top:8px;">Salir al inicio</button>');
+    outBtn.onclick = ()=>goToNotice('Has salido de la sala.');
+    box.appendChild(outBtn);
+    root.appendChild(box);
+  }
+  if(screen==='notice') root.appendChild(renderNotice());
+  else if(screen==='landing' || !game) root.appendChild(renderLanding());
+  else if(screen==='lobby') root.appendChild(renderLobby());
+  else if(screen==='game') root.appendChild(renderGame());
+  prevCards = nextCards; nextCards = {};
+  prevFlags = nextFlags; nextFlags = {};
+  prevHand = nextHand; nextHand = {};
+  if(game && game.prestige) prevPrestige = Object.assign({}, game.prestige);
+  if(game) { prevRound = game.round; prevEnded = game.status==='ended'; }
+
+  const logEl = root.querySelector('.log');
+  if(logEl){
+    if(logStick) logEl.scrollTop = logEl.scrollHeight;
+    else logEl.scrollTop = logScrollTop;
+    logEl.addEventListener('scroll', ()=>{
+      logScrollTop = logEl.scrollTop;
+      logStick = (logEl.scrollHeight - logEl.scrollTop - logEl.clientHeight) < 24;
+    });
+  }
+}
+
+function renderLanding(){
+  const wrap = el('<div class="stack" style="gap:18px;"></div>');
+
+  // --- Portada ---
+  const hero = el('<div class="hero"></div>');
+  hero.appendChild(themeToggle());
+  const heroGrid = el('<div class="hero-grid"></div>');
+  const heroText = el('<div></div>');
+  heroText.appendChild(el('<div class="hero-kicker">La ciudad vertical</div>'));
+  heroText.appendChild(el('<h1 class="hero-title">4 Zonas</h1>'));
+  heroText.appendChild(el('<p class="hero-sub">Una ciudad que creció hacia arriba y hacia abajo en vez de a lo ancho. Cuatro puntos la sostienen, y las casas se los disputan temporada tras temporada por lo único que cruza todos los niveles: el <strong>Prestigio</strong>.</p>'));
+  heroText.appendChild(el('<p class="hero-quote">«Lo que se hace a la vista se mide. Lo que se hace en secreto lo mide el rumor, y el rumor siempre exagera en la dirección que conviene al lugar.»</p>'));
+  heroGrid.appendChild(heroText);
+  heroGrid.appendChild(cityEmblem());
+  hero.appendChild(heroGrid);
+  wrap.appendChild(hero);
+
+  if(!storageAvailable()){
+    wrap.appendChild(el('<div class="err">No se detecta el almacenamiento compartido de Claude. Abre esto como artifact dentro de Claude (o el enlace compartido), no como archivo descargado, o no podrás jugar en red.</div>'));
+  }
+
+  // --- Entrar a jugar ---
+  const play = el('<div class="panel stack"></div>');
+  play.appendChild(el('<h2>Jugar</h2>'));
+  play.appendChild(el('<label>Tu nombre</label>'));
+  const nameInput = el('<input placeholder="Ej: Ana" maxlength="'+MAX_NAME+'" />');
+  nameInput.value = myName;
+  nameInput.oninput = (e)=>{ myName = e.target.value; };
+  play.appendChild(nameInput);
+
+  const modeRow = el('<div class="row" style="margin-top:4px;"></div>');
+  const pubBtn = el('<button class="'+(newRoomPublic?'':'secondary')+'">Sala pública</button>');
+  pubBtn.onclick = ()=>{ newRoomPublic=true; render(); };
+  const privBtn = el('<button class="'+(newRoomPublic?'secondary':'')+'">Sala privada</button>');
+  privBtn.onclick = ()=>{ newRoomPublic=false; render(); };
+  modeRow.appendChild(pubBtn); modeRow.appendChild(privBtn);
+  play.appendChild(modeRow);
+  play.appendChild(el('<div class="small">'+(newRoomPublic
+    ? 'Aparecerá en la lista de partidas abiertas y podrá unirse cualquiera.'
+    : 'Solo entrará quien tenga el código que te demos.')+'</div>'));
+
+  const createBtn = el('<button>Crear sala</button>');
+  createBtn.onclick = ()=>{ errorMsg=''; createRoom(); };
+  play.appendChild(createBtn);
+
+  play.appendChild(el('<div class="divider"></div>'));
+  play.appendChild(el('<label>¿Te han pasado un código?</label>'));
+  const codeInput = el('<input placeholder="Ej: A1B2" style="text-transform:uppercase" />');
+  codeInput.value = joinCodeDraft;
+  codeInput.oninput = (e)=>{ joinCodeDraft = e.target.value; };
+  play.appendChild(codeInput);
+  const joinBtn = el('<button class="secondary">Entrar en la sala</button>');
+  joinBtn.onclick = ()=>{ errorMsg=''; joinRoom(codeInput.value); };
+  play.appendChild(joinBtn);
+  play.appendChild(el('<div class="small">Si te desconectaste de una partida en curso, entra con su código y tu mismo nombre para volver a tu sitio.</div>'));
+  wrap.appendChild(play);
+
+  // --- Partidas abiertas ---
+  wrap.appendChild(renderRoomBrowser());
+
+  // --- Reglas ---
+  wrap.appendChild(renderRulesPanel());
+
+  return wrap;
+}
+
+function renderRulesPanel(){
+  const box = el('<div class="panel stack"></div>');
+  const head = el('<div class="row" style="justify-content:space-between;align-items:baseline;cursor:pointer;"></div>');
+  head.appendChild(el('<h2>Cómo se juega</h2>'));
+  head.appendChild(el('<span class="small">'+(rulesOpen?'ocultar':'mostrar')+'</span>'));
+  head.onclick = ()=>{ rulesOpen = !rulesOpen; render(); };
+  box.appendChild(head);
+  if(!rulesOpen){
+    box.appendChild(el('<div class="small">Objetivo, ronda a ronda, las cuatro zonas y qué hacen la J, la Q, la K y el As.</div>'));
+    return box;
+  }
+
+  box.appendChild(el('<p class="rules-intro">La ciudad se sostiene sobre cuatro puntos y las casas se los disputan. Gana quien más Prestigio acumule en cuatro rondas.</p>'));
+
+  box.appendChild(el('<h3>Lo básico</h3>'));
+  const basics = el('<div class="fact-grid"></div>');
+  [
+    ['2 a 4','jugadores'],
+    ['4','rondas'],
+    ['12','cartas por casa'],
+    ['3','Ataques de salida']
+  ].forEach(f=>{
+    const c = el('<div class="fact"></div>');
+    c.appendChild(el('<span class="fact-num">'+f[0]+'</span>'));
+    c.appendChild(el('<span class="fact-lbl">'+f[1]+'</span>'));
+    basics.appendChild(c);
+  });
+  box.appendChild(basics);
+  box.appendChild(el('<p class="small">Todas las casas tienen el mismo mazo: del 2 al 9, más J, Q, K y As. No hay poderes distintos: la diferencia está en qué enseñas y qué callas.</p>'));
+
+  box.appendChild(el('<h3>El orden de turno</h3>'));
+  box.appendChild(el('<p>La primera ronda se sortea. A partir de ahí lo marca el Prestigio: <strong>quien más tiene abre la ronda</strong>. Abrir es una desventaja, porque enseñas tus intenciones antes que nadie y los demás colocan sabiendo lo que has hecho. Entre casas empatadas a Prestigio, el orden se <strong>invierte</strong> respecto a la ronda anterior.</p>'));
+
+  box.appendChild(el('<h3>Cómo va una ronda</h3>'));
+  const fases = el('<div class="steps"></div>');
+  PHASE_HELP.forEach((f,i)=>{
+    const st = el('<div class="step"></div>');
+    st.appendChild(el('<span class="step-n">'+(i+1)+'</span>'));
+    const c = el('<div></div>');
+    c.appendChild(el('<div class="step-t">'+f[0]+'</div>'));
+    c.appendChild(el('<div class="step-d">'+f[1]+'</div>'));
+    st.appendChild(c);
+    fases.appendChild(st);
+  });
+  box.appendChild(fases);
+
+  box.appendChild(el('<h3>A la vista o en secreto</h3>'));
+  box.appendChild(el('<p>Una carta a la vista vale lo que pone. Una carta oculta la mide el rumor, y el rumor exagera hacia donde conviene al sitio:</p>'));
+  box.appendChild(renderModTable());
+  box.appendChild(el('<p class="small">Ocultar casi siempre te beneficia, pero deja la carta a merced de un solo Ataque.</p>'));
+
+  box.appendChild(el('<h3>Los cuatro puntos</h3>'));
+  box.appendChild(el('<p>Se resuelven en este orden: Bisagra, Umbral, Cima y Foso. Quien se lleva la Bisagra gana además un Ataque y desempata el resto de la ronda a su favor.</p>'));
+  box.appendChild(renderZoneHelp());
+  box.appendChild(el('<p class="small">Dos cartas de la misma casa con el mismo valor se anulan entre sí: repetirse no distingue a nadie.</p>'));
+
+  box.appendChild(el('<h3>Las cartas especiales</h3>'));
+  box.appendChild(renderCardHelp());
+
+  box.appendChild(el('<h3>Los Ataques</h3>'));
+  const atk = el('<ul class="help-list"></ul>');
+  [
+    'Empiezas con <strong>3</strong> y no se reponen. El único que se gana es el de la Bisagra.',
+    'Contra una carta oculta: la derriba. Si resulta ser K o As, se activa en tu contra.',
+    'Contra una carta a la vista: el primer Ataque la señala, el segundo la derriba.',
+    'Lo derribado se queda en su sitio para que todos lo vean, pero ya no puntúa.'
+  ].forEach(t=> atk.appendChild(el('<li>'+t+'</li>')));
+  box.appendChild(atk);
+
+  return box;
+}
+
+function renderRoomBrowser(){
+  const box = el('<div class="panel stack"></div>');
+  const head = el('<div class="row" style="justify-content:space-between;align-items:baseline;"></div>');
+  head.appendChild(el('<h2>Partidas abiertas</h2>'));
+  const ref = el('<button class="secondary small-btn">'+(browsing?'Buscando…':'Actualizar')+'</button>');
+  ref.disabled = browsing;
+  ref.onclick = ()=>refreshRooms();
+  head.appendChild(ref);
+  box.appendChild(head);
+
+  if(roomList===null){
+    box.appendChild(el('<div class="small">Pulsa «Actualizar» para ver qué salas públicas hay ahora mismo.</div>'));
+    return box;
+  }
+  if(roomList.length===0){
+    box.appendChild(el('<div class="small">No hay ninguna sala pública esperando jugadores. Crea una y que se apunte quien quiera.</div>'));
+    return box;
+  }
+  const list = el('<div class="room-list"></div>');
+  roomList.forEach(r=>{
+    const row = el('<div class="room-row"></div>');
+    const info = el('<div></div>');
+    info.appendChild(el('<div class="room-code">'+r.code+'</div>'));
+    info.appendChild(el('<div class="small">'+escapeHtml(r.names.join(', '))+' · '+r.count+'/'+MAX_PLAYERS+' jugadores</div>'));
+    row.appendChild(info);
+    const b = el('<button class="small-btn">Unirse</button>');
+    b.onclick = ()=>{ errorMsg=''; joinRoom(r.code); };
+    row.appendChild(b);
+    list.appendChild(row);
+  });
+  box.appendChild(list);
+  return box;
+}
+
+/* Lee las salas públicas del almacén compartido. Limitamos cuántas miramos
+   para no disparar el número de peticiones. */
+async function refreshRooms(){
+  if(!storageAvailable()){ errorMsg='Sin almacenamiento no se pueden listar salas.'; render(); return; }
+  browsing = true; render();
+  const out = [];
+  try{
+    const res = await window.storage.list('game:', true);
+    const keys = (res && res.keys ? res.keys : []).slice(0, 25);
+    for(const k of keys){
+      try{
+        const raw = await window.storage.get(k, true);
+        if(!raw) continue;
+        const g = JSON.parse(raw.value);
+        if(g.status!=='lobby' || !g.isPublic) continue;
+        if(!g.players || g.players.length>=MAX_PLAYERS) continue;
+        if(Date.now() - (g.updatedAt||0) > 3600000) continue; // salas muertas
+        out.push({code:g.roomCode, count:g.players.length, names:g.players.map(p=>p.name)});
+      }catch(e){ /* sala ilegible: la saltamos */ }
+    }
+  }catch(e){ errorMsg='No se pudo consultar la lista de salas.'; }
+  roomList = out;
+  browsing = false;
+  render();
+}
+
+/* Copiar al portapapeles. Dentro del iframe del artifact la API moderna suele
+   estar bloqueada, así que probamos varias vías y, si ninguna funciona,
+   devolvemos false para ofrecer copia manual. */
+async function copyText(text){
+  try{
+    if(typeof navigator!=='undefined' && navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  }catch(e){ /* seguimos con el respaldo */ }
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly','');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    if(ta.setSelectionRange) ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand && document.execCommand('copy');
+    document.body.removeChild(ta);
+    return !!ok;
+  }catch(e){ return false; }
+}
+
+function renderLobby(){
+  const g = game;
+  const wrap = el('<div class="panel stack"></div>');
+  wrap.appendChild(el('<h1>Sala de espera</h1>'));
+
+  const codeRow = el('<div class="row" style="align-items:center;"></div>');
+  codeRow.appendChild(el('<span class="small">Comparte este código:</span>'));
+  codeRow.appendChild(el('<span class="code">'+g.roomCode+'</span>'));
+  const copyBtn = el('<button class="secondary">Copiar</button>');
+  copyBtn.onclick = async ()=>{
+    copyBtn.textContent = 'Copiando…';
+    const ok = await copyText(g.roomCode);
+    if(ok){
+      copyBtn.textContent = 'Copiado';
+      setTimeout(()=>{ copyBtn.textContent = 'Copiar'; }, 1500);
+    } else {
+      // El navegador no nos deja copiar: mostramos el código seleccionable
+      copyBtn.textContent = 'Copia manual';
+      showManualCopy = true;
+      render();
+    }
+  };
+  codeRow.appendChild(copyBtn);
+  wrap.appendChild(codeRow);
+
+  if(showManualCopy){
+    const manual = el('<div class="modal-inline"></div>');
+    manual.appendChild(el('<div class="small">Tu navegador no permite copiar automáticamente aquí. Selecciona el código y cópialo a mano:</div>'));
+    const inp = el('<input readonly style="margin-top:6px;font-family:ui-monospace,monospace;font-size:1.1rem;letter-spacing:0.12em;" />');
+    inp.value = g.roomCode;
+    inp.onclick = ()=>{ try{ inp.select(); }catch(e){} };
+    manual.appendChild(inp);
+    wrap.appendChild(manual);
+  }
+
+  wrap.appendChild(el('<div class="divider"></div>'));
+  wrap.appendChild(el('<div class="row" style="align-items:baseline;gap:7px;"><h2>Jugadores ('+g.players.length+'/'+MAX_PLAYERS+')</h2>'
+    +'<span class="tag neutral">'+(g.isPublic?'pública':'privada')+'</span></div>'));
+
+  const list = el('<ul class="players-list"></ul>');
+  g.players.forEach(p=>{
+    const li = el('<li class="row" style="justify-content:space-between;"></li>');
+    const left = el('<span></span>');
+    const online = isOnline(p.id);
+    left.appendChild(el('<span class="dot '+(online?'on':'off')+'"></span>'));
+    left.appendChild(el('<span>'+escapeHtml(p.name)+'</span>'));
+    if(p.bot) left.appendChild(el('<span class="pill bot">automático</span>'));
+    if(p.id===g.hostId) left.appendChild(el('<span class="pill">anfitrión</span>'));
+    if(p.id===myId) left.appendChild(el('<span class="pill">tú</span>'));
+    if(!online && p.id!==myId) left.appendChild(el('<span class="small"> sin conexión</span>'));
+    li.appendChild(left);
+    if(g.hostId===myId && p.id!==myId){
+      const kick = el('<button class="secondary small-btn">Expulsar</button>');
+      kick.onclick = ()=>kickPlayer(p.id);
+      li.appendChild(kick);
+    }
+    list.appendChild(li);
+  });
+  wrap.appendChild(list);
+
+  if(g.players.length<2){
+    wrap.appendChild(el('<p>Hace falta al menos otro jugador para empezar.</p>'));
+  }
+
+  if(g.hostId===myId && g.players.length<MAX_PLAYERS){
+    const botBtn = el('<button class="secondary">Añadir jugador automático</button>');
+    botBtn.onclick = ()=>addBot();
+    wrap.appendChild(botBtn);
+    wrap.appendChild(el('<div class="small">Juegan solos siguiendo su propio criterio. Sirven para completar una partida o para practicar.</div>'));
+  }
+
+  if(g.hostId===myId){
+    const startBtn = el('<button>Empezar partida</button>');
+    startBtn.disabled = g.players.length<2;
+    startBtn.onclick = ()=>startGame();
+    wrap.appendChild(startBtn);
+  } else {
+    wrap.appendChild(el('<p>Ya estás dentro. El anfitrión dará comienzo cuando estéis todos.</p>'));
+  }
+
+  wrap.appendChild(el('<div class="divider"></div>'));
+  const actions = el('<div class="row"></div>');
+  const leaveBtn = el('<button class="secondary">Salir de la sala</button>');
+  leaveBtn.onclick = ()=>leaveRoom();
+  actions.appendChild(leaveBtn);
+  if(g.hostId===myId){
+    const delBtn = el('<button class="danger">Eliminar sala</button>');
+    delBtn.onclick = ()=>{
+      if(confirmDelete){ closeRoom(); }
+      else { confirmDelete=true; render(); }
+    };
+    actions.appendChild(delBtn);
+  }
+  wrap.appendChild(actions);
+  if(confirmDelete && g.hostId===myId){
+    const warn = el('<div class="modal-inline"></div>');
+    warn.appendChild(el('<div><strong>¿Eliminar la sala para todos?</strong></div>'));
+    warn.appendChild(el('<div class="small" style="margin-top:4px;">Los demás volverán a la pantalla de inicio. No se puede deshacer.</div>'));
+    const row = el('<div class="row" style="margin-top:8px;"></div>');
+    const yes = el('<button class="danger">Sí, eliminar</button>');
+    yes.onclick = ()=>{ confirmDelete=false; closeRoom(); };
+    const no = el('<button class="secondary">Cancelar</button>');
+    no.onclick = ()=>{ confirmDelete=false; render(); };
+    row.appendChild(yes); row.appendChild(no);
+    warn.appendChild(row);
+    wrap.appendChild(warn);
+  }
+
+  return wrap;
+}
+
+function renderNotice(){
+  const wrap = el('<div class="center-box panel stack"></div>');
+  wrap.appendChild(el('<h1>4 Zonas</h1>'));
+  wrap.appendChild(el('<p>'+escapeHtml(notice)+'</p>'));
+  const btn = el('<button>Volver al inicio</button>');
+  btn.onclick = ()=>backToLanding();
+  wrap.appendChild(btn);
+  return wrap;
+}
+
+/* Une nombres en lenguaje natural: "Ana", "Ana y Bruno", "Ana, Bruno y Carla". */
+function listar(nombres){
+  if(!nombres.length) return '';
+  if(nombres.length===1) return nombres[0];
+  return nombres.slice(0,-1).join(', ')+' y '+nombres[nombres.length-1];
+}
+function pendingUmbralPlayers(g){
+  if(!g.pendingUmbralChoices) return '';
+  const ids = Object.keys(g.pendingUmbralChoices)
+    .filter(cid=>g.pendingUmbralChoices[cid]===null)
+    .map(cid=>{ const e=g.zones.umbral.find(x=>x.card.id===cid); return e && e.card.owner; })
+    .filter(Boolean);
+  const unicos = g.players.filter(p=>ids.indexOf(p.id)>-1).map(p=>p.name);
+  return listar(unicos);
+}
+
+function renderStallPanel(g){
+  if(!g || (g.status!=='playing' && g.status!=='lobby')) return null;
+  const espera = waitingOn(g);
+  if(!espera || espera.id===myId) return null;
+  if(isBot(g, espera.id) && g.hostId===myId) return null; // la mueve este mismo cliente
+  const seg = secondsStalled(g);
+  if(seg < STALL_SECONDS) return null;
+
+  const quien = nameOf(g, espera.id);
+  const jugador = g.players.find(p=>p.id===espera.id);
+  const ausente = !!(jugador && jugador.away);
+  const box = el('<div class="stall"></div>');
+  const mins = seg>=90 ? (Math.floor(seg/60)+' min') : (seg+' s');
+  box.appendChild(el('<div class="stall-head">'+(ausente
+    ? escapeHtml(quien)+' se ha desconectado'
+    : 'La partida lleva '+mins+' parada')+'</div>'));
+  box.appendChild(el('<div class="stall-body">Se espera a <strong>'+escapeHtml(quien)+'</strong> para '+escapeHtml(espera.que)+'.'
+    +(ausente ? ' Puede volver entrando con el código <strong>'+g.roomCode+'</strong> y su mismo nombre.' : '')+'</div>'));
+  const restante = GRACE_SECONDS - seg;
+  if(restante > 0){
+    box.appendChild(el('<div class="small" style="margin-top:4px;">Quedan '+Math.ceil(restante/60)+' min de cortesía antes de poder cerrar la partida sin '+escapeHtml(quien)+'.</div>'));
+  }
+
+  const row = el('<div class="row" style="margin-top:9px;"></div>');
+
+  if(espera.puedeSaltarse){
+    const b = el('<button>Saltar su intercambio</button>');
+    b.onclick = ()=>skipSwapFor(espera.id);
+    row.appendChild(b);
+    box.appendChild(el('<div class="small" style="margin-top:6px;">La J se queda donde está y la partida continúa.</div>'));
+  }
+
+  if(espera.puedePasarse){
+    const b = el('<button>Pasar su turno de ataque</button>');
+    b.onclick = ()=>passAttackFor(espera.id);
+    row.appendChild(b);
+    box.appendChild(el('<div class="small" style="margin-top:6px;">Pasar por él no altera el tablero: solo renuncia a sus Ataques de esta ronda.</div>'));
+  }
+
+  if(espera.esAnfitrion && g.hostId!==myId){
+    const b = el('<button>Continuar yo</button>');
+    b.onclick = ()=>claimHost();
+    row.appendChild(b);
+    box.appendChild(el('<div class="small" style="margin-top:6px;">Pasarás a ser el anfitrión y podrás hacer avanzar la partida. El resultado es idéntico al que habría salido con el anfitrión anterior.</div>'));
+  } else if(!espera.esAnfitrion && g.hostId!==myId && g.hostId===espera.id){
+    const b = el('<button class="secondary">Tomar el control</button>');
+    b.onclick = ()=>claimHost();
+    row.appendChild(b);
+  } else if(!espera.esAnfitrion && !espera.puedePasarse && g.hostId!==myId){
+    const b = el('<button class="secondary">Tomar el control</button>');
+    b.onclick = ()=>claimHost();
+    row.appendChild(b);
+    box.appendChild(el('<div class="small" style="margin-top:6px;">Si '+escapeHtml(quien)+' no vuelve, como anfitrión podrás cerrar la partida.</div>'));
+  }
+
+  if(seg >= GRACE_SECONDS){
+    const b = el('<button class="danger">Terminar la partida</button>');
+    b.onclick = ()=>endEarly();
+    row.appendChild(b);
+    box.appendChild(el('<div class="small" style="margin-top:6px;">Se acabó la cortesía. Puedes cerrarla con el marcador tal y como está ahora.</div>'));
+  }
+  if(row.children.length>0) box.appendChild(row);
+  return box;
+}
+
+function renderGame(){
+  const g = game;
+  const wrap = el('<div class="stack" style="gap:14px;"></div>');
+
+  // topbar
+  const top = el('<div class="topbar"></div>');
+  const titleBox = el('<div></div>');
+  titleBox.appendChild(el('<h1>4 Zonas</h1>'));
+  titleBox.appendChild(el('<div class="small">Ronda '+g.round+' de 4 · Sala '+g.roomCode+' · '+phaseLabel(g)+'</div>'));
+  titleBox.appendChild(themeToggle());
+  const helpBtn = el('<button class="secondary small-btn" style="margin-top:6px;">Ver cartas y zonas</button>');
+  helpBtn.onclick = ()=>{ helpOpen = !helpOpen; render(); };
+  titleBox.appendChild(helpBtn);
+  top.appendChild(titleBox);
+
+  const scoreboard = el('<div class="scoreboard"></div>');
+  g.players.forEach(p=>{
+    const isTurn = isPlayersTurn(g,p.id);
+    const chip = el('<div class="score-chip '+seatClass(g,p.id)+(p.id===myId?' me':'')+(isTurn?' turn':'')+'"></div>');
+
+    const head = el('<div class="chip-head"></div>');
+    const pos = (g.turnOrder||[]).indexOf(p.id);
+    if(pos>=0) head.appendChild(el('<span class="chip-ord" title="Orden de turno esta ronda">'+(pos+1)+'.º</span>'));
+    head.appendChild(el('<span class="seat-mark">'+markOf(g,p.id)+'</span>'));
+    head.appendChild(el('<span class="chip-name">'+escapeHtml(p.name)+'</span>'));
+    if(p.id===myId) head.appendChild(el('<span class="chip-you">tú</span>'));
+    if(p.bot) head.appendChild(el('<span class="chip-bot" title="Jugador automático">⌬</span>'));
+    if(g.bisagraAdvantage===p.id) head.appendChild(el('<span class="chip-adv" title="Ganó Bisagra: gana los empates esta ronda">⚖</span>'));
+    chip.appendChild(head);
+
+    const stats = el('<div class="chip-stats"></div>');
+    const antes = prevPrestige[p.id];
+    const ahora = g.prestige[p.id]||0;
+    const subida = (antes!==undefined && ahora>antes) ? (ahora-antes) : 0;
+    const pres = el('<div class="stat'+(subida?' anim-gain':'')+'"></div>');
+    pres.appendChild(el('<span class="stat-num">'+ahora+'</span>'));
+    pres.appendChild(el('<span class="stat-lbl">'+PRESTIGE_GLYPH+' Prestigio</span>'));
+    if(subida) pres.appendChild(el('<span class="float-gain">+'+subida+'</span>'));
+    stats.appendChild(pres);
+    const atk = el('<div class="stat"></div>');
+    atk.appendChild(el('<span class="stat-num">'+(g.tokens[p.id]||0)+'</span>'));
+    atk.appendChild(el('<span class="stat-lbl">Ataques</span>'));
+    stats.appendChild(atk);
+    chip.appendChild(stats);
+
+    let estado = '';
+    if(g.status==='playing'){
+      if(g.phase==='jugar') estado = (g.playedThisRound[p.id]||0)+' de 3 cartas jugadas';
+      else if(g.phase==='atacar') estado = g.attackPassed[p.id] ? 'ya ha pasado' : 'aún puede atacar';
+      else if(g.phase==='resolver') estado = 'resolviendo zonas';
+      else if(g.phase==='mantenimiento') estado = 'fin de ronda';
+    }
+    chip.appendChild(el('<div class="chip-state">'+escapeHtml(estado)+'</div>'));
+    chip.appendChild(el('<div class="chip-cards">Mazo '+(g.decks[p.id]||[]).length+' · Descarte '+(g.discard[p.id]||[]).length+'</div>'));
+    if(isTurn) chip.appendChild(el('<div class="chip-turn">Su turno</div>'));
+    scoreboard.appendChild(chip);
+  });
+  top.appendChild(scoreboard);
+  wrap.appendChild(top);
+
+  if(helpOpen){
+    const h = el('<div class="panel stack help-panel"></div>');
+    const hh = el('<div class="row" style="justify-content:space-between;align-items:baseline;"></div>');
+    hh.appendChild(el('<h2>Recordatorio</h2>'));
+    const cerrar = el('<button class="secondary small-btn">Cerrar</button>');
+    cerrar.onclick = ()=>{ helpOpen=false; render(); };
+    hh.appendChild(cerrar);
+    h.appendChild(hh);
+    h.appendChild(el('<h3>Las cartas especiales</h3>'));
+    h.appendChild(renderCardHelp());
+    h.appendChild(el('<h3>Qué gana cada punto</h3>'));
+    h.appendChild(renderZoneHelp());
+    wrap.appendChild(h);
+  }
+
+  wrap.appendChild(renderBanner(g));
+  const stall = renderStallPanel(g);
+  if(stall) wrap.appendChild(stall);
+
+  // zones
+  // En pantalla se ordenan por su altura en la ciudad (Cima arriba, Foso abajo).
+  // El orden de resolución se indica con un número en cada zona.
+  const grid = el('<div class="zones-grid"></div>');
+  ZONE_DISPLAY.forEach(zk=> grid.appendChild(renderZone(g, zk)));
+  wrap.appendChild(grid);
+
+  if(!swapMode() && g.phase==='atacar' && ui.pendingAttack){
+    const {zone, cardId} = ui.pendingAttack;
+    const entry = findLiveEntry(g, zone, cardId);
+    if(!entry){
+      ui.pendingAttack=null;
+    } else {
+      const box = el('<div class="modal-inline"></div>');
+      const quien = nameOf(g,entry.card.owner);
+      const desc = entry.faceUp
+        ? ('el '+cardLabel(entry.card.value)+' de '+quien+' en '+ZONE_LABEL[zone])
+        : ('una carta oculta de '+quien+' en '+ZONE_LABEL[zone]);
+      const efecto = entry.faceUp
+        ? (entry.attackedOnce ? 'Ya estaba señalada: este Ataque la derriba.' : 'Quedará señalada. Hará falta un segundo Ataque para derribarla.')
+        : 'Quedará al descubierto y caerá. Si resulta ser una K o un As, se activará en tu contra.';
+      box.appendChild(el('<div><strong>¿Atacar '+desc+'?</strong></div>'));
+      box.appendChild(el('<div class="small" style="margin-top:3px;">'+efecto+'</div>'));
+      box.appendChild(el('<div class="small" style="margin-top:4px;">Cuesta 1 Ataque. Te quedan '+g.tokens[myId]+'.</div>'));
+      const row = el('<div class="row" style="margin-top:8px;"></div>');
+      const confirmBtn = el('<button>Gastar 1 Ataque</button>');
+      confirmBtn.onclick = ()=>confirmAttack();
+      const cancelBtn = el('<button class="secondary">Cancelar</button>');
+      cancelBtn.onclick = ()=>cancelAttack();
+      row.appendChild(confirmBtn); row.appendChild(cancelBtn);
+      box.appendChild(row);
+      wrap.appendChild(box);
+    }
+  }
+
+  if(g.phase==='atacar' && currentAttacker(g)===myId && !g.attackPassed[myId] && g.status==='playing'){
+    const panel = el('<div class="panel stack" style="gap:10px;"></div>');
+    panel.appendChild(el('<h2>Tu turno de ataque</h2>'));
+    const tk = g.tokens[myId]||0;
+    const hechos = g.turnAttacks||0;
+    panel.appendChild(el('<div class="small">'
+      +(hechos>0 ? 'Llevas <strong>'+hechos+'</strong> Ataque'+(hechos===1?'':'s')+' este turno. ' : '')
+      +(tk>0
+        ? 'Te quedan <strong>'+tk+'</strong>. Toca una carta rival para exigir que se muestre, o cierra tu turno.'
+        : 'No te quedan Ataques.')+'</div>'));
+    const yaAtaco = (g.turnAttacks||0) > 0;
+    const passBtn = el('<button>'+(yaAtaco
+      ? 'Terminar mi turno de ataque'
+      : (tk>0 ? 'Pasar sin atacar' : 'Pasar turno'))+'</button>');
+    passBtn.onclick = ()=>passAttack();
+    panel.appendChild(passBtn);
+    wrap.appendChild(panel);
+  }
+
+
+
+  // Elección de modificador en Umbral. NO revelamos el valor de la carta:
+  // saber qué escondiste forma parte del juego de memoria.
+  if(g.phase==='resolver' && g.pendingUmbralChoices){
+    const misOcultas = g.zones.umbral.filter(e=>e.card.owner===myId && e.originalFaceDown && !e.discarded);
+    const mine = misOcultas.filter(e=>g.pendingUmbralChoices[e.card.id]===null);
+    if(mine.length>0){
+      const target = mine[0];
+      const pos = misOcultas.indexOf(target)+1;
+      ui.highlightCardId = target.card.id;
+      const box = el('<div class="modal-inline"></div>');
+      box.appendChild(el('<div><strong>Modificador en Umbral</strong></div>'));
+      box.appendChild(el('<div class="small" style="margin-top:3px;">Tu <strong>'+pos+'.ª</strong> carta oculta en Umbral'+(misOcultas.length>1?(' de '+misOcultas.length):'')+', señalada en el tablero. Decide si suma o resta 1 a tu total.</div>'));
+      const btns = el('<div class="row" style="margin-top:9px;"></div>');
+      const plus = el('<button>+1</button>');
+      plus.onclick=()=>{ ui.highlightCardId=null; submitUmbralChoice(target.card.id,1); };
+      const minus = el('<button class="secondary">−1</button>');
+      minus.onclick=()=>{ ui.highlightCardId=null; submitUmbralChoice(target.card.id,-1); };
+      btns.appendChild(plus); btns.appendChild(minus);
+      box.appendChild(btns);
+      if(mine.length>1) box.appendChild(el('<div class="small" style="margin-top:7px;">Después decidirás las '+(mine.length-1)+' restantes.</div>'));
+      wrap.appendChild(box);
+    } else {
+      ui.highlightCardId = null;
+    }
+  }
+
+  // Mantenimiento: colocar la carta sobrante
+  if(g.phase==='mantenimiento' && g.pendingMaintenance && g.pendingMaintenance[myId]===false){
+    const box = el('<div class="modal-inline"></div>');
+    box.appendChild(el('<div><strong>Te sobra una carta</strong></div>'));
+    box.appendChild(el('<div class="small" style="margin-top:3px;">Devuélvela al mazo: encima la volverás a robar pronto, debajo tardarás en verla. No hay turnos: hazlo cuando quieras.</div>'));
+    const row = el('<div class="row" style="margin-top:9px;"></div>');
+    const topBtn = el('<button>Encima</button>'); topBtn.onclick=()=>submitMaintenanceChoice(true);
+    const botBtn = el('<button class="secondary">Debajo</button>'); botBtn.onclick=()=>submitMaintenanceChoice(false);
+    row.appendChild(topBtn); row.appendChild(botBtn);
+    box.appendChild(row);
+    wrap.appendChild(box);
+  }
+
+  // Controles del anfitrión para hacer avanzar la partida
+  if(g.hostId===myId && g.status==='playing'){
+    if(g.phase==='resolver'){
+      if(umbralChoicesPending(g)){
+        const quienes = pendingUmbralPlayers(g);
+        wrap.appendChild(el('<div class="banner">Umbral: esperando a que '+escapeHtml(quienes)+' decida'+(quienes.indexOf(' y ')>-1?'n':'')+' el modificador de sus cartas ocultas. Podrás continuar cuando terminen.</div>'));
+      } else {
+        const btn = el('<button>Resolver '+ZONE_LABEL[ZONE_ORDER[g.resolveStep]]+'</button>');
+        btn.onclick = ()=>resolveCurrentZone();
+        wrap.appendChild(btn);
+      }
+    }
+    if(g.phase==='mantenimiento'){
+      if(maintenancePending(g)){
+        const faltan = g.players.filter(p=>g.pendingMaintenance && g.pendingMaintenance[p.id]===false).map(p=>p.name);
+        wrap.appendChild(el('<div class="banner">Cada uno coloca su carta sobrante cuando quiera, sin turnos. Faltan '+escapeHtml(listar(faltan))+'.</div>'));
+      } else {
+        const btn = el('<button>'+(g.round>=4?'Terminar partida':'Empezar ronda '+(g.round+1))+'</button>');
+        btn.onclick = ()=>nextRoundOrEnd();
+        wrap.appendChild(btn);
+      }
+    }
+  } else if(g.status==='playing' && (g.phase==='resolver' || g.phase==='mantenimiento')){
+    const esperando = g.phase==='resolver' && umbralChoicesPending(g)
+      ? 'Umbral: esperando los modificadores de '+pendingUmbralPlayers(g)+'.'
+      : 'Esperando a que '+nameOf(g,g.hostId)+' continúe.';
+    wrap.appendChild(el('<div class="banner">'+escapeHtml(esperando)+'</div>'));
+  }
+
+  if(g.status==='ended'){
+    const box = el('<div class="panel stack finale'+(prevEnded?'':' anim-finale')+'"></div>');
+    if(!prevEnded && g.winner){
+      const conf = el('<div class="confetti"></div>');
+      for(let i=0;i<26;i++){
+        conf.appendChild(el('<i class="c'+(i%4)+'" style="left:'+(3+i*3.7)+'%;animation-delay:'+((i%9)*90)+'ms"></i>'));
+      }
+      box.appendChild(conf);
+    }
+    box.appendChild(el('<h2>Partida terminada</h2>'));
+    const out = finalOutcome(g);
+    box.appendChild(el('<div>'+(g.winner
+      ? 'La ciudad reconoce a <strong>'+escapeHtml(nameOf(g,g.winner))+'</strong> con '+g.prestige[g.winner]+' de Prestigio.'
+      : 'Todas las casas quedaron empatadas y anuladas entre sí. La ciudad no reconoce a nadie.')+'</div>'));
+    if(g.winner && (out.porBisagra || out.anulados.length)){
+      const tb = el('<div class="tiebreak"></div>');
+      out.anulados.forEach(a=>{
+        tb.appendChild(el('<div>Empate a <strong>'+a.tope+'</strong> entre '
+          +escapeHtml(listar(a.ids.map(id=>nameOf(g,id))))
+          +': se anulan entre sí y quedan fuera del reparto.</div>'));
+      });
+      if(out.porBisagra){
+        const otros = out.empatados.filter(id=>id!==g.winner).map(id=>nameOf(g,id));
+        tb.appendChild(el('<div><strong>Empate a '+out.tope+' de Prestigio</strong> con '+escapeHtml(listar(otros))
+          +', pero <strong>'+escapeHtml(nameOf(g,g.winner))+'</strong> controlaba la <strong>Bisagra</strong> en la última ronda y se lleva la partida.</div>'));
+      } else if(out.anulados.length){
+        tb.appendChild(el('<div>Con los de arriba anulados, la victoria baja hasta <strong>'
+          +escapeHtml(nameOf(g,g.winner))+'</strong>.</div>'));
+      }
+      box.appendChild(tb);
+    }
+    const table = el('<ul class="players-list"></ul>');
+    g.players.slice().sort((a,b)=>g.prestige[b.id]-g.prestige[a.id]).forEach((p,i)=>{
+      table.appendChild(el('<li class="'+seatClass(g,p.id)+' anim-rank" style="animation-delay:'+(i*110)+'ms">'
+        +'<span class="seat-mark">'+markOf(g,p.id)+'</span> '+escapeHtml(p.name)
+        +'<strong class="rank-score">'+PRESTIGE_GLYPH+g.prestige[p.id]+'</strong></li>'));
+    });
+    box.appendChild(table);
+    if(g.hostId===myId){
+      const again = el('<button>Jugar otra</button>');
+      again.onclick = ()=>rematch();
+      box.appendChild(again);
+    } else {
+      box.appendChild(el('<p>El anfitrión puede montar otra partida con los mismos jugadores.</p>'));
+    }
+    wrap.appendChild(box);
+  }
+
+  // my hand
+  if(swapMode() && !swapPosible(g)){ cancelJSwap(); }
+  if(g.status==='playing' && ((g.hands[myId]||[]).length>0 || swapMode())){
+    wrap.appendChild(renderHand(g));
+  }
+
+  // registro
+  const logPanel = el('<div class="panel stack" style="gap:8px;"></div>');
+  const logHead = el('<div class="row" style="justify-content:space-between;align-items:baseline;"></div>');
+  logHead.appendChild(el('<h2>Registro</h2>'));
+  logHead.appendChild(el('<span class="small">'+(logStick?'al día':'has subido a leer')+'</span>'));
+  logPanel.appendChild(logHead);
+  const log = el('<div class="log"></div>');
+  (g.log||[]).slice(-60).forEach(line=>{
+    if(typeof line === 'string'){
+      log.appendChild(el('<div class="log-line"><span class="log-icon">·</span><span>'+escapeHtml(line)+'</span></div>'));
+    } else {
+      log.appendChild(el('<div class="log-line k-'+(line.k||'')+'"><span class="log-icon">'+escapeHtml(line.i||'·')+'</span><span>'+formatLogText(line.t)+'</span></div>'));
+    }
+  });
+  logPanel.appendChild(log);
+  wrap.appendChild(logPanel);
+
+  // acciones de sala durante la partida
+  const roomActions = el('<div class="row"></div>');
+  const leaveBtn = el('<button class="secondary small-btn">'+(g.status==='playing'?'Abandonar':'Salir de la sala')+'</button>');
+  leaveBtn.onclick = ()=>{
+    if(confirmLeave){ confirmLeave=false; leaveRoom(); }
+    else { confirmLeave=true; render(); }
+  };
+  roomActions.appendChild(leaveBtn);
+  if(g.hostId===myId){
+    const closeBtn = el('<button class="danger small-btn">Cerrar para todos</button>');
+    closeBtn.onclick = ()=>{
+      if(confirmDelete){ confirmDelete=false; closeRoom(); }
+      else { confirmDelete=true; render(); }
+    };
+    roomActions.appendChild(closeBtn);
+  }
+  wrap.appendChild(roomActions);
+  if(confirmLeave){
+    const warn = el('<div class="modal-inline"></div>');
+    warn.appendChild(el('<div><strong>'+(g.status==='playing'
+      ? '¿Abandonar la partida?'
+      : '¿Salir de la sala?')+'</strong></div>'));
+    if(g.status==='playing') warn.appendChild(el('<div class="small" style="margin-top:3px;">La partida terminará para todos: no puede continuar sin uno de los jugadores.</div>'));
+    const row = el('<div class="row" style="margin-top:8px;"></div>');
+    const yes = el('<button class="danger">Sí, salir</button>');
+    yes.onclick = ()=>{ confirmLeave=false; leaveRoom(); };
+    const no = el('<button class="secondary">Cancelar</button>');
+    no.onclick = ()=>{ confirmLeave=false; render(); };
+    row.appendChild(yes); row.appendChild(no);
+    warn.appendChild(row);
+    wrap.appendChild(warn);
+  }
+  if(confirmDelete && g.hostId===myId){
+    const warn = el('<div class="modal-inline"></div>');
+    warn.appendChild(el('<div><strong>¿Cerrar la partida para todos?</strong></div>'));
+    const row = el('<div class="row" style="margin-top:8px;"></div>');
+    const yes = el('<button class="danger">Sí, cerrar</button>');
+    yes.onclick = ()=>{ confirmDelete=false; closeRoom(); };
+    const no = el('<button class="secondary">Cancelar</button>');
+    no.onclick = ()=>{ confirmDelete=false; render(); };
+    row.appendChild(yes); row.appendChild(no);
+    warn.appendChild(row);
+    wrap.appendChild(warn);
+  }
+
+  return wrap;
+}
+
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+function phaseLabel(g){
+  return {jugar:'Jugando cartas', atacar:'Ataques', resolver:'Resolución', mantenimiento:'Fin de ronda'}[g.phase] || g.phase;
+}
+function isPlayersTurn(g,id){
+  if(g.status!=='playing') return false;
+  if(g.phase==='jugar') return currentPlayTurnPlayer(g)===id;
+  if(g.phase==='atacar') return currentAttacker(g)===id && !g.attackPassed[id];
+  return false;
+}
+
+function renderBanner(g){
+  let text='';
+  if(g.status==='ended') return el('<div></div>');
+  if(g.phase==='jugar'){
+    const cur = currentPlayTurnPlayer(g);
+    text = cur===myId
+      ? 'Tu turno: juega una carta. Llevas '+(g.playedThisRound[myId]||0)+' de 3.'
+      : 'Turno de '+nameOf(g,cur)+'. Tú llevas '+(g.playedThisRound[myId]||0)+' de 3 cartas jugadas.';
+  } else if(g.phase==='atacar'){
+    const cur = currentAttacker(g);
+    text = cur===myId ? 'Tu turno de ataque.' : 'Turno de ataque de '+nameOf(g,cur)+'.';
+  } else if(g.phase==='resolver'){
+    text = 'Resolución por orden de zonas. Toca '+ZONE_LABEL[ZONE_ORDER[g.resolveStep]]+'.';
+  } else if(g.phase==='mantenimiento'){
+    text = g.round>=4 ? 'Última ronda resuelta. Repasad el tablero antes de terminar.' : 'Ronda '+g.round+' resuelta. Repasad el tablero antes de la siguiente.';
+  }
+  const cls = isPlayersTurn(g,myId) ? 'banner action' : 'banner';
+  return el('<div class="'+cls+'">'+text+'</div>');
+}
+
+function renderZone(g, zk){
+  const resolved = !!(g.resolvedZones && g.resolvedZones[zk]);
+  const resolvingNow = g.phase==='resolver' && ZONE_ORDER[g.resolveStep]===zk;
+  const zone = el('<div class="zone '+zk+(resolvingNow?' resolving':'')+(resolved?' resolved':'')+'"></div>');
+
+  const head = el('<div class="zone-head"></div>');
+  const titleWrap = el('<div class="zone-title"></div>');
+  titleWrap.appendChild(el(ZONE_ICON[zk]));
+  titleWrap.appendChild(el('<h2>'+ZONE_LABEL[zk]+'</h2>'));
+  const fl = (g.zoneFlags && g.zoneFlags[zk]) || {};
+  const nuevaMarca = zoneFlagAnim(g, zk);
+  if(fl.eclipse){
+    const duenos = fl.eclipseBy && fl.eclipseBy.length ? fl.eclipseBy : [];
+    if(duenos.length){
+      duenos.forEach(id=> titleWrap.appendChild(el('<span class="tag eclipse '+seatClass(g,id)+nuevaMarca+'" title="El As de '+escapeHtml(nameOf(g,id))+' quedó al descubierto: el estrato queda en entredicho y nadie lo gana">★ As '+markOf(g,id)+'</span>')));
+    } else {
+      titleWrap.appendChild(el('<span class="tag eclipse'+nuevaMarca+'" title="Un As al descubierto deja el estrato en entredicho: nadie lo gana">★ As</span>'));
+    }
+  }
+  if(fl.coronation && fl.coronation.length){
+    fl.coronation.forEach(id=> titleWrap.appendChild(el('<span class="tag coronacion '+seatClass(g,id)+nuevaMarca+'" title="La K de '+escapeHtml(nameOf(g,id))+' quedó al descubierto: un nombre que nadie discute se lleva la zona">★ K '+markOf(g,id)+'</span>')));
+  }
+  if(zk==='bisagra') titleWrap.appendChild(el('<span class="tag neutral">'+liveCards(g,'bisagra').length+'/2</span>'));
+  if(resolved) titleWrap.appendChild(el('<span class="tag done">resuelta</span>'));
+  titleWrap.appendChild(el('<span class="ord" title="Orden de resolución">'+(ZONE_ORDER.indexOf(zk)+1)+'.º</span>'));
+  const topRow = el('<div class="zone-toprow"></div>');
+  topRow.appendChild(titleWrap);
+  topRow.appendChild(elevationRail(zk));
+  head.appendChild(topRow);
+  head.appendChild(el('<span class="zone-flavor">'+ZONE_FLAVOR[zk]+'</span>'));
+  head.appendChild(el('<span class="cond">'+ZONE_COND[zk]+'</span>'));
+  zone.appendChild(head);
+
+  // Cartas agrupadas por jugador, en el orden de asiento
+  const groups = el('<div class="zone-groups"></div>');
+  const byOwner = {};
+  g.zones[zk].forEach(e=>{ (byOwner[e.card.owner] = byOwner[e.card.owner] || []).push(e); });
+  const owners = g.players.map(p=>p.id).filter(id=>byOwner[id] && byOwner[id].length);
+  owners.forEach(id=>{
+    const grp = el('<div class="owner-group '+seatClass(g,id)+'"></div>');
+    const lbl = el('<div class="owner-label">'+markOf(g,id)+' '+escapeHtml(nameOf(g,id))+(id===myId?' (tú)':'')+'</div>');
+    if(resolved && zk==='umbral'){
+      const suma = byOwner[id].filter(e=>!e.discarded).reduce((n,e)=>n+finalValue('umbral',e),0);
+      lbl.appendChild(el('<span class="sum'+(suma>11?' bust':'')+'">'+suma+(suma>11?' ✗':'')+'</span>'));
+    }
+    grp.appendChild(lbl);
+    const row = el('<div class="zone-cards"></div>');
+    byOwner[id].forEach(e=> row.appendChild(renderZoneCard(g, zk, e)));
+    grp.appendChild(row);
+    groups.appendChild(grp);
+  });
+  if(owners.length===0 && !ghostHere(g, zk)) groups.appendChild(el('<div class="empty-zone">Sin cartas</div>'));
+
+  // Al elegir una carta de la mano aparece aquí, en fantasma, con lo que valdría
+  const fantasma = ghostHere(g, zk);
+  if(fantasma){
+    const grp = el('<div class="owner-group ghost-group '+seatClass(g,myId)+'"></div>');
+    grp.appendChild(el('<div class="owner-label">jugarías aquí</div>'));
+    const row = el('<div class="zone-cards"></div>');
+    row.appendChild(fantasma);
+    grp.appendChild(row);
+    groups.appendChild(grp);
+  }
+  zone.appendChild(groups);
+
+  if(resolvingNow){
+    zone.appendChild(el('<div class="sweep"></div>'));
+    zone.appendChild(el('<div class="zone-status">Resolviendo…</div>'));
+  }
+  if(resolved){
+    const r = (g.roundResults||[]).find(x=>x.zone===zk);
+    if(r) zone.appendChild(renderZoneResult(g, r));
+  }
+  return zone;
+}
+
+/* Pequeña escala que sitúa la zona en la vertical de la ciudad. */
+function elevationRail(zk){
+  const idx = ZONE_ELEV[zk];
+  let t = '';
+  for(let i=0;i<4;i++) t += '<i class="'+(i===idx?'on':'')+'"></i>';
+  return el('<div class="elev" title="Altura en la ciudad">'+t+'</div>');
+}
+
+/* La carta que estás a punto de jugar, dibujada en la zona correspondiente. */
+function ghostHere(g, zk){
+  if(g.phase!=='jugar' || ui.selectedHandCard===null || swapMode()) return null;
+  if(currentPlayTurnPlayer(g)!==myId) return null;
+  const mano = g.hands[myId]||[];
+  const card = mano[ui.selectedHandCard];
+  if(!card) return null;
+  const llena = (zk==='bisagra' && liveCards(g,'bisagra').length>=2);
+  const abajo = ui.orientation==='down';
+  const elegida = ui.selectedZone===zk;
+
+  const c = el('<div class="card ghost '+seatClass(g,myId)
+    +(abajo?' back':'')+(llena?' ghost-off':(elegida?' ghost-sel':' ghost-pulse'))+'"></div>');
+  c.appendChild(el('<div class="cface">'+(abajo?'<span class="val">?</span>':cardFaceHTML(card.value))+'</div>'));
+
+  if(llena){
+    c.appendChild(el('<div class="cfoot">llena</div>'));
+  } else {
+    // Boca abajo la carta no se ve, así que lo útil es el valor con el que
+    // competiría, no el modificador.
+    const pv = previewValue(zk, card.value, abajo);
+    const pie = abajo ? pv.txt : (isSpecial(card.value) ? String(baseValue(card.value)) : '');
+    if(pie) c.appendChild(el('<div class="cfoot">'+pie+'</div>'));
+    c.onclick = ()=>{ ui.selectedZone = (ui.selectedZone===zk ? null : zk); render(); };
+  }
+  return c;
+}
+
+function renderZoneResult(g, r){
+  const box = el('<div class="zone-result anim-result"></div>');
+  if(r.winner){
+    const head = el('<div class="res-win '+seatClass(g,r.winner)+'"></div>');
+    head.appendChild(el('<span class="res-mark">'+markOf(g,r.winner)+'</span>'));
+    head.appendChild(el('<strong>'+escapeHtml(nameOf(g,r.winner))+'</strong>'));
+    head.appendChild(el('<span class="res-gain">'+escapeHtml(r.gains)+'</span>'));
+    box.appendChild(head);
+  } else {
+    box.appendChild(el('<div class="res-none">— Nadie gana la zona</div>'));
+  }
+  box.appendChild(el('<div class="res-why">'+escapeHtml(r.reason)+'</div>'));
+  if(r.advantage) box.appendChild(el('<div class="res-adv">⚖ Desempate por la ventaja de Bisagra</div>'));
+  return box;
+}
+
+function renderZoneCard(g, zk, entry){
+  const isMine = entry.card.owner===myId;
+  const resolved = !!(g.resolvedZones && g.resolvedZones[zk]);
+  const dead = !!entry.discarded;
+  const base = baseValue(entry.card.value);
+  const fin = finalValue(zk, entry);
+  const mod = fin - base;
+
+  let classes = 'card '+seatClass(g, entry.card.owner);
+  if(isMine) classes+=' mine';
+  if(dead) classes+=' dead';
+  if(!dead && entry.attackedOnce) classes+=' marked';
+  if(ui.pendingAttack && ui.pendingAttack.cardId===entry.card.id) classes+=' selected';
+  if(ui.highlightCardId===entry.card.id) classes+=' focus';
+  if(entry.faceUp && isSpecial(entry.card.value)) classes+=' special';
+  if(entry.faceUp && entry.originalFaceDown) classes+=' was-hidden';
+  if(!entry.faceUp) classes+=' back';
+
+  let clickable = false;
+  if(!dead){
+    if(swapMode()) clickable = true;
+    else if(g.phase==='atacar' && currentAttacker(g)===myId && !g.attackPassed[myId] && !isMine) clickable = true;
+  }
+  if(clickable) classes+=' clickable';
+  classes += cardAnim(entry, zk);
+
+  const c = el('<div class="'+classes+'"></div>');
+
+  if(!entry.faceUp){
+    c.appendChild(el('<div class="cface"><span class="val">?</span></div>'));
+  } else {
+    // Manda siempre la carta. Debajo, en pequeño, lo que haga falta saber.
+    c.appendChild(el('<div class="cface">'+cardFaceHTML(entry.card.value)+'</div>'));
+    let pie = '';
+    if(isSpecial(entry.card.value)){
+      pie = (resolved && mod!==0 && !dead) ? (base+'→'+fin) : String(base);
+    } else if(resolved && mod!==0 && !dead){
+      pie = base+'→'+fin;
+    }
+    if(pie) c.appendChild(el('<div class="cfoot">'+pie+'</div>'));
+  }
+
+  if(entry.activated) c.appendChild(el('<div class="badge act" title="Se activó su habilidad">★</div>'));
+  if(dead) c.appendChild(el('<div class="dead-note">'+escapeHtml(entry.discardedBy||'')+'</div>'));
+
+  if(swapMode() && !dead){
+    if(ui.jSwapPicks.some(p=>p.cardId===entry.card.id)) c.className = c.className+' picked';
+    c.onclick = ()=>pickJSwapTarget(zk, entry);
+  } else if(clickable){
+    c.onclick = ()=>requestAttack(zk, entry);
+  }
+  return c;
+}
+
+/* Cuánto valdría esta carta en esa zona con la orientación elegida. */
+function previewValue(zk, value, faceDown){
+  const base = baseValue(value);
+  if(!faceDown) return {txt:String(base), nota:''};
+  if(zk==='cima') return {txt:String(base+2), nota:'+2'};
+  if(zk==='foso') return {txt:String(base-2), nota:'−2'};
+  if(zk==='umbral') return {txt:(base-1)+'/'+(base+1), nota:'±1'};
+  return {txt:String(base), nota:'sin cambio'};
+}
+
+/* Qué provoca una carta especial según se juegue a la vista o en secreto. */
+const SPECIAL_PLAY = {
+  J:{ up:'Al jugarla podrás intercambiar de zona dos cartas cualesquiera de la mesa.',
+      down:'Oculta no hace nada. Si la atacan, cae como cualquier otra carta.' },
+  Q:{ up:'Al jugarla ataca de golpe todas las cartas ocultas de esa zona, gratis.',
+      down:'Oculta no hace nada. Si la atacan, cae como cualquier otra carta.' },
+  K:{ up:'A la vista no hace nada: solo se activa si la atacan estando oculta.',
+      down:'Si la atacan, te llevas esa zona automáticamente.' },
+  A:{ up:'A la vista no hace nada: solo se activa si lo atacan estando oculto.',
+      down:'Si lo atacan, esa zona queda en entredicho y no la gana nadie.' }
+};
+
+function renderPlayPanel(g, card){
+  const abajo = ui.orientation==='down';
+  const panel = el('<div class="play-panel"></div>');
+
+  const head = el('<div class="play-head"></div>');
+  const prev = el('<div class="card play-preview '+seatClass(g,myId)+(isSpecial(card.value)?' special':'')+(abajo?' back':'')+'"></div>');
+  prev.appendChild(el('<div class="cface">'+(abajo ? '<span class="val">?</span>' : cardFaceHTML(card.value))+'</div>'));
+  if(!abajo && isSpecial(card.value)) prev.appendChild(el(weightBadge(card.value)));
+  head.appendChild(prev);
+
+  const info = el('<div class="play-info"></div>');
+  const ori = el('<div class="ori-toggle"></div>');
+  const upB = el('<button class="'+(abajo?'secondary':'')+'">A la vista</button>');
+  upB.onclick = ()=>{ ui.orientation='up'; render(); };
+  const dnB = el('<button class="'+(abajo?'':'secondary')+'">En secreto</button>');
+  dnB.onclick = ()=>{ ui.orientation='down'; render(); };
+  ori.appendChild(upB); ori.appendChild(dnB);
+  info.appendChild(ori);
+  const sp = SPECIAL_PLAY[String(card.value)];
+  if(sp){
+    const nota = el('<div class="play-effect"></div>');
+    nota.appendChild(el('<span class="pe-glyph">'+CARD_GLYPH[String(card.value)]+'</span>'));
+    nota.appendChild(el('<span>'+(abajo ? sp.down : sp.up)+'</span>'));
+    info.appendChild(nota);
+  }
+  head.appendChild(info);
+  panel.appendChild(head);
+
+  panel.appendChild(el('<div class="play-hint">'+(ui.selectedZone
+    ? 'Has elegido <strong>'+ZONE_LABEL[ui.selectedZone]+'</strong>. Confirma abajo o toca otra zona.'
+    : 'Tu carta aparece en las cuatro zonas del tablero con lo que valdría en cada una. <strong>Toca la zona</strong> donde quieras jugarla.')+'</div>'));
+
+  const foot = el('<div class="play-foot"></div>');
+  const resumen = ui.selectedZone
+    ? ('Jugar tu '+cardLabel(card.value)+' '+(abajo?'en secreto':'a la vista')+' en '+ZONE_LABEL[ui.selectedZone])
+    : 'Toca una zona del tablero';
+  const confirmBtn = el('<button>'+escapeHtml(resumen)+'</button>');
+  confirmBtn.disabled = !ui.selectedZone;
+  confirmBtn.onclick = ()=>{
+    if(!ui.selectedZone) return;
+    playCard(ui.selectedHandCard, ui.selectedZone, ui.orientation==='up');
+  };
+  foot.appendChild(confirmBtn);
+  const cancelar = el('<button class="secondary">Elegir otra carta</button>');
+  cancelar.onclick = ()=>{ ui.selectedHandCard=null; ui.selectedZone=null; render(); };
+  foot.appendChild(cancelar);
+  panel.appendChild(foot);
+  return panel;
+}
+
+function renderHand(g){
+  const box = el('<div class="panel stack" style="gap:10px;"></div>');
+  box.appendChild(el('<h2>Tu mano</h2>'));
+  if(swapMode()){
+    box.appendChild(el('<p>Has jugado una <strong>J</strong>: elige en el tablero las <strong>dos cartas</strong> que quieres intercambiar. Tienen que estar en <strong>zonas distintas</strong>, y una de ellas puede ser la propia J.</p>'));
+    const elegidas = ui.jSwapPicks.length;
+    box.appendChild(el('<div class="small">'+(elegidas===0
+      ? 'Toca la primera carta.'
+      : 'Toca ahora una carta de otra zona para completar el intercambio.')+'</div>'));
+    if(elegidas>0){
+      const deshacer = el('<button class="secondary small-btn">Empezar de nuevo</button>');
+      deshacer.onclick = ()=>{ ui.jSwapPicks=[]; render(); };
+      box.appendChild(deshacer);
+    }
+    return box;
+  }
+  const hand = el('<div class="hand"></div>');
+  const myHand = g.hands[myId]||[];
+  const myTurn = g.phase==='jugar' && currentPlayTurnPlayer(g)===myId;
+  myHand.forEach((card, idx)=>{
+    const sel = ui.selectedHandCard===idx;
+    const c = el('<div class="card hand-card '+seatClass(g,myId)+(isSpecial(card.value)?' special':'')
+      +(sel?' selected':'')+(myTurn?' clickable':'')+handAnim(card)
+      +'" style="animation-delay:'+(idx*70)+'ms"><div class="cface">'+cardFaceHTML(card.value)+'</div>'+weightBadge(card.value)+'</div>');
+    if(myTurn){
+      c.onclick = ()=>{ ui.selectedHandCard = sel ? null : idx; render(); };
+    }
+    hand.appendChild(c);
+  });
+  box.appendChild(hand);
+
+  if(myTurn && ui.selectedHandCard!==null){
+    const card = myHand[ui.selectedHandCard];
+    box.appendChild(renderPlayPanel(g, card));
+  }
+
+  return box;
+}
+
+/* ============================= BOOT ============================= */
+loadTheme().then(loadSession);
+</script>
+</body>
+</html>
