@@ -405,7 +405,7 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 /* Toggle boca arriba/abajo, pegado a la carta seleccionada de la mano */
 .hand-card{position:relative;overflow:visible;}
 .hand-card.selected{z-index:6;}
-.oi-icon{width:11px;height:11px;vertical-align:-1px;margin-right:3px;}
+.oi-icon{width:13px;height:13px;display:block;}
 .orient-inline{
   position:absolute;left:50%;bottom:-13px;transform:translateX(-50%);
   display:flex;background:var(--surface);border:1px solid var(--ink);border-radius:20px;
@@ -413,8 +413,7 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 }
 .orient-inline button{
   border:none;border-radius:0;background:transparent;color:var(--ink-soft);
-  font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
-  padding:4px 9px;
+  padding:6px 9px;display:flex;align-items:center;justify-content:center;
 }
 .orient-inline button.on{background:var(--ink);color:var(--surface);}
 .zone-picker{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
@@ -961,7 +960,7 @@ function showToast(icon, text, kind){
   setTimeout(()=>{
     t.classList.add('out');
     setTimeout(()=>{ if(t.parentNode) t.parentNode.removeChild(t); }, 320);
-  }, 2600);
+  }, 4200);
 }
 /* Compara el log y el turno actual con lo último que vimos, y dispara toasts
    y sonidos solo para lo nuevo. Se llama una vez por repintado real (paint()
@@ -1601,18 +1600,29 @@ function botPlayCard(g, botId, plan){
   if(faceUp && specialType(card.value)==='q'){ resolveQ(g, plan.zk, entry); }
   if(faceUp && specialType(card.value)==='j'){
     if(swapPosible(g)){
-      const sw = botChooseSwap(g, botId);
-      if(sw){
-        const za=g.zones[sw.a.zk], zb=g.zones[sw.b.zk];
-        const ia=za.indexOf(sw.a.e), ib=zb.indexOf(sw.b.e);
-        if(ia>-1 && ib>-1){
-          const dA = describeEntry(g, sw.a.e), dB = describeEntry(g, sw.b.e);
-          za.splice(ia,1); zb.splice(ib,1); za.push(sw.b.e); zb.push(sw.a.e);
-          addLog(g,'cambio','*'+nameOf(g,botId)+'* usa la *J*: '+dA+' pasa de *'+ZONE_LABEL[sw.a.zk]+'* a *'+ZONE_LABEL[sw.b.zk]+'*, y '+dB+' pasa de *'+ZONE_LABEL[sw.b.zk]+'* a *'+ZONE_LABEL[sw.a.zk]+'*.');
-        }
-      }
+      // No se resuelve ahora mismo: queda pendiente y se completa en el
+      // siguiente turno de este bot, para que se note que primero jugó la J
+      // y luego decidió qué intercambiar, en vez de que pase todo de golpe.
+      g.pendingSwap = {by: botId, cardId: card.id};
+      return;
     } else {
       addLog(g,'cambio','*J* jugada, pero no hay cartas en dos zonas distintas para intercambiar.');
+    }
+  }
+  g.pendingSwap = null;
+  advancePlayTurn(g);
+}
+
+/* Completa el intercambio de una J que el bot dejó pendiente en su turno anterior. */
+function finishBotSwap(g, botId){
+  const sw = botChooseSwap(g, botId);
+  if(sw){
+    const za=g.zones[sw.a.zk], zb=g.zones[sw.b.zk];
+    const ia=za.indexOf(sw.a.e), ib=zb.indexOf(sw.b.e);
+    if(ia>-1 && ib>-1){
+      const dA = describeEntry(g, sw.a.e), dB = describeEntry(g, sw.b.e);
+      za.splice(ia,1); zb.splice(ib,1); za.push(sw.b.e); zb.push(sw.a.e);
+      addLog(g,'cambio','*'+nameOf(g,botId)+'* usa la *J*: '+dA+' pasa de *'+ZONE_LABEL[sw.a.zk]+'* a *'+ZONE_LABEL[sw.b.zk]+'*, y '+dB+' pasa de *'+ZONE_LABEL[sw.b.zk]+'* a *'+ZONE_LABEL[sw.a.zk]+'*.');
     }
   }
   g.pendingSwap = null;
@@ -1624,6 +1634,10 @@ function botStep(g, botId){
   if(g.status!=='playing') return false;
 
   if(g.phase==='jugar'){
+    if(g.pendingSwap && g.pendingSwap.by===botId){
+      finishBotSwap(g, botId);
+      return true;
+    }
     if(g.pendingSwap && g.pendingSwap.by!==botId) return false;
     if(currentPlayTurnPlayer(g)!==botId) return false;
     const plan = botChoosePlay(g, botId);
@@ -4011,9 +4025,9 @@ function renderHand(g){
     box.appendChild(hand);
     const bar = el('<div class="play-bar"></div>');
     bar.appendChild(el('<div class="play-hint">Te sobra esta carta: devuélvela al mazo.</div>'));
-    const foot = el('<div class="play-foot"></div>');
-    const topBtn = el('<button>Encima del mazo</button>'); topBtn.onclick=()=>submitMaintenanceChoice(true);
-    const botBtn = el('<button class="secondary">Debajo del mazo</button>'); botBtn.onclick=()=>submitMaintenanceChoice(false);
+    const foot = el('<div class="row"></div>');
+    const topBtn = el('<button class="small-btn">Encima</button>'); topBtn.onclick=()=>submitMaintenanceChoice(true);
+    const botBtn = el('<button class="secondary small-btn">Debajo</button>'); botBtn.onclick=()=>submitMaintenanceChoice(false);
     foot.appendChild(topBtn); foot.appendChild(botBtn);
     bar.appendChild(foot);
     box.appendChild(bar);
@@ -4057,9 +4071,9 @@ function renderHand(g){
       const oi = el('<div class="orient-inline"></div>');
       const iconVista = '<svg viewBox="0 0 14 14" class="oi-icon"><rect x="2" y="2" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>';
       const iconOculta = '<svg viewBox="0 0 14 14" class="oi-icon"><rect x="2" y="2" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M2.5 2.5 L11.5 11.5" stroke="currentColor" stroke-width="1.3"/></svg>';
-      const upB = el('<button class="'+(abajo?'':'on')+'">'+iconVista+'Vista</button>');
+      const upB = el('<button class="'+(abajo?'':'on')+'" title="A la vista">'+iconVista+'</button>');
       upB.onclick = (ev)=>{ ev.stopPropagation(); ui.orientation='up'; render(); };
-      const dnB = el('<button class="'+(abajo?'on':'')+'">'+iconOculta+'Oculta</button>');
+      const dnB = el('<button class="'+(abajo?'on':'')+'" title="En secreto">'+iconOculta+'</button>');
       dnB.onclick = (ev)=>{ ev.stopPropagation(); ui.orientation='down'; render(); };
       oi.appendChild(upB); oi.appendChild(dnB);
       c.appendChild(oi);
