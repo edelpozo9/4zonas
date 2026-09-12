@@ -174,7 +174,7 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 .zone-title h2{font-size:.82rem;letter-spacing:.16em;color:var(--zc,var(--ink));}
 .zone-head .cond{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:7px;border-top:1px solid var(--hair);}
 .cond-chip{font-size:.68rem;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--hair);border-radius:20px;padding:2px 8px;line-height:1.4;}
-.zone-resolve-btn{width:100%;margin-top:9px;background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700;}
+.zone-resolve-btn{width:100%;margin-top:9px;background:var(--zc,var(--accent));color:#fff;border-color:var(--zc,var(--accent));font-weight:700;}
 .zone-status{font-size:.68rem;color:var(--ink-soft);margin-top:8px;letter-spacing:.05em;}
 .empty-zone{font-size:.73rem;color:var(--ink-faint);padding:16px 0;letter-spacing:.04em;}
 .zone-groups{display:flex;flex-direction:row;flex-wrap:wrap;align-items:flex-start;gap:9px;}
@@ -404,6 +404,8 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 .pe-glyph .cglyph{width:20px;height:20px;}
 /* Toggle boca arriba/abajo, pegado a la carta seleccionada de la mano */
 .hand-card{position:relative;overflow:visible;}
+.hand-card.selected{z-index:6;}
+.oi-icon{width:11px;height:11px;vertical-align:-1px;margin-right:3px;}
 .orient-inline{
   position:absolute;left:50%;bottom:-13px;transform:translateX(-50%);
   display:flex;background:var(--surface);border:1px solid var(--ink);border-radius:20px;
@@ -474,7 +476,7 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
   border-style:dashed;cursor:pointer;
   box-shadow:none;
 }
-.card.ghost .cfoot{color:var(--seat,var(--ink));font-size:.6rem;}
+.card.ghost .cfoot{color:var(--seat,var(--ink));font-size:.74rem;font-weight:700;}
 .card.ghost-pulse{animation:ghostPulse 1.25s ease-in-out infinite;}
 .card.ghost-sel{
   border-style:solid;box-shadow:0 0 0 2px var(--ink), var(--shadow-lift);
@@ -755,7 +757,7 @@ function seatClass(g, playerId){ return 'p'+(seatOf(g,playerId) % 4); }
    se muestra en negrita. */
 const LOG_ICON = {
   jugar:'▸', ataque:'⚔', activar:'★', cambio:'⇄', purga:'✖',
-  zona:'◈', ronda:'❯', sala:'·', fin:'✦', umbral:'±', pasar:'→',
+  zona:'◈', ronda:'❯', sala:'·', fin:'✦', umbral:'±', pasar:'→', guardar:'▪',
 };
 function addLog(g, kind, text){
   g.log = g.log || [];
@@ -1659,7 +1661,7 @@ function botStep(g, botId){
     const card = mano.pop();
     if(card){ if(arriba) g.decks[botId].unshift(card); else g.decks[botId].push(card); }
     g.pendingMaintenance[botId] = true;
-    addLog(g,'jugar','*'+nameOf(g,botId)+'* coloca su carta sobrante '+(arriba?'encima':'debajo')+' del mazo.');
+    addLog(g,'guardar','*'+nameOf(g,botId)+'* coloca su carta sobrante '+(arriba?'encima':'debajo')+' del mazo.');
     return true;
   }
   return false;
@@ -1748,6 +1750,7 @@ let roomList = null;
 let browsing = false;
 let helpOpen = false;
 let logStick = true;
+let logOpen = false;
 let logScrollTop = 0;
 let errorMsg = '';
 let lastAttemptedState = null;
@@ -2826,7 +2829,7 @@ async function submitMaintenanceChoice(top){
   if(!card){ g.pendingMaintenance[myId]=true; await writeGame(g); return; }
   if(top) g.decks[myId].unshift(card); else g.decks[myId].push(card);
   g.pendingMaintenance[myId]=true;
-  addLog(g,'jugar','*'+myName+'* coloca su carta sobrante '+(top?'encima':'debajo')+' del mazo.');
+  addLog(g,'guardar','*'+myName+'* coloca su carta sobrante '+(top?'encima':'debajo')+' del mazo.');
   await writeGame(g);
 }
 
@@ -2936,7 +2939,7 @@ function renderSignature(){
   }
   return JSON.stringify([
     screen, errorMsg, notice, missedReads, confirmDelete, confirmLeave,
-    helpOpen, rulesOpen, showManualCopy, newRoomPublic, browsing,
+    helpOpen, rulesOpen, logOpen, showManualCopy, newRoomPublic, browsing,
     roomList,
     theme, stallBucket,
     game && game.players ? game.players.map(p=>isOnline(p.id)) : null,
@@ -3518,7 +3521,6 @@ function renderGame(){
     wrap.appendChild(h);
   }
 
-  wrap.appendChild(renderBanner(g));
   const stall = renderStallPanel(g);
   if(stall) wrap.appendChild(stall);
 
@@ -3604,18 +3606,8 @@ function renderGame(){
     }
   }
 
-  // Mantenimiento: colocar la carta sobrante
-  if(g.phase==='mantenimiento' && g.pendingMaintenance && g.pendingMaintenance[myId]===false){
-    const box = el('<div class="modal-inline"></div>');
-    box.appendChild(el('<div><strong>Te sobra una carta</strong></div>'));
-    box.appendChild(el('<div class="small" style="margin-top:3px;">Devuélvela al mazo: encima la volverás a robar pronto, debajo tardarás en verla. No hay turnos: hazlo cuando quieras.</div>'));
-    const row = el('<div class="row" style="margin-top:9px;"></div>');
-    const topBtn = el('<button>Encima</button>'); topBtn.onclick=()=>submitMaintenanceChoice(true);
-    const botBtn = el('<button class="secondary">Debajo</button>'); botBtn.onclick=()=>submitMaintenanceChoice(false);
-    row.appendChild(topBtn); row.appendChild(botBtn);
-    box.appendChild(row);
-    wrap.appendChild(box);
-  }
+  // Mantenimiento: colocar la carta sobrante — se resuelve dentro del cuadro
+  // de "Tu mano" (ver renderHand), no hace falta un cuadro aparte aquí.
 
   // Controles del anfitrión para hacer avanzar la partida
   if(g.hostId===myId && g.status==='playing'){
@@ -3698,19 +3690,25 @@ function renderGame(){
 
   // registro
   const logPanel = el('<div class="panel stack" style="gap:8px;"></div>');
-  const logHead = el('<div class="row" style="justify-content:space-between;align-items:baseline;"></div>');
+  const logHead = el('<div class="row" style="justify-content:space-between;align-items:baseline;cursor:pointer;"></div>');
   logHead.appendChild(el('<h2>Registro</h2>'));
-  logHead.appendChild(el('<span class="small">'+(logStick?'al día':'has subido a leer')+'</span>'));
+  const logHeadNote = logOpen
+    ? (logStick?'al día':'has subido a leer')+' · ocultar'
+    : 'mostrar';
+  logHead.appendChild(el('<span class="small">'+logHeadNote+'</span>'));
+  logHead.onclick = ()=>{ logOpen = !logOpen; render(); };
   logPanel.appendChild(logHead);
-  const log = el('<div class="log"></div>');
-  (g.log||[]).slice(-60).forEach(line=>{
-    if(typeof line === 'string'){
-      log.appendChild(el('<div class="log-line"><span class="log-icon">·</span><span>'+escapeHtml(line)+'</span></div>'));
-    } else {
-      log.appendChild(el('<div class="log-line k-'+(line.k||'')+'"><span class="log-icon">'+escapeHtml(line.i||'·')+'</span><span>'+formatLogText(line.t)+'</span></div>'));
-    }
-  });
-  logPanel.appendChild(log);
+  if(logOpen){
+    const log = el('<div class="log"></div>');
+    (g.log||[]).slice(-60).forEach(line=>{
+      if(typeof line === 'string'){
+        log.appendChild(el('<div class="log-line"><span class="log-icon">·</span><span>'+escapeHtml(line)+'</span></div>'));
+      } else {
+        log.appendChild(el('<div class="log-line k-'+(line.k||'')+'"><span class="log-icon">'+escapeHtml(line.i||'·')+'</span><span>'+formatLogText(line.t)+'</span></div>'));
+      }
+    });
+    logPanel.appendChild(log);
+  }
   wrap.appendChild(logPanel);
 
   // acciones de sala durante la partida
@@ -3771,23 +3769,6 @@ function isPlayersTurn(g,id){
   if(g.phase==='jugar') return currentPlayTurnPlayer(g)===id;
   if(g.phase==='atacar') return currentAttacker(g)===id && !g.attackPassed[id];
   return false;
-}
-
-function renderBanner(g){
-  let text='';
-  if(g.status==='ended') return el('<div></div>');
-  if(g.phase==='jugar'){
-    return el('<div></div>'); // ya lo indica el parpadeo de la mano y el marcador de arriba
-  } else if(g.phase==='atacar'){
-    const cur = currentAttacker(g);
-    text = cur===myId ? 'Tu turno de ataque.' : 'Turno de ataque de '+nameOf(g,cur)+'.';
-  } else if(g.phase==='resolver'){
-    text = 'Resolución por orden de zonas. Toca '+ZONE_LABEL[ZONE_ORDER[g.resolveStep]]+'.';
-  } else if(g.phase==='mantenimiento'){
-    text = g.round>=4 ? 'Última ronda resuelta. Repasad el tablero antes de terminar.' : 'Ronda '+g.round+' resuelta. Repasad el tablero antes de la siguiente.';
-  }
-  const cls = isPlayersTurn(g,myId) ? 'banner action' : 'banner';
-  return el('<div class="'+cls+'">'+text+'</div>');
 }
 
 function renderZone(g, zk){
@@ -4016,6 +3997,28 @@ const SPECIAL_PLAY = {
 };
 
 function renderHand(g){
+  if(g.phase==='mantenimiento' && g.pendingMaintenance && g.pendingMaintenance[myId]===false){
+    const box = el('<div class="panel stack" style="gap:10px;"></div>');
+    box.appendChild(el('<h2>Tu mano</h2>'));
+    const card = (g.hands[myId]||[])[0];
+    const hand = el('<div class="hand"></div>');
+    if(card){
+      const c = el('<div class="card hand-card selected '+seatClass(g,myId)+(isSpecial(card.value)?' special':'')+'"></div>');
+      c.appendChild(el('<div class="cface">'+cardFaceHTML(card.value)+'</div>'));
+      if(isSpecial(card.value)) c.appendChild(el(weightBadge(card.value)));
+      hand.appendChild(c);
+    }
+    box.appendChild(hand);
+    const bar = el('<div class="play-bar"></div>');
+    bar.appendChild(el('<div class="play-hint">Te sobra esta carta: devuélvela al mazo.</div>'));
+    const foot = el('<div class="play-foot"></div>');
+    const topBtn = el('<button>Encima del mazo</button>'); topBtn.onclick=()=>submitMaintenanceChoice(true);
+    const botBtn = el('<button class="secondary">Debajo del mazo</button>'); botBtn.onclick=()=>submitMaintenanceChoice(false);
+    foot.appendChild(topBtn); foot.appendChild(botBtn);
+    bar.appendChild(foot);
+    box.appendChild(bar);
+    return box;
+  }
   const myTurnGlobal = g.phase==='jugar' && currentPlayTurnPlayer(g)===myId && !swapMode();
   const box = el('<div class="panel stack'+(myTurnGlobal?' my-turn':'')+'" style="gap:10px;"></div>');
   box.appendChild(el('<h2>Tu mano</h2>'));
@@ -4052,9 +4055,11 @@ function renderHand(g){
     }
     if(sel){
       const oi = el('<div class="orient-inline"></div>');
-      const upB = el('<button class="'+(abajo?'':'on')+'">Vista</button>');
+      const iconVista = '<svg viewBox="0 0 14 14" class="oi-icon"><rect x="2" y="2" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>';
+      const iconOculta = '<svg viewBox="0 0 14 14" class="oi-icon"><rect x="2" y="2" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M2.5 2.5 L11.5 11.5" stroke="currentColor" stroke-width="1.3"/></svg>';
+      const upB = el('<button class="'+(abajo?'':'on')+'">'+iconVista+'Vista</button>');
       upB.onclick = (ev)=>{ ev.stopPropagation(); ui.orientation='up'; render(); };
-      const dnB = el('<button class="'+(abajo?'on':'')+'">Oculta</button>');
+      const dnB = el('<button class="'+(abajo?'on':'')+'">'+iconOculta+'Oculta</button>');
       dnB.onclick = (ev)=>{ ev.stopPropagation(); ui.orientation='down'; render(); };
       oi.appendChild(upB); oi.appendChild(dnB);
       c.appendChild(oi);
