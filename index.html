@@ -600,6 +600,158 @@ label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.
 .anim-rank{animation:rankIn .45s cubic-bezier(.2,.8,.2,1) both;}
 .anim-result{animation:resultIn .4s cubic-bezier(.2,.8,.2,1) both;}
 
+/* ===== MODO MESA (partida en físico) ===== */
+.mesa{
+  --bar:60px;
+  position:fixed;inset:0;z-index:60;display:grid;
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/100% 34px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/34px 100%,
+    var(--bg);
+  color:var(--ink);user-select:none;-webkit-user-select:none;
+  touch-action:manipulation;overscroll-behavior:none;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+.mi{display:block;width:14px;height:14px;}
+.aglyph{width:11px;height:11px;vertical-align:-1px;margin-right:3px;}
+
+/* Horizontal (lo normal): los asientos de los lados ocupan todo el alto */
+.mcell{position:relative;container-type:size;min-width:0;min-height:0;}
+.mcell.top{grid-column:2;grid-row:1;}
+.mcell.bottom{grid-column:2;grid-row:3;}
+.mcell.left{grid-column:1;grid-row:1/4;}
+.mcell.right{grid-column:3;grid-row:1/4;}
+.mcell .mseat{position:absolute;left:50%;top:50%;width:100cqw;height:100cqh;transform:translate(-50%,-50%);}
+.mcell.top .mseat{transform:translate(-50%,-50%) rotate(180deg);}
+.mcell.left .mseat{width:100cqh;height:100cqw;transform:translate(-50%,-50%) rotate(90deg);}
+.mcell.right .mseat{width:100cqh;height:100cqw;transform:translate(-50%,-50%) rotate(-90deg);}
+.mseat{
+  display:flex;align-items:center;justify-content:space-around;gap:6px;padding:3px 8px;
+  background:var(--tint,var(--surface-2));border:1px solid var(--seat,var(--line));border-radius:6px;overflow:hidden;
+}
+.mname{display:flex;flex-direction:column;align-items:center;gap:1px;flex:0 1 74px;min-width:0;}
+.mmark{color:var(--seat,var(--ink));font-size:.9rem;line-height:1;}
+.mnm{font-size:.7rem;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mctr{display:flex;flex-direction:column;align-items:center;gap:2px;flex:0 0 auto;}
+.mlbl{font-size:.52rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);line-height:1;}
+.mlbl svg{width:9px;height:9px;vertical-align:-1px;margin-right:3px;}
+.mrow{display:flex;align-items:center;gap:2px;}
+.mval{min-width:34px;text-align:center;font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;}
+.mbtn{
+  width:38px;height:36px;padding:0;font-size:1.3rem;line-height:1;
+  background:transparent;color:var(--ink);border:1px solid var(--seat,var(--line));border-radius:6px;
+}
+.mbtn.plus{background:var(--seat,var(--ink));color:var(--surface);border-color:var(--seat,var(--ink));}
+
+/* Zonas: cuatro bloques de color, una por esquina */
+.mzones{
+  grid-column:2;grid-row:2;position:relative;display:grid;
+  grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:6px;padding:6px;min-width:0;min-height:0;
+}
+.mz{
+  --zc:var(--ink);
+  background:var(--surface);
+  background:color-mix(in srgb, var(--zc) 20%, var(--surface));
+  border:1px solid var(--line);
+  border:1px solid color-mix(in srgb, var(--zc) 50%, var(--line));
+  border-top:4px solid var(--zc);border-radius:6px;
+  padding:8px 10px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;
+  min-width:0;min-height:0;overflow:auto;
+}
+.mz:nth-child(1),.mz:nth-child(2){padding-bottom:20px;}
+.mz:nth-child(3),.mz:nth-child(4){padding-top:20px;}
+.mz.bisagra{--zc:var(--bisagra);} .mz.umbral{--zc:var(--umbral);}
+.mz.cima{--zc:var(--cima);} .mz.foso{--zc:var(--foso);}
+.mz-id{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.mz-id .zicon{width:26px;height:26px;flex:0 0 26px;color:var(--zc);}
+.mz-name{font-weight:800;font-size:.95rem;line-height:1.1;}
+.mz-ord{font-size:.6rem;font-weight:700;color:var(--ink-soft);}
+.mz-hid{display:flex;align-items:center;gap:5px;margin-top:3px;}
+.mz-back{
+  width:14px;height:20px;border-radius:3px;background:var(--ink);color:var(--bg);
+  font-size:.6rem;font-weight:800;display:grid;place-items:center;flex:0 0 14px;
+}
+.mz-mod{
+  font-size:1rem;font-weight:800;line-height:1.35;color:var(--ink);background:var(--surface);
+  border:1.5px solid var(--zc);border-radius:6px;padding:0 6px;
+}
+.mz-hidnote{font-size:.55rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);line-height:1.1;}
+.mz-rules{display:flex;flex-direction:column;gap:5px;min-width:0;}
+.mz-rule{display:flex;align-items:center;gap:7px;font-size:.78rem;line-height:1.25;font-weight:600;}
+.mz-ico{
+  flex:0 0 22px;width:22px;height:22px;border-radius:50%;background:var(--zc);color:var(--surface);
+  display:grid;place-items:center;font-size:.62rem;font-weight:800;
+}
+.mz-ico .mi{width:13px;height:13px;}
+.mz-prize{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;}
+.mz-big{font-size:2rem;font-weight:800;line-height:1;color:var(--zc);}
+.mz-unit{font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);}
+.mz-extra{
+  font-size:.66rem;font-weight:800;background:var(--zc);color:var(--surface);
+  border-radius:20px;padding:1px 8px;margin-top:3px;white-space:nowrap;
+}
+
+/* Centro: las cuatro especiales siempre a mano */
+.mspecials{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;
+  display:flex;align-items:center;gap:4px;padding:4px 6px;
+  background:var(--ink);border:3px solid var(--bg);border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.3);
+}
+.msc{
+  width:30px;height:34px;padding:0;border-radius:5px;background:var(--surface);color:var(--ink);
+  border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+}
+.msc:hover:not(:disabled),.msc:active:not(:disabled){transform:none;}
+.msc-g .cglyph{width:14px;height:14px;display:block;}
+.msc-l{font-size:.62rem;font-weight:800;line-height:1;}
+.msp-sep{width:1px;align-self:stretch;background:var(--bg);opacity:.4;margin:2px 2px;}
+.msm{width:26px;height:26px;padding:0;border-radius:50%;background:transparent;color:var(--bg);border:none;display:grid;place-items:center;}
+.msm .mi{width:16px;height:16px;}
+
+/* Ventana emergente de las especiales y del menú */
+.mpop-back{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:10px;}
+.mpop{
+  background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;
+  max-width:860px;width:100%;max-height:100%;overflow:auto;padding:12px 14px 14px;box-shadow:0 12px 40px rgba(0,0,0,.4);
+}
+.mpop-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.mpop-head h2{margin:0;}
+.mpop-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.mpop-actions{display:flex;flex-wrap:wrap;gap:8px;}
+.mcard{
+  background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--ink);border-radius:8px;
+  padding:10px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
+}
+.mcard.sel{box-shadow:0 0 0 2px var(--accent);border-top-color:var(--accent);}
+.mcard-face{
+  width:52px;height:70px;border-radius:7px;border:1.5px solid var(--ink);background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+}
+.mcard-g .cglyph{width:26px;height:26px;display:block;}
+.mcard-l{font-size:1.4rem;font-weight:800;line-height:1;}
+.mcard-when{
+  display:flex;align-items:center;gap:5px;font-size:.64rem;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--ink-soft);line-height:1.25;
+}
+.mcard-ico{display:inline-flex;gap:2px;color:var(--ink);}
+.mcard-ico .mi,.mcard-ico .aglyph{width:15px;height:15px;margin:0;}
+.mcard-eff{font-size:.92rem;font-weight:700;line-height:1.3;}
+
+/* Si alguien lo usa en vertical: asientos arriba y abajo a todo el ancho, zonas en columna */
+@media (orientation:portrait){
+  .mesa{--bar:64px;}
+  .mcell.top{grid-column:1/4;grid-row:1;}
+  .mcell.bottom{grid-column:1/4;grid-row:3;}
+  .mcell.left{grid-column:1;grid-row:2;}
+  .mcell.right{grid-column:3;grid-row:2;}
+  .mz{grid-template-columns:1fr;align-items:start;gap:8px;}
+  .mz:nth-child(1),.mz:nth-child(2){padding-bottom:8px;}
+  .mz:nth-child(3),.mz:nth-child(4){padding-top:30px;}
+  .mz-prize{flex-direction:row;flex-wrap:wrap;justify-content:flex-start;align-items:center;gap:6px;}
+  .mz-big{font-size:1.5rem;}
+  .mpop-grid{grid-template-columns:1fr 1fr;}
+}
+
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
 }
@@ -1765,6 +1917,13 @@ let browsing = false;
 let helpOpen = false;
 let logStick = true;
 let logOpen = false;
+
+/* Modo mesa (partida en físico): solo una ayuda visual, sin sala ni Firebase. */
+let mesaScreen = null;      // null | 'setup' | 'play'
+let mesaPop = null;         // ventana emergente: null | 'J'|'Q'|'K'|'A' (ficha de especial) | 'menu'
+let mesaConfirm = null;     // null | 'reset' | 'exit' (confirmación en dos toques)
+const MESA_ATAQUES_INICIO = 3;
+let mesa = {n:4, names:['Jugador 1','Jugador 2','Jugador 3','Jugador 4'], pres:[0,0,0,0], atk:[3,3,3,3]};
 let logScrollTop = 0;
 let errorMsg = '';
 let lastAttemptedState = null;
@@ -2954,6 +3113,7 @@ function renderSignature(){
   return JSON.stringify([
     screen, errorMsg, notice, missedReads, confirmDelete, confirmLeave,
     helpOpen, rulesOpen, logOpen, showManualCopy, newRoomPublic, browsing,
+    mesaScreen, mesaPop, mesaConfirm, mesa,
     roomList,
     theme, stallBucket,
     game && game.players ? game.players.map(p=>isOnline(p.id)) : null,
@@ -2975,6 +3135,8 @@ function paint(){
   applyTheme(root);
   if(game) processNewEvents(game);
   root.innerHTML='';
+  document.documentElement.style.overflow = (mesaScreen==='play') ? 'hidden' : '';
+  if(mesaScreen){ root.appendChild(renderMesa()); return; }
   if(errorMsg){
     const box = el('<div class="banner" style="border:1px solid var(--danger);"></div>');
     box.appendChild(el('<div class="err">'+errorMsg+'</div>'));
@@ -3012,6 +3174,282 @@ function paint(){
       logStick = (logEl.scrollHeight - logEl.scrollTop - logEl.clientHeight) < 24;
     });
   }
+}
+
+/* ============================= MODO MESA =============================
+   Pensado para partidas en físico: el móvil se deja plano en el centro de la
+   mesa. Sus cuatro esquinas marcan las cuatro zonas y cada jugador tiene en su
+   borde sus contadores de Prestigio y Ataques, girados hacia él. No sigue la
+   partida: solo ayuda a verla. */
+let mesaWakeLock = null;
+async function mesaKeepAwake(on){
+  try{
+    if(on){
+      if('wakeLock' in navigator && !mesaWakeLock){
+        mesaWakeLock = await navigator.wakeLock.request('screen');
+        mesaWakeLock.addEventListener('release', ()=>{ mesaWakeLock = null; });
+      }
+    } else if(mesaWakeLock){
+      await mesaWakeLock.release();
+      mesaWakeLock = null;
+    }
+  }catch(e){}
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='visible' && mesaScreen==='play') mesaKeepAwake(true);
+});
+
+function mesaSave(){
+  try{
+    window.storage.set('mesa', JSON.stringify({
+      n:mesa.n, names:mesa.names, pres:mesa.pres, atk:mesa.atk, active:mesaScreen==='play'
+    }), false).catch(()=>{});
+  }catch(e){}
+}
+async function loadMesa(){
+  try{
+    const res = await window.storage.get('mesa', false);
+    if(!res) return;
+    const s = JSON.parse(res.value);
+    if(!s || !Array.isArray(s.names) || !Array.isArray(s.pres) || !Array.isArray(s.atk)) return;
+    const num = (v,def)=> (typeof v==='number' && isFinite(v) && v>=0) ? Math.min(99,Math.floor(v)) : def;
+    mesa.n = Math.min(4, Math.max(2, s.n|0));
+    for(let i=0;i<4;i++){
+      mesa.names[i] = (typeof s.names[i]==='string' && s.names[i].trim()) ? s.names[i].slice(0,MAX_NAME) : 'Jugador '+(i+1);
+      mesa.pres[i] = num(s.pres[i], 0);
+      mesa.atk[i] = num(s.atk[i], MESA_ATAQUES_INICIO);
+    }
+    if(s.active){ mesaScreen = 'play'; mesaKeepAwake(true); }
+    repaint();
+  }catch(e){}
+}
+
+/* Dónde se sienta cada jugador (el 0 siempre abajo; el resto, en el sentido del reloj). */
+function mesaSeatPositions(n){
+  return n===2 ? ['bottom','top'] : n===3 ? ['bottom','left','right'] : ['bottom','left','top','right'];
+}
+function openMesa(){ mesaScreen = 'setup'; mesaPop = null; mesaConfirm = null; render(); window.scrollTo(0,0); }
+function startMesa(){
+  for(let i=0;i<4;i++){
+    mesa.names[i] = (mesa.names[i]||'').trim().slice(0,MAX_NAME) || 'Jugador '+(i+1);
+    mesa.pres[i] = 0; mesa.atk[i] = MESA_ATAQUES_INICIO;
+  }
+  mesaScreen = 'play'; mesaPop = null; mesaConfirm = null;
+  mesaSave(); mesaKeepAwake(true); render();
+}
+function exitMesa(){
+  mesaScreen = null; mesaPop = null; mesaConfirm = null;
+  mesaSave(); mesaKeepAwake(false); repaint();
+}
+function mesaReset(){
+  for(let i=0;i<4;i++){ mesa.pres[i] = 0; mesa.atk[i] = MESA_ATAQUES_INICIO; }
+  mesaConfirm = null; mesaSave(); render();
+}
+function mesaAdjust(i, key, delta){
+  mesa[key][i] = Math.max(0, Math.min(99, mesa[key][i] + delta));
+  mesaSave(); render();
+}
+
+function renderMesaEntry(){
+  const box = el('<div class="panel stack"></div>');
+  box.appendChild(el('<h2>Partida en físico</h2>'));
+  box.appendChild(el('<div class="small">Deja el móvil plano en el centro de la mesa: sus esquinas marcan las cuatro zonas y cada jugador lleva en su lado el Prestigio y los Ataques. No necesita sala.</div>'));
+  const b = el('<button class="secondary">Abrir modo mesa</button>');
+  b.onclick = ()=>openMesa();
+  box.appendChild(b);
+  return box;
+}
+
+/* Iconos lineales propios del modo mesa (mismo estilo que el resto del juego) */
+const MESA_UP = '<svg viewBox="0 0 16 16" class="mi"><path d="M8 13 V3 M3.5 7.5 L8 3 L12.5 7.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const MESA_DOWN = '<svg viewBox="0 0 16 16" class="mi"><path d="M8 3 V13 M3.5 8.5 L8 13 L12.5 8.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const MESA_CARTAS = '<svg viewBox="0 0 16 16" class="mi"><rect x="1.5" y="3.5" width="8" height="10" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="6.5" y="2" width="8" height="10" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+const MESA_VISTA = '<svg viewBox="0 0 14 14" class="mi"><rect x="2" y="2" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>';
+const MESA_OCULTA = '<svg viewBox="0 0 14 14" class="mi"><rect x="2" y="2" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M2.5 2.5 L11.5 11.5" stroke="currentColor" stroke-width="1.3"/></svg>';
+const MESA_PUNTOS = '<svg viewBox="0 0 16 16" class="mi"><circle cx="3" cy="8" r="1.6" fill="currentColor"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/><circle cx="13" cy="8" r="1.6" fill="currentColor"/></svg>';
+const ATTACK_GLYPH = '<svg viewBox="0 0 16 16" class="aglyph"><path d="M6.5 9.5 L13 3 M4.5 7.5 L8.5 11.5 M6.5 9.5 L3 13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+
+/* Qué se enseña de cada zona: reglas con icono, modificador de oculta y premio. */
+const MESA_ZONAS = {
+  cima:   {oculta:'+2', rules:[{ico:MESA_UP, txt:'La carta más alta'}]},
+  foso:   {oculta:'−2', rules:[{ico:MESA_DOWN, txt:'La carta más baja'}]},
+  umbral: {oculta:'±1', nota:'a elegir', rules:[{ico:'11', txt:'Lo más cerca de 11 sin pasarse'}]},
+  bisagra:{oculta:'=', nota:'sin cambio', rules:[
+    {ico:MESA_CARTAS, txt:'Máx. 2 cartas'},
+    {ico:MESA_UP, txt:'<b>Par</b>: la alta'},
+    {ico:MESA_DOWN, txt:'<b>Impar</b>: la baja'}
+  ]}
+};
+
+/* Las cuatro especiales, en versión corta para consultar en la mesa. */
+const MESA_CARDS = [
+  {c:'J', trig:'vista', cuando:'Al jugarla boca arriba', efecto:'Intercambia de zona dos cartas cualesquiera de la mesa.'},
+  {c:'Q', trig:'vista', cuando:'Al jugarla boca arriba', efecto:'Ataca todas las cartas boca abajo de su zona.'},
+  {c:'K', trig:'atacada', cuando:'Al ser atacada boca abajo', efecto:'Su dueño gana la zona.'},
+  {c:'A', trig:'atacada', cuando:'Al ser atacado boca abajo', efecto:'Anula la zona.'}
+];
+
+function renderMesa(){
+  return mesaScreen==='setup' ? renderMesaSetup() : renderMesaPlay();
+}
+
+function renderMesaSetup(){
+  const wrap = el('<div class="stack" style="gap:14px;"></div>');
+  const box = el('<div class="panel stack"></div>');
+  box.appendChild(el('<h2>Modo mesa</h2>'));
+  box.appendChild(el('<div class="small">Coloca el móvil plano en el centro, con cada jugador en un lado. Se pueden subir y bajar los puntos y los ataques de cada uno, y las zonas quedan marcadas en las esquinas.</div>'));
+  box.appendChild(el('<label>Jugadores</label>'));
+  const row = el('<div class="row"></div>');
+  [2,3,4].forEach(k=>{
+    const b = el('<button class="'+(mesa.n===k?'':'secondary')+'">'+k+'</button>');
+    b.onclick = ()=>{ mesa.n = k; render(); };
+    row.appendChild(b);
+  });
+  box.appendChild(row);
+  box.appendChild(el('<div class="small">'+(mesa.n===2
+    ? 'Dos jugadores enfrentados: uno abajo y otro arriba.'
+    : mesa.n===3
+      ? 'Tres jugadores: uno abajo (el primero) y los otros dos a izquierda y derecha.'
+      : 'Cuatro jugadores, uno por lado. El primero se sienta abajo y los demás van en el sentido del reloj.')+'</div>'));
+  for(let i=0;i<mesa.n;i++){
+    box.appendChild(el('<label>'+PLAYER_MARKS[i]+' Jugador '+(i+1)+'</label>'));
+    const inp = el('<input maxlength="'+MAX_NAME+'" />');
+    inp.value = mesa.names[i];
+    inp.oninput = (e)=>{ mesa.names[i] = e.target.value; };
+    box.appendChild(inp);
+  }
+  const go = el('<button>Poner el móvil en la mesa</button>');
+  go.onclick = ()=>startMesa();
+  box.appendChild(go);
+  const back = el('<button class="secondary">Volver</button>');
+  back.onclick = ()=>exitMesa();
+  box.appendChild(back);
+  wrap.appendChild(box);
+  return wrap;
+}
+
+function mesaCounter(i, key, label, glyph){
+  const c = el('<div class="mctr"></div>');
+  c.appendChild(el('<div class="mlbl">'+glyph+label+'</div>'));
+  const row = el('<div class="mrow"></div>');
+  const minus = el('<button class="mbtn" aria-label="Restar '+label+' a '+escapeHtml(mesa.names[i])+'">−</button>');
+  minus.onclick = ()=>mesaAdjust(i, key, -1);
+  const plus = el('<button class="mbtn plus" aria-label="Sumar '+label+' a '+escapeHtml(mesa.names[i])+'">+</button>');
+  plus.onclick = ()=>mesaAdjust(i, key, 1);
+  row.appendChild(minus);
+  row.appendChild(el('<span class="mval">'+mesa[key][i]+'</span>'));
+  row.appendChild(plus);
+  c.appendChild(row);
+  return c;
+}
+
+function mesaSeat(i){
+  const seat = el('<div class="mseat p'+i+'"></div>');
+  const nm = el('<div class="mname"></div>');
+  nm.appendChild(el('<span class="mmark">'+PLAYER_MARKS[i]+'</span>'));
+  nm.appendChild(el('<span class="mnm">'+escapeHtml(mesa.names[i])+'</span>'));
+  seat.appendChild(nm);
+  seat.appendChild(mesaCounter(i, 'pres', 'Prestigio', PRESTIGE_GLYPH));
+  seat.appendChild(mesaCounter(i, 'atk', 'Ataques', ATTACK_GLYPH));
+  return seat;
+}
+
+function mesaZoneTile(zk){
+  const rw = ZONE_REWARD[zk], z = MESA_ZONAS[zk];
+  const t = el('<div class="mz '+zk+'"></div>');
+
+  const id = el('<div class="mz-id"></div>');
+  id.appendChild(el(ZONE_ICON[zk]));
+  id.appendChild(el('<div class="mz-name">'+ZONE_LABEL[zk]+' <span class="mz-ord">'+(ZONE_ORDER.indexOf(zk)+1)+'.º</span></div>'));
+  id.appendChild(el('<div class="mz-hid" title="Una carta boca abajo vale esto en esta zona"><span class="mz-back">?</span><b class="mz-mod">'+z.oculta+'</b>'
+    +(z.nota?'<span class="mz-hidnote">'+z.nota+'</span>':'')+'</div>'));
+  t.appendChild(id);
+
+  const rules = el('<div class="mz-rules"></div>');
+  z.rules.forEach(r=>{
+    rules.appendChild(el('<div class="mz-rule"><span class="mz-ico">'+r.ico+'</span><span>'+r.txt+'</span></div>'));
+  });
+  t.appendChild(rules);
+
+  const pz = el('<div class="mz-prize"></div>');
+  pz.appendChild(el('<div class="mz-big">+'+rw.prestige+'</div>'));
+  pz.appendChild(el('<div class="mz-unit">'+PRESTIGE_GLYPH+'Prestigio</div>'));
+  if(rw.token) pz.appendChild(el('<div class="mz-extra">+'+rw.token+' '+ATTACK_GLYPH+'Ataque</div>'));
+  if(zk==='bisagra') pz.appendChild(el('<div class="mz-extra">Gana empates</div>'));
+  t.appendChild(pz);
+  return t;
+}
+
+function mesaClosePop(){ mesaPop = null; mesaConfirm = null; render(); }
+
+function renderMesaPop(){
+  const back = el('<div class="mpop-back"></div>');
+  back.onclick = (e)=>{ if(e.target===back) mesaClosePop(); };
+  const pop = el('<div class="mpop"></div>');
+  const head = el('<div class="mpop-head"></div>');
+  head.appendChild(el('<h2>'+(mesaPop==='menu' ? 'Mesa' : 'Cartas especiales')+'</h2>'));
+  const close = el('<button class="secondary small-btn" aria-label="Cerrar">✕</button>');
+  close.onclick = ()=>mesaClosePop();
+  head.appendChild(close);
+  pop.appendChild(head);
+
+  if(mesaPop==='menu'){
+    const row = el('<div class="mpop-actions"></div>');
+    const reset = el('<button class="secondary">'+(mesaConfirm==='reset'?'¿Seguro? Pulsa otra vez':'Reiniciar contadores')+'</button>');
+    reset.onclick = ()=>{ if(mesaConfirm==='reset'){ mesaReset(); mesaClosePop(); } else { mesaConfirm='reset'; render(); } };
+    const exit = el('<button class="secondary">'+(mesaConfirm==='exit'?'¿Seguro? Pulsa otra vez':'Salir del modo mesa')+'</button>');
+    exit.onclick = ()=>{ if(mesaConfirm==='exit') exitMesa(); else { mesaConfirm='exit'; render(); } };
+    row.appendChild(reset); row.appendChild(exit); row.appendChild(themeToggle());
+    pop.appendChild(row);
+  } else {
+    const grid = el('<div class="mpop-grid"></div>');
+    MESA_CARDS.forEach(h=>{
+      const card = el('<div class="mcard'+(mesaPop===h.c?' sel':'')+'"></div>');
+      card.appendChild(el('<div class="mcard-face"><span class="mcard-g">'+CARD_GLYPH[h.c]+'</span><span class="mcard-l">'+h.c+'</span></div>'));
+      card.appendChild(el('<div class="mcard-when"><span class="mcard-ico">'+(h.trig==='vista' ? MESA_VISTA : MESA_OCULTA+ATTACK_GLYPH)+'</span><span>'+h.cuando+'</span></div>'));
+      card.appendChild(el('<div class="mcard-eff">'+h.efecto+'</div>'));
+      grid.appendChild(card);
+    });
+    pop.appendChild(grid);
+  }
+  back.appendChild(pop);
+  return back;
+}
+
+function renderMesaPlay(){
+  const pos = mesaSeatPositions(mesa.n);
+  const has = p => pos.indexOf(p)>=0;
+  const wrapper = el('<div></div>');
+  const m = el('<div class="mesa"></div>');
+  m.style.gridTemplateColumns = (has('left')?'var(--bar)':'0px')+' 1fr '+(has('right')?'var(--bar)':'0px');
+  m.style.gridTemplateRows = (has('top')?'var(--bar)':'0px')+' 1fr var(--bar)';
+
+  pos.forEach((p,i)=>{
+    const cell = el('<div class="mcell '+p+'"></div>');
+    cell.appendChild(mesaSeat(i));
+    m.appendChild(cell);
+  });
+
+  const zones = el('<div class="mzones"></div>');
+  ZONE_DISPLAY.forEach(zk=> zones.appendChild(mesaZoneTile(zk)));
+
+  // Las cuatro especiales, siempre a mano en el centro: tocar una abre su ficha.
+  const strip = el('<div class="mspecials"></div>');
+  MESA_CARDS.forEach(h=>{
+    const b = el('<button class="msc" aria-label="Carta '+h.c+': qué hace"><span class="msc-g">'+CARD_GLYPH[h.c]+'</span><span class="msc-l">'+h.c+'</span></button>');
+    b.onclick = ()=>{ mesaPop = h.c; mesaConfirm = null; render(); };
+    strip.appendChild(b);
+  });
+  strip.appendChild(el('<span class="msp-sep"></span>'));
+  const menu = el('<button class="msm" aria-label="Menú de la mesa">'+MESA_PUNTOS+'</button>');
+  menu.onclick = ()=>{ mesaPop = 'menu'; mesaConfirm = null; render(); };
+  strip.appendChild(menu);
+  zones.appendChild(strip);
+  m.appendChild(zones);
+  wrapper.appendChild(m);
+
+  if(mesaPop) wrapper.appendChild(renderMesaPop());
+  return wrapper;
 }
 
 function renderLanding(){
@@ -3070,6 +3508,7 @@ function renderLanding(){
   play.appendChild(joinBtn);
   play.appendChild(el('<div class="small">Si te desconectaste de una partida en curso, entra con su código y tu mismo nombre para volver a tu sitio.</div>'));
   wrap.appendChild(play);
+  wrap.appendChild(renderMesaEntry());
 
   // --- Partidas abiertas ---
   wrap.appendChild(renderRoomBrowser());
@@ -4118,7 +4557,7 @@ function renderHand(g){
 }
 
 /* ============================= BOOT ============================= */
-loadTheme().then(loadSession);
+loadTheme().then(loadSession).then(loadMesa);
 </script>
 </body>
 </html>
